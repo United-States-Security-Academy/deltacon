@@ -6,6 +6,7 @@ import heroPosterImage from "@/assets/hero-background-poster.jpg";
 import { PostCard } from "@/components/blog/post-card";
 import { AffiliationsSection } from "@/components/sections/affiliations-section";
 import { CallToActionBand } from "@/components/sections/call-to-action-band";
+import { SecurityAssessmentPromo } from "@/components/sections/security-assessment-promo";
 import { CompanyStatisticsBand } from "@/components/sections/company-statistics-band";
 import { HeroBackgroundVideo } from "@/components/sections/hero-background-video";
 import { SectionHeading } from "@/components/sections/section-heading";
@@ -14,6 +15,7 @@ import { TrainingCourseCard } from "@/components/sections/training-course-card";
 import { WhyChooseUsSection } from "@/components/sections/why-choose-us-section";
 import { Button } from "@/components/ui/button";
 import { companyDetails } from "@/config/company-details";
+import { heroVideo } from "@/config/hero-video";
 import { industries } from "@/config/industries";
 import { applyNowLink, requestServiceLink } from "@/config/navigation";
 import { services } from "@/config/services";
@@ -64,8 +66,9 @@ export default async function HomePage() {
       >
         <div className="relative aspect-video w-full md:absolute md:inset-0 md:aspect-auto">
           <HeroBackgroundVideo
-            largeScreenVideoSource="/videos/hero-background.mp4"
-            smallScreenVideoSource="/videos/hero-background-mobile.mp4"
+            largeScreenVideoSource={heroVideo.largeScreenVideoUrl}
+            smallScreenVideoSource={heroVideo.smallScreenVideoUrl}
+            videoHostOrigin={heroVideo.hostOrigin}
             posterImage={heroPosterImage}
           />
           {/* Phones: soft fade from the video into the navy text area. */}
@@ -161,6 +164,8 @@ export default async function HomePage() {
           </ul>
         </div>
       </section>
+
+      <SecurityAssessmentPromo />
 
       {/* Industries */}
       <section aria-labelledby="industries-heading" className="section-spacing">

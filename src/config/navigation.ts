@@ -29,6 +29,7 @@ export const footerQuickLinks: NavigationLink[] = [
   ...mainNavigationLinks,
   requestServiceLink,
   applyNowLink,
+  { label: "Security Self-Assessment", href: "/security-assessment" },
   { label: "Privacy Policy", href: "/privacy" },
 ];
 

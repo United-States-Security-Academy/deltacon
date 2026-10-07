@@ -3,21 +3,24 @@
 import { Pause, Play } from "lucide-react";
 import Image, { type StaticImageData } from "next/image";
 import { useEffect, useRef, useState } from "react";
+import { preconnect } from "react-dom";
 
 import { cn } from "@/lib/utils";
 
 type HeroBackgroundVideoProps = {
-  /** 720p video for tablets and desktops (path inside /public). */
+  /** Video for tablets and desktops (a full URL or a path inside /public). */
   largeScreenVideoSource: string;
-  /** Lighter 360p video for phones (path inside /public). */
-  smallScreenVideoSource: string;
+  /** Optional lighter video for phones; phones use the large one if not set. */
+  smallScreenVideoSource?: string;
+  /** Origin of an external video host, connected to early so the video starts sooner. */
+  videoHostOrigin?: string;
   /** Still frame shown before the video plays, and instead of it when motion is reduced. */
   posterImage: StaticImageData;
 };
 
 type NetworkInformation = { saveData?: boolean };
 
-/** Screens at least this wide get the 720p video. */
+/** Screens at least this wide get the large video. */
 const largeScreenQuery = "(min-width: 768px)";
 
 /**
@@ -25,7 +28,8 @@ const largeScreenQuery = "(min-width: 768px)";
  *
  * - The poster frame is part of the page, so the hero never looks empty.
  * - The video is added only after the page has loaded, so it never slows down
- *   the first paint, and phones get a smaller file.
+ *   the first paint, and phones get a smaller file when one is provided.
+ * - If the video cannot load, the poster frame simply stays in place.
  * - It is not started automatically for visitors who ask for reduced motion
  *   or have data saver on; they can still start it with the play button.
  * - There is always a pause/play button (WCAG 2.2.2: moving content lasting
@@ -34,14 +38,19 @@ const largeScreenQuery = "(min-width: 768px)";
 export function HeroBackgroundVideo({
   largeScreenVideoSource,
   smallScreenVideoSource,
+  videoHostOrigin,
   posterImage,
 }: HeroBackgroundVideoProps) {
+  // Open the connection to the video host while the page is still loading.
+  if (videoHostOrigin) preconnect(videoHostOrigin);
+
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoSource, setVideoSource] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isVideoVisible, setIsVideoVisible] = useState(false);
 
   function chooseVideoSourceForScreen(): string {
+    if (!smallScreenVideoSource) return largeScreenVideoSource;
     return window.matchMedia(largeScreenQuery).matches
       ? largeScreenVideoSource
       : smallScreenVideoSource;
@@ -104,6 +113,12 @@ export function HeroBackgroundVideo({
           onCanPlay={() => setIsVideoVisible(true)}
           onPlay={() => setIsPlaying(true)}
           onPause={() => setIsPlaying(false)}
+          onError={() => {
+            // Keep showing the poster frame if the video can't be loaded.
+            setIsPlaying(false);
+            setIsVideoVisible(false);
+            setVideoSource(null);
+          }}
           className={cn(
             "absolute inset-0 size-full object-cover transition-opacity duration-700",
             isVideoVisible ? "opacity-100" : "opacity-0",

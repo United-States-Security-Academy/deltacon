@@ -52,6 +52,13 @@ export default async function PrivacyPolicyPage() {
               <strong>Training enquiries:</strong> your name, contact details,
               the course you are interested in and number of trainees.
             </li>
+            <li>
+              <strong>Security self-assessment:</strong> your answers are scored
+              in your browser and are not stored by us. If you ask us to email
+              your results, we use your name, email, company (if given) and
+              answers to send them to you, and a copy goes to our team so we can
+              follow up if you would like help.
+            </li>
           </ul>
           <p>
             To protect our forms from spam and abuse we also record a one-way

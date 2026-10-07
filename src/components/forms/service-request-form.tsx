@@ -54,9 +54,12 @@ const formFieldNames = Object.keys(serviceRequestFormSchema.shape);
 export function ServiceRequestForm({
   preselectedServiceSlug,
   preselectedIndustrySlug,
+  prefilledMessage,
 }: {
   preselectedServiceSlug?: string;
   preselectedIndustrySlug?: string;
+  /** e.g. the self-assessment score and focus areas. */
+  prefilledMessage?: string;
 }) {
   const spamProtection = useSpamProtection();
   const [bannerErrorMessage, setBannerErrorMessage] = useState<string>();
@@ -80,6 +83,7 @@ export function ServiceRequestForm({
       )
         ? (preselectedIndustrySlug as ServiceRequestFormInput["industrySlug"])
         : undefined,
+      message: prefilledMessage,
     },
   });
 

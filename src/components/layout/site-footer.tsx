@@ -27,7 +27,7 @@ export function SiteFooter({ socialLinks }: SiteFooterProps) {
     <footer className="mt-auto border-t-4 border-gold-500 bg-navy-950 text-navy-200">
       <div className="page-container grid gap-12 py-14 md:grid-cols-[2fr_3fr]">
         <div className="flex flex-col gap-5">
-          <CompanyLogo badgeHeight={64} />
+          <CompanyLogo size="footer" />
           <p className="max-w-sm text-sm leading-relaxed">
             {companyDetails.description}
           </p>

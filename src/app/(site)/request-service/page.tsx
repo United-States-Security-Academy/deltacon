@@ -1,6 +1,7 @@
 import { ServiceRequestForm } from "@/components/forms/service-request-form";
 import { PageHeader } from "@/components/sections/page-header";
 import { WhatHappensNext } from "@/components/sections/what-happens-next";
+import { buildSiteSurveyMessage } from "@/lib/security-assessment/score-assessment";
 import { createPageMetadata } from "@/lib/seo/page-metadata";
 
 export const metadata = createPageMetadata({
@@ -33,7 +34,13 @@ export default async function RequestServicePage({
 }: PageProps<"/request-service">) {
   // Service and industry pages link here with ?service=<slug> or
   // ?industry=<slug> to pre-select those fields.
-  const { service, industry } = await searchParams;
+  const { service, industry, assessment, focus } = await searchParams;
+  // Visitors arriving from the security self-assessment get a pre-written
+  // message (built only from known question ids, never raw URL text).
+  const prefilledMessage = buildSiteSurveyMessage(
+    typeof assessment === "string" ? assessment : undefined,
+    typeof focus === "string" ? focus : undefined,
+  );
   const preselectedServiceSlug =
     typeof service === "string" ? service : undefined;
 
@@ -63,6 +70,7 @@ export default async function RequestServicePage({
               preselectedIndustrySlug={
                 typeof industry === "string" ? industry : undefined
               }
+              prefilledMessage={prefilledMessage}
             />
           </section>
           <WhatHappensNext steps={nextSteps} />

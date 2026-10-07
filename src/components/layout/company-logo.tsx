@@ -6,42 +6,87 @@ import { cn } from "@/lib/utils";
 
 import deltaconBadge from "@/assets/deltacon-badge.png";
 
+type LogoSize = "header" | "footer";
+
+/** Badge height and wordmark text sizes for each place the logo appears. */
+const logoSizeClasses: Record<
+  LogoSize,
+  { badge: string; name: string; subtitle: string }
+> = {
+  header: {
+    badge: "h-16 sm:h-[4.5rem] lg:h-20",
+    name: "text-[1.75rem] sm:text-[2rem] lg:text-[2.25rem]",
+    subtitle: "text-[0.6rem] sm:text-[0.68rem] lg:text-[0.75rem]",
+  },
+  footer: {
+    badge: "h-20",
+    name: "text-[2rem]",
+    subtitle: "text-[0.7rem]",
+  },
+};
+
 type CompanyLogoProps = {
-  /** Height of the badge in pixels; the width scales to keep its shape. */
-  badgeHeight?: number;
+  size?: LogoSize;
   showWordmark?: boolean;
   className?: string;
 };
 
+/**
+ * The Deltacon badge with the "DELTACON / SECURITY GROUP" wordmark.
+ * "SECURITY GROUP" is spread letter by letter across exactly the width of
+ * "DELTACON", so the two lines always line up at every screen size.
+ */
 export function CompanyLogo({
-  badgeHeight = 48,
+  size = "header",
   showWordmark = true,
   className,
 }: CompanyLogoProps) {
-  const badgeWidth = Math.round(
-    (badgeHeight * deltaconBadge.width) / deltaconBadge.height,
-  );
+  const sizeClasses = logoSizeClasses[size];
 
   return (
     <Link
       href="/"
-      className={cn("inline-flex items-center gap-3 rounded-sm", className)}
+      className={cn(
+        "inline-flex shrink-0 items-center gap-3 rounded-sm sm:gap-4",
+        className,
+      )}
       aria-label={`${companyDetails.name} home page`}
     >
       <Image
         src={deltaconBadge}
         alt=""
-        width={badgeWidth}
-        height={badgeHeight}
+        // Rendered up to 80px tall; this width gives sharp results on
+        // high-density screens. The CSS height classes set the actual size.
+        width={128}
+        height={Math.round((128 * deltaconBadge.height) / deltaconBadge.width)}
+        sizes="128px"
         priority
+        className={cn("w-auto", sizeClasses.badge)}
       />
       {showWordmark && (
-        <span className="flex flex-col leading-none">
-          <span className="font-heading text-xl font-bold tracking-[0.12em] text-white uppercase">
+        <span aria-hidden="true" className="inline-flex flex-col gap-1">
+          <span
+            className={cn(
+              "font-heading leading-none font-bold tracking-[0.06em] text-white uppercase",
+              sizeClasses.name,
+            )}
+          >
             Deltacon
           </span>
-          <span className="font-heading text-xs font-semibold tracking-[0.3em] text-gold-400 uppercase">
-            Security Group
+          <span
+            className={cn(
+              "flex w-full justify-between font-heading leading-none font-semibold text-gold-400 uppercase",
+              sizeClasses.subtitle,
+            )}
+          >
+            {Array.from("Security Group").map((character, index) => (
+              <span
+                key={index}
+                className={character === " " ? "w-[0.4em]" : undefined}
+              >
+                {character}
+              </span>
+            ))}
           </span>
         </span>
       )}

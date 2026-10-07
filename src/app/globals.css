@@ -451,3 +451,13 @@
     display: none;
   }
 }
+
+/* Self-assessment: each new question slides in; results bars grow in. */
+@media (prefers-reduced-motion: no-preference) {
+  .assessment-step {
+    animation: reveal-from-right 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .assessment-step[data-direction="back"] {
+    animation-name: reveal-from-left;
+  }
+}

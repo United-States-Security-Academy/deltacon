@@ -1,4 +1,5 @@
 import { CallToActionBand } from "@/components/sections/call-to-action-band";
+import { SecurityAssessmentPromo } from "@/components/sections/security-assessment-promo";
 import { PageHeader } from "@/components/sections/page-header";
 import { ServiceCard } from "@/components/sections/service-card";
 import { services } from "@/config/services";
@@ -34,6 +35,7 @@ export default function ServicesPage() {
         </ul>
       </section>
 
+      <SecurityAssessmentPromo />
       <CallToActionBand />
     </>
   );
