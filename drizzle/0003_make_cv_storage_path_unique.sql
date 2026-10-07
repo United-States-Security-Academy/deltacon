@@ -1,0 +1,1 @@
+ALTER TABLE "job_application_details" ADD CONSTRAINT "job_application_details_cv_storage_path_unique" UNIQUE("cv_storage_path");
