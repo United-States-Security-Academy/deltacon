@@ -35,13 +35,13 @@ const acknowledgementCopy: Record<
     subject: "We've received your security request",
     heading: "Thank you for your request",
     message:
-      "Thanks for contacting Deltacon Security. A member of our team will review your requirements and get back to you, usually within one business day.",
+      "Thanks for contacting Deltacon Security Group. A member of our team will review your requirements and get back to you, usually within one business day.",
   },
   job_application: {
     subject: "We've received your application",
     heading: "Thank you for applying",
     message:
-      "Thank you for your interest in joining Deltacon Security. Our recruitment team will review your application and contact you if your experience matches the role.",
+      "Thank you for your interest in joining Deltacon Security Group. Our recruitment team will review your application and contact you if your experience matches the role.",
   },
   training_enquiry: {
     subject: "We've received your training enquiry",

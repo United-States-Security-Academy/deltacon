@@ -1,4 +1,4 @@
-import { companyDetails } from "@/config/company-details";
+import { companyDetails, formatOfficeAddress } from "@/config/company-details";
 import type { SubmissionSummaryRow } from "@/lib/submissions/submission-summary";
 
 /** Makes user-supplied text safe to place inside HTML. */
@@ -83,7 +83,7 @@ export function renderEmailLayout({
             </tr>
             <tr>
               <td style="padding:16px 24px;background:${brandColours.paper};font-size:12px;color:${brandColours.mutedText};">
-                ${escapeHtml(companyDetails.name)} · ${escapeHtml(companyDetails.location.region)}, USA
+                ${escapeHtml(companyDetails.name)} · ${escapeHtml(formatOfficeAddress())}
               </td>
             </tr>
           </table>

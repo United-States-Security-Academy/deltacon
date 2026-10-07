@@ -36,7 +36,7 @@ export default function GlobalErrorPage({
           padding: "1rem",
         }}
       >
-        <title>Something went wrong | Deltacon Security</title>
+        <title>Something went wrong | Deltacon Security Group</title>
         <main>
           <h1 style={{ fontSize: "2rem", textTransform: "uppercase" }}>
             Something went wrong

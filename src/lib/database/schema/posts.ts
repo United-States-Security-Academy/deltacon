@@ -60,7 +60,9 @@ export const posts = pgTable(
       onDelete: "set null",
     }),
     /** Stored on the post so the public site never needs to read admin_users. */
-    authorName: text("author_name").notNull().default("Deltacon Security"),
+    authorName: text("author_name")
+      .notNull()
+      .default("Deltacon Security Group"),
     searchVector: textSearchVector("search_vector").generatedAlwaysAs(
       (): SQL =>
         sql`setweight(to_tsvector('english', coalesce(${posts.title}, '')), 'A') || setweight(to_tsvector('english', coalesce(${posts.excerpt}, '')), 'B') || setweight(to_tsvector('english', coalesce(${posts.contentPlainText}, '')), 'C')`,

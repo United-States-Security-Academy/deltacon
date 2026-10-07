@@ -6,7 +6,7 @@ import { createPageMetadata } from "@/lib/seo/page-metadata";
 export const metadata = createPageMetadata({
   title: "Request Security Services",
   description:
-    "Tell us about your site and security needs, and Deltacon Security will send you a tailored proposal, usually within one business day.",
+    "Tell us about your site and security needs, and Deltacon Security Group will send you a tailored proposal, usually within one business day.",
   path: "/request-service",
 });
 

@@ -67,7 +67,7 @@ export const services = [
     summary:
       "Professionally trained unarmed officers who protect people, property and business operations while keeping a courteous, welcoming environment.",
     overview: [
-      "Deltacon Security provides professionally trained unarmed security officers to help protect people, property, and business operations while maintaining a courteous, welcoming environment.",
+      "Deltacon Security Group provides professionally trained unarmed security officers to help protect people, property, and business operations while maintaining a courteous, welcoming environment.",
       "Officers are selected for their professionalism, judgment, communication skills, and ability to follow client-specific procedures.",
       `Our officers receive training through ${trainingAcademies}, supplemented by customized instruction for specific industries and assignments. Training emphasizes observation, conflict de-escalation, emergency awareness, and customer service.`,
       "Whether you need temporary coverage or an ongoing security presence, Deltacon provides unarmed security solutions tailored to your facility and your clients and customers.",
@@ -104,7 +104,7 @@ export const services = [
     summary:
       "Licensed armed officers for assignments that need an enhanced protective presence, safeguarding personnel, customers, property and critical assets.",
     overview: [
-      "Deltacon Security provides licensed armed security officers for assignments requiring an enhanced protective presence. We help safeguard personnel, customers, property, and critical assets through disciplined security operations and professional service.",
+      "Deltacon Security Group provides licensed armed security officers for assignments requiring an enhanced protective presence. We help safeguard personnel, customers, property, and critical assets through disciplined security operations and professional service.",
       `Our commissioned officers undergo rigorous selection and training through ${trainingAcademies}, with additional preparation tailored to each client's industry and site requirements.`,
       "Officers may carry authorized defensive equipment, including pepper spray, batons, or conducted-energy devices, when permitted and supported by the required training and assignment policies.",
       "We work with your management team to establish clear post orders, response procedures, and supervision standards. Our officers combine readiness with courtesy, discretion, and respect.",
@@ -139,7 +139,7 @@ export const services = [
     summary:
       "Licensed Personal Protection Officers (bodyguards) for executives, public figures, private individuals and anyone facing personal security concerns.",
     overview: [
-      "Deltacon Security provides licensed Personal Protection Officers (PPOs), also known as bodyguards or personal security officers, to help protect executives, public figures, private individuals, and other clients facing personal security concerns.",
+      "Deltacon Security Group provides licensed Personal Protection Officers (PPOs), also known as bodyguards or personal security officers, to help protect executives, public figures, private individuals, and other clients facing personal security concerns.",
       "Each assignment is tailored to the client's activities, schedule, environment, and identified risks.",
       "Our PPOs meet applicable licensing and psychological screening requirements and are selected for physical readiness, emotional intelligence, discretion, and sound judgment. Their training emphasizes situational awareness, professional communication, crisis management, and appropriate protective response.",
       "Whether you require protection for a specific engagement, travel, or an ongoing assignment, Deltacon provides discreet personal security focused on your safety, privacy, and continuity of daily activities.",
@@ -170,7 +170,7 @@ export const services = [
     summary:
       "Emergency security support to protect lives, property and infrastructure during unexpected incidents, backed by a 24/7 Dispatch and Operations Command Center.",
     overview: [
-      "Deltacon Security provides emergency security support to help protect lives, property, and infrastructure during unexpected incidents and disruptions. Our Dispatch and Operations Command Center is staffed 24 hours a day, seven days a week, supporting prompt communication, deployment coordination, and ongoing operational monitoring.",
+      "Deltacon Security Group provides emergency security support to help protect lives, property, and infrastructure during unexpected incidents and disruptions. Our Dispatch and Operations Command Center is staffed 24 hours a day, seven days a week, supporting prompt communication, deployment coordination, and ongoing operational monitoring.",
       `Our commissioned and non-commissioned officers undergo rigorous selection and training through our ${trainingAcademies}, supplemented by customized training for specific industries and assignments.`,
       "Many of our response officers also volunteer with local Community Emergency Response Team (CERT) programs, strengthening their preparation in disaster readiness, fire safety, team organization, light search and rescue, and disaster medical operations.",
       "We tailor each deployment to the client's needs and coordinate with facility management and emergency responders. Whether you require support for a few hours, several days, weeks, or a long-term assignment at one or multiple locations, our team combines professional protection with courteous, responsive customer service.",
@@ -237,7 +237,7 @@ export const services = [
     summary:
       "Certified Fire Watch officers during fire protection system outages, hot work and construction, available 24/7 for emergency and scheduled assignments.",
     overview: [
-      "Deltacon Security provides certified Fire Watch officers to help protect people, property, and facilities during fire protection system outages, hot work, construction activities, and other conditions requiring dedicated fire watch coverage. Our team is available 24 hours a day, seven days a week for emergency requests and scheduled assignments.",
+      "Deltacon Security Group provides certified Fire Watch officers to help protect people, property, and facilities during fire protection system outages, hot work, construction activities, and other conditions requiring dedicated fire watch coverage. Our team is available 24 hours a day, seven days a week for emergency requests and scheduled assignments.",
       "We tailor each assignment to applicable fire codes, workplace safety requirements, local Fire Marshal or authority having jurisdiction directions, and the client's approved fire watch procedures.",
       "Our state-licensed security officers receive additional emergency response training and complete the Fire Watch Officer Certification Course (USSA-FW-201) through our training school, the United States Security Academy (USSA). Officers are clearly identifiable and receive site-specific instructions before beginning their assignments.",
       "We coordinate with property managers, contractors, and facility representatives to establish patrol routes, reporting procedures, and coverage requirements. Dedicated fire watch officers remain focused on their assigned fire watch responsibilities, with additional duties permitted only when applicable requirements allow.",
@@ -294,11 +294,11 @@ export const services = [
     icon: Car,
     image: mobilePatrolImage,
     imageAltText:
-      "Deltacon Security marked patrol vehicles parked side by side",
+      "Deltacon Security Group marked patrol vehicles parked side by side",
     summary:
       "Dedicated and intermittent patrols for commercial, residential, industrial and remote properties, by bicycle, trike, golf cart or vehicle, with drones available.",
     overview: [
-      "Deltacon Security provides dedicated and intermittent mobile patrol services for commercial properties, residential communities, industrial facilities, and remote locations. Our patrol options include bicycles, trikes, golf carts, and marked or unmarked vehicles, with surveillance drones available for suitable assignments.",
+      "Deltacon Security Group provides dedicated and intermittent mobile patrol services for commercial properties, residential communities, industrial facilities, and remote locations. Our patrol options include bicycles, trikes, golf carts, and marked or unmarked vehicles, with surveillance drones available for suitable assignments.",
       "Our officers provide a visible security presence, inspect designated areas, monitor access points, identify suspicious activity, and report hazards and incidents.",
       "Our mobile patrol officers hold valid driver's licenses and receive additional training, including the Emergency Vehicle Operations Course (EVOC) for applicable vehicle assignments. We tailor patrol routes, schedules, equipment, and reporting procedures to your property and operational requirements.",
     ],
@@ -343,7 +343,7 @@ export const services = [
     summary:
       "Detention and correctional security supported by current and former officers experienced in federal, state and county correctional environments.",
     overview: [
-      "Deltacon Security provides detention and correctional security supported by a network of current and former officers with experience in federal, state, and county correctional environments.",
+      "Deltacon Security Group provides detention and correctional security supported by a network of current and former officers with experience in federal, state, and county correctional environments.",
       "Our Texas correctional security personnel also hold applicable Texas DPS non-commissioned or commissioned security credentials and receive continuing education through the United States Security Academy (USSA) and Deltacon Tactical Academy. Personnel assigned to correctional duties must meet the facility's qualification, training, and authorization requirements.",
       "We work with facility leadership to establish clear duties, post orders, reporting procedures, and emergency protocols. Our officers emphasize accountability, professional boundaries, respectful treatment, and adherence to institutional policies.",
     ],
@@ -373,7 +373,7 @@ export const services = [
     summary:
       "Experienced off-duty law enforcement officers, holding TCOLE credentials, for assignments that need specialized knowledge and a strong protective presence.",
     overview: [
-      "Deltacon Security coordinates experienced off-duty law enforcement officers for security assignments requiring specialized knowledge, strong situational judgment, and a professional protective presence. Our network also includes former and retired law enforcement professionals whose assignments reflect their current credentials and authorized duties.",
+      "Deltacon Security Group coordinates experienced off-duty law enforcement officers for security assignments requiring specialized knowledge, strong situational judgment, and a professional protective presence. Our network also includes former and retired law enforcement professionals whose assignments reflect their current credentials and authorized duties.",
       "Texas off-duty peace officers assigned through Deltacon hold applicable Texas Commission on Law Enforcement (TCOLE) credentials. We maintain a pool of officers available for short-notice assignments throughout Texas, subject to availability and agency authorization.",
       "We support distribution centers, retailers, construction sites, government facilities, critical infrastructure, manufacturing plants, office buildings, residential communities, financial institutions, schools, hospitals, stadiums, hotels, resorts, and convention centers.",
       "Deltacon maintains an umbrella liability policy, hired and non-owned automobile liability coverage, and workers' compensation coverage, subject to policy terms. Certificates of insurance are available for review.",

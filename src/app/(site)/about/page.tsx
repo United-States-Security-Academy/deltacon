@@ -21,7 +21,7 @@ import { createPageMetadata } from "@/lib/seo/page-metadata";
 export const metadata = createPageMetadata({
   title: "About Us",
   description:
-    "Learn about Deltacon Security: our story, mission, values, leadership team and licences.",
+    "Learn about Deltacon Security Group: our story, mission, values, leadership team and licences.",
   path: "/about",
 });
 

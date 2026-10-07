@@ -6,7 +6,7 @@ import { createPageMetadata } from "@/lib/seo/page-metadata";
 export const metadata = createPageMetadata({
   title: "Careers – Apply Now",
   description:
-    "Join Deltacon Security. Apply for security officer, patrol, event security, supervisor and protection roles across Texas.",
+    "Join Deltacon Security Group. Apply for security officer, patrol, event security, supervisor and protection roles across Texas.",
   path: "/apply",
 });
 

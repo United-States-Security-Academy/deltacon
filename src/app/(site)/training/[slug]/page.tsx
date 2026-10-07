@@ -5,9 +5,9 @@ import { notFound } from "next/navigation";
 
 import { TrainingEnquiryForm } from "@/components/forms/training-enquiry-form";
 import { CallToActionBand } from "@/components/sections/call-to-action-band";
+import { CourseEnquiryLink } from "@/components/sections/course-enquiry-link";
 import { PageHeader } from "@/components/sections/page-header";
 import { TrainingCourseCard } from "@/components/sections/training-course-card";
-import { Button } from "@/components/ui/button";
 import {
   findCoursesForAcademy,
   findTrainingAcademy,
@@ -66,9 +66,11 @@ export default async function TrainingCourseDetailPage({
         ]}
       >
         <div>
-          <Button asChild variant="accent" size="xl">
-            <a href="#course-enquiry">Enquire about this course</a>
-          </Button>
+          <CourseEnquiryLink
+            courseName={course.name}
+            variant="accent"
+            size="xl"
+          />
         </div>
       </PageHeader>
 
@@ -169,9 +171,11 @@ export default async function TrainingCourseDetailPage({
                 </div>
               ))}
             </dl>
-            <Button asChild variant="accent" size="lg" className="mt-2">
-              <a href="#course-enquiry">Enquire now</a>
-            </Button>
+            <CourseEnquiryLink
+              courseName={course.name}
+              variant="accent"
+              className="mt-2"
+            />
           </aside>
         </div>
       </div>

@@ -41,7 +41,7 @@ export function CompanyLogo({
             Deltacon
           </span>
           <span className="font-heading text-xs font-semibold tracking-[0.3em] text-gold-400 uppercase">
-            Security
+            Security Group
           </span>
         </span>
       )}

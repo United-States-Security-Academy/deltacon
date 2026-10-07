@@ -1,7 +1,7 @@
 import { ArrowRight, CornerDownRight } from "lucide-react";
 import Link from "next/link";
 
-import { TrainingEnquiryDialog } from "@/components/forms/training-enquiry-dialog";
+import { CourseEnquiryLink } from "@/components/sections/course-enquiry-link";
 import {
   findTrainingAcademy,
   type TrainingCourse,
@@ -85,11 +85,7 @@ export function TrainingCourseCard({
           <span className="sr-only">: {course.name}</span>
           <ArrowRight aria-hidden="true" className="size-4" />
         </Link>
-        <TrainingEnquiryDialog
-          courseSlug={course.slug}
-          courseName={course.name}
-          buttonLabel="Enquire about this course"
-        />
+        <CourseEnquiryLink courseName={course.name} className="w-full" />
       </div>
     </article>
   );

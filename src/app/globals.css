@@ -380,3 +380,74 @@
   );
   pointer-events: none;
 }
+
+/* --------------------------------------------------------------------------
+   Logo marquee: rows of logos that slide continuously.
+   Each track holds the logos twice; moving it by exactly half its width
+   makes the loop seamless. Hovering, keyboard focus or the pause button
+   (data-paused="true") stop it. With reduced motion it becomes a still grid.
+   -------------------------------------------------------------------------- */
+
+@keyframes marquee-slide-left {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes marquee-slide-right {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.marquee-row {
+  overflow: hidden;
+  /* Logos fade in and out at the edges instead of being cut off. */
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 8%,
+    black 92%,
+    transparent
+  );
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee-slide-left var(--marquee-duration, 60s) linear infinite;
+}
+
+.marquee-track[data-direction="right"] {
+  animation-name: marquee-slide-right;
+}
+
+.marquee:hover .marquee-track,
+.marquee:focus-within .marquee-track,
+.marquee[data-paused="true"] .marquee-track {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-row {
+    mask-image: none;
+  }
+  .marquee-track {
+    width: auto;
+    flex-wrap: wrap;
+    justify-content: center;
+    animation: none;
+  }
+  .marquee-copy {
+    display: none;
+  }
+  .marquee-pause-button {
+    display: none;
+  }
+}

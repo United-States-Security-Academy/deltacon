@@ -182,8 +182,8 @@ export function JobApplicationForm() {
     return (
       <FormSuccessMessage title="Application received">
         <p>
-          Thank you for applying to join Deltacon Security. We&apos;ve received
-          your application and CV, and emailed you a confirmation.
+          Thank you for applying to join Deltacon Security Group. We&apos;ve
+          received your application and CV, and emailed you a confirmation.
         </p>
         <p>
           Our recruitment team reviews every application and will contact you if

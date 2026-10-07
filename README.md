@@ -1,6 +1,6 @@
-# Deltacon Security — website
+# Deltacon Security Group — website
 
-Marketing website and admin area for **Deltacon Security**, a licensed private
+Marketing website and admin area for **Deltacon Security Group**, a licensed private
 security company in Texas.
 
 Built with Next.js 16 (App Router, TypeScript), Tailwind CSS 4 and shadcn/ui,
@@ -78,7 +78,7 @@ added and the site is redeployed.
 | `DATABASE_DIRECT_URL`                  | Same as `DATABASE_URL`                                            |
 | `SUPABASE_SECRET_KEY`                  | `placeholder`                                                     |
 | `RESEND_API_KEY`                       | `re_placeholder`                                                  |
-| `EMAIL_FROM_ADDRESS`                   | `Deltacon Security <onboarding@resend.dev>`                       |
+| `EMAIL_FROM_ADDRESS`                   | `Deltacon Security Group <onboarding@resend.dev>`                 |
 | `TURNSTILE_SECRET_KEY`                 | `1x0000000000000000000000000000000AA` (Cloudflare test key)       |
 | `IP_HASH_SECRET`                       | A random string of 32+ characters (see below)                     |
 | `CRON_SECRET`                          | A random string of 16+ characters (see below)                     |

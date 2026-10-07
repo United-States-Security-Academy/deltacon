@@ -7,7 +7,7 @@ import { createPageMetadata } from "@/lib/seo/page-metadata";
 export const metadata = createPageMetadata({
   title: "Security Services",
   description:
-    "Unarmed and armed security officers, personal protection, emergency response, fire watch, mobile patrol, correctional security, off-duty police and on-site training from Deltacon Security in Texas.",
+    "Unarmed and armed security officers, personal protection, emergency response, fire watch, mobile patrol, correctional security, off-duty police and on-site training from Deltacon Security Group in Texas.",
   path: "/services",
 });
 

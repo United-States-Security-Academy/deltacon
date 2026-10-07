@@ -1,0 +1,1 @@
+ALTER TABLE "posts" ALTER COLUMN "author_name" SET DEFAULT 'Deltacon Security Group';

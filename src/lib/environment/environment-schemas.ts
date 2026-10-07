@@ -20,7 +20,7 @@ export const serverEnvironmentSchema = z.object({
   SUPABASE_SECRET_KEY: z.string().min(1),
 
   RESEND_API_KEY: z.string().min(1),
-  /** Sender shown on outgoing emails, e.g. "Deltacon Security <noreply@deltacon1.com>". */
+  /** Sender shown on outgoing emails, e.g. "Deltacon Security Group <noreply@deltacon1.com>". */
   EMAIL_FROM_ADDRESS: z.string().min(3),
 
   TURNSTILE_SECRET_KEY: z.string().min(1),
@@ -50,7 +50,7 @@ const developmentStandInValues: Record<string, string> = {
   DATABASE_URL: "postgresql://postgres:postgres@127.0.0.1:54322/postgres",
   SUPABASE_SECRET_KEY: "development-stand-in-key",
   RESEND_API_KEY: "re_development_stand_in_key",
-  EMAIL_FROM_ADDRESS: "Deltacon Security <onboarding@resend.dev>",
+  EMAIL_FROM_ADDRESS: "Deltacon Security Group <onboarding@resend.dev>",
   TURNSTILE_SECRET_KEY: "1x0000000000000000000000000000000AA",
   IP_HASH_SECRET: "development-only-ip-hash-secret-0000000000",
   CRON_SECRET: "development-only-cron-secret",

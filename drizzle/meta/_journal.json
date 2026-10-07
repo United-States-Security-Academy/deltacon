@@ -29,6 +29,13 @@
       "when": 1791306569711,
       "tag": "0003_make_cv_storage_path_unique",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1791362130509,
+      "tag": "0004_update_default_author_name",
+      "breakpoints": true
     }
   ]
 }

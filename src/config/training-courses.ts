@@ -513,3 +513,6 @@ export const specializedUssaCertifications = [
     requiredFor: "Officers assigned to data center security",
   },
 ];
+
+/** Website of the United States Security Academy, where course enquiries go. */
+export const ussaAcademyWebsiteUrl = "https://www.ussa-academy.com/";

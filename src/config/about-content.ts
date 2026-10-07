@@ -24,7 +24,7 @@ import { trainingCourses } from "./training-courses";
 export const companyStory = {
   heading: "Protecting Texas with courage, service and integrity",
   paragraphs: [
-    "Deltacon Security was founded on a simple belief: clients deserve a security partner they can trust completely. Our officers are carefully selected, properly licensed and trained to a standard that goes well beyond the minimum.",
+    "Deltacon Security Group was founded on a simple belief: clients deserve a security partner they can trust completely. Our officers are carefully selected, properly licensed and trained to a standard that goes well beyond the minimum.",
     "Today we protect businesses, communities and people across Texas, from corporate offices and residential estates to industrial sites and large public events. Every client gets a security plan designed around their real risks, and a management team that answers the phone.",
     "We measure ourselves by what doesn't happen on our watch: the incidents prevented, the losses avoided and the people who get home safely.",
   ],
