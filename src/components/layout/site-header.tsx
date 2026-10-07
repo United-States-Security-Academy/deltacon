@@ -27,7 +27,7 @@ export function SiteHeader({
         page is scrolled, the header becomes slimmer with a deeper shadow.
       */}
       <StickyHeaderFrame className="group/header sticky top-0 z-40 border-b border-navy-800 bg-navy-900/95 shadow-lg shadow-navy-950/20 backdrop-blur transition-shadow duration-300 data-[scrolled=true]:shadow-xl data-[scrolled=true]:shadow-navy-950/40 supports-[backdrop-filter]:bg-navy-900/85">
-        <div className="page-container flex h-20 items-center justify-between gap-6 transition-[height] duration-300 group-data-[scrolled=true]/header:h-16 sm:h-24 sm:group-data-[scrolled=true]/header:h-20 lg:h-[6.5rem] lg:group-data-[scrolled=true]/header:h-20">
+        <div className="page-container flex h-24 items-center justify-between gap-3 transition-[height] duration-300 group-data-[scrolled=true]/header:h-20 sm:h-24 sm:gap-6 sm:group-data-[scrolled=true]/header:h-20 lg:h-[6.5rem] lg:group-data-[scrolled=true]/header:h-20">
           <CompanyLogo
             size="header"
             className="origin-left transition-[scale] duration-300 group-data-[scrolled=true]/header:scale-[0.82]"

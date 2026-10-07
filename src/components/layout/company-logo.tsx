@@ -13,10 +13,11 @@ const logoSizeClasses: Record<
   LogoSize,
   { badge: string; name: string; subtitle: string }
 > = {
+  // On phones the header logo is the same size as the footer logo.
   header: {
-    badge: "h-16 sm:h-[4.5rem] lg:h-20",
-    name: "text-[1.75rem] sm:text-[2rem] lg:text-[2.25rem]",
-    subtitle: "text-[0.6rem] sm:text-[0.68rem] lg:text-[0.75rem]",
+    badge: "h-20",
+    name: "text-[2rem] lg:text-[2.25rem]",
+    subtitle: "text-[0.7rem] lg:text-[0.75rem]",
   },
   footer: {
     badge: "h-20",
