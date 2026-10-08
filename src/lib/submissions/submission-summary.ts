@@ -13,6 +13,16 @@ export const submissionFormTypeLabels: Record<SubmissionFormType, string> = {
   training_enquiry: "Training enquiry",
 };
 
+/** Plural names, e.g. for inbox tabs ("enquiry" can't just take an "s"). */
+export const submissionFormTypePluralLabels: Record<
+  SubmissionFormType,
+  string
+> = {
+  service_request: "Service requests",
+  job_application: "Job applications",
+  training_enquiry: "Training enquiries",
+};
+
 export type ContactFields = {
   fullName: string;
   email: string;

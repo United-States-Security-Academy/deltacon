@@ -1,4 +1,5 @@
 import { ArrowRight, BadgeCheck, Clock, ShieldCheck } from "lucide-react";
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -13,6 +14,7 @@ import { SectionHeading } from "@/components/sections/section-heading";
 import { ServiceCard } from "@/components/sections/service-card";
 import { TrainingCourseCard } from "@/components/sections/training-course-card";
 import { WhyChooseUsSection } from "@/components/sections/why-choose-us-section";
+import { StructuredDataScript } from "@/components/seo/structured-data-script";
 import { Button } from "@/components/ui/button";
 import { companyDetails } from "@/config/company-details";
 import { heroVideo } from "@/config/hero-video";
@@ -20,6 +22,11 @@ import { industries } from "@/config/industries";
 import { applyNowLink, requestServiceLink } from "@/config/navigation";
 import { services } from "@/config/services";
 import { featuredTrainingCourses } from "@/config/training-courses";
+import { createPageMetadata } from "@/lib/seo/page-metadata";
+import {
+  buildLocalBusinessData,
+  buildWebSiteData,
+} from "@/lib/seo/structured-data";
 import { getPublicMediaUrl } from "@/lib/storage/public-media";
 import { getGalleryPreviewImages } from "@/server/queries/gallery";
 import { getLatestPublishedPosts } from "@/server/queries/posts";
@@ -27,6 +34,18 @@ import { getLatestPublishedPosts } from "@/server/queries/posts";
 // Rebuild the page in the background at most every 15 minutes, and straight
 // away whenever an admin publishes a post or changes the gallery.
 export const revalidate = 900;
+
+const homeTitle = `${companyDetails.name} | ${companyDetails.tagline}`;
+
+export const metadata: Metadata = {
+  ...createPageMetadata({
+    title: homeTitle,
+    description: companyDetails.description,
+    path: "/",
+  }),
+  // The home page title is used as-is, without the "| Deltacon…" suffix.
+  title: { absolute: homeTitle },
+};
 
 const heroTrustPoints = [
   { label: "Licensed in Texas", icon: BadgeCheck },
@@ -54,6 +73,9 @@ export default async function HomePage() {
 
   return (
     <>
+      <StructuredDataScript
+        data={[buildLocalBusinessData(), buildWebSiteData()]}
+      />
       {/* Hero */}
       {/*
         Phones: the video plays in a full-width 16:9 band at the top, with no

@@ -7,4 +7,11 @@ export const postCategoryLabels: Record<PostCategory, string> = {
   press: "Press & Media",
 };
 
-export const postCategoryOrder: PostCategory[] = ["blog", "news", "press"];
+/** Every category, in display order. Must match the database's post_category values. */
+export const postCategoryValues = [
+  "blog",
+  "news",
+  "press",
+] as const satisfies readonly PostCategory[];
+
+export const postCategoryOrder: PostCategory[] = [...postCategoryValues];

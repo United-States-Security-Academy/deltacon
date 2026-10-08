@@ -1,4 +1,7 @@
 import {
+  FileText,
+  Images,
+  Inbox,
   LayoutDashboard,
   UserCog,
   UsersRound,
@@ -11,12 +14,12 @@ export type AdminNavigationLink = {
   icon: LucideIcon;
 };
 
-/**
- * Links in the admin sidebar. Posts, Submissions, Gallery and Settings are
- * added here as each part of the admin is built.
- */
+/** Links in the admin sidebar. Settings is added here once it's built. */
 export const adminNavigationLinks: AdminNavigationLink[] = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
+  { label: "Submissions", href: "/admin/submissions", icon: Inbox },
+  { label: "Posts", href: "/admin/posts", icon: FileText },
+  { label: "Gallery", href: "/admin/gallery", icon: Images },
   { label: "Admin users", href: "/admin/users", icon: UsersRound },
   { label: "My account", href: "/admin/account", icon: UserCog },
 ];

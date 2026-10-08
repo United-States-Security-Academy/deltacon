@@ -6,6 +6,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import { AdminPageHeading } from "@/components/admin/admin-page-heading";
 import type { SubmissionFormType } from "@/lib/database/schema/enums";
@@ -83,7 +84,7 @@ export default async function AdminDashboardPage() {
             return (
               <li
                 key={card.formType}
-                className="flex items-center gap-4 rounded-xl border border-border bg-white p-5 shadow-sm"
+                className="relative flex items-center gap-4 rounded-xl border border-border bg-white p-5 shadow-sm transition-colors hover:border-gold-500"
               >
                 <span className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-navy-900 text-gold-400">
                   <Icon aria-hidden="true" className="size-6" />
@@ -92,7 +93,12 @@ export default async function AdminDashboardPage() {
                   <p className="font-heading text-3xl font-bold text-navy-900">
                     {newCount}
                   </p>
-                  <p className="text-sm text-muted-foreground">{card.label}</p>
+                  <Link
+                    href={`/admin/submissions?type=${card.formType}&status=new`}
+                    className="text-sm text-muted-foreground after:absolute after:inset-0 hover:text-navy-900 hover:underline"
+                  >
+                    {card.label}
+                  </Link>
                 </div>
               </li>
             );
@@ -156,9 +162,12 @@ export default async function AdminDashboardPage() {
                     return (
                       <tr key={submission.id}>
                         <td className="px-5 py-3">
-                          <p className="font-medium text-navy-900">
+                          <Link
+                            href={`/admin/submissions/${submission.id}`}
+                            className="font-medium text-navy-900 hover:text-gold-700 hover:underline"
+                          >
                             {submission.fullName}
-                          </p>
+                          </Link>
                           <p className="text-xs text-muted-foreground">
                             {submission.email}
                           </p>
@@ -209,9 +218,12 @@ export default async function AdminDashboardPage() {
                     className="flex items-center justify-between gap-3 px-5 py-3"
                   >
                     <div className="min-w-0">
-                      <p className="truncate font-medium text-navy-900">
+                      <Link
+                        href={`/admin/posts/${post.id}/edit`}
+                        className="block truncate font-medium text-navy-900 hover:text-gold-700 hover:underline"
+                      >
                         {post.title}
-                      </p>
+                      </Link>
                       <p className="text-xs text-muted-foreground">
                         Updated {formatAdminDate(post.updatedAt)}
                       </p>

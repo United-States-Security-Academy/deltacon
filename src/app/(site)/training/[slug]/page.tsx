@@ -13,8 +13,11 @@ import {
   findTrainingAcademy,
   findTrainingCourseBySlug,
   trainingCourses,
+  ussaAcademyWebsiteUrl,
 } from "@/config/training-courses";
+import { StructuredDataScript } from "@/components/seo/structured-data-script";
 import { createPageMetadata } from "@/lib/seo/page-metadata";
+import { buildCourseData } from "@/lib/seo/structured-data";
 
 // Only the courses in config/training-courses.ts exist; anything else is a 404.
 export const dynamicParams = false;
@@ -52,6 +55,18 @@ export default async function TrainingCourseDetailPage({
 
   return (
     <>
+      <StructuredDataScript
+        data={buildCourseData({
+          name: course.name,
+          summary: course.summary,
+          path: `/training/${course.slug}`,
+          providerName: academy.name,
+          providerUrl:
+            academy.id === "united-states-security-academy"
+              ? ussaAcademyWebsiteUrl
+              : undefined,
+        })}
+      />
       <PageHeader
         eyebrow={
           course.licenceLevel

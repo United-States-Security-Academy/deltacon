@@ -11,7 +11,9 @@ import { Button } from "@/components/ui/button";
 import { findIndustryBySlug, type Industry } from "@/config/industries";
 import { requestServiceLink } from "@/config/navigation";
 import { findServiceBySlug, services } from "@/config/services";
+import { StructuredDataScript } from "@/components/seo/structured-data-script";
 import { createPageMetadata } from "@/lib/seo/page-metadata";
+import { buildServiceData } from "@/lib/seo/structured-data";
 import { cn } from "@/lib/utils";
 
 // Only the services in config/services.ts exist; anything else is a 404.
@@ -57,6 +59,13 @@ export default async function ServiceDetailPage({
 
   return (
     <>
+      <StructuredDataScript
+        data={buildServiceData({
+          name: service.name,
+          summary: service.summary,
+          path: `/services/${service.slug}`,
+        })}
+      />
       <PageHeader
         eyebrow={service.credential ?? "Our services"}
         title={service.name}
