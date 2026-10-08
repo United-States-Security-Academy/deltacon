@@ -10,6 +10,7 @@
  * Navy is the base, gold is the single strong accent, flag red is used sparingly.
  */
 @theme {
+  --color-navy-975: #050e1d;
   --color-navy-950: #0a1626;
   --color-navy-900: #10213a;
   --color-navy-800: #172b48;
@@ -460,4 +461,14 @@
   .assessment-step[data-direction="back"] {
     animation-name: reveal-from-left;
   }
+}
+
+/* Fine diagonal gold pinstripes for the navbar. Thin and faint, so the
+   background stays the same dark navy as the contact bar above it. */
+@utility navbar-stripes {
+  background-image: repeating-linear-gradient(
+    135deg,
+    rgb(201 164 76 / 0.07) 0 1px,
+    transparent 1px 22px
+  );
 }

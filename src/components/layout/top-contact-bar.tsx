@@ -16,7 +16,7 @@ export function TopContactBar({
   phoneInternational,
 }: TopContactBarProps) {
   return (
-    <div className="bg-navy-950 text-sm text-navy-200">
+    <div className="border-b border-white/5 bg-navy-975 text-sm text-navy-200">
       <div className="page-container flex h-10 items-center justify-center gap-6 sm:justify-end">
         <a
           href={`mailto:${email}`}

@@ -47,7 +47,7 @@ export function MobileNavigationMenu() {
 
       <SheetContent
         side="right"
-        className="w-full max-w-sm border-navy-700 bg-navy-900 text-white [&_[data-slot=sheet-close]]:text-white [&_[data-slot=sheet-close]:hover]:bg-white/10"
+        className="w-full max-w-sm border-navy-800 bg-navy-975 text-white [&_[data-slot=sheet-close]]:text-white [&_[data-slot=sheet-close]:hover]:bg-white/10"
       >
         <SheetHeader className="border-b border-navy-700">
           <SheetTitle className="font-heading text-lg tracking-widest text-white uppercase">

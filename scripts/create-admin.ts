@@ -69,7 +69,8 @@ async function findUserIdByEmail(
 }
 
 async function createAdmin() {
-  const { email, name, password } = readCommandLine();
+  const { email: enteredEmail, name, password } = readCommandLine();
+  const email = enteredEmail.toLowerCase();
 
   const supabase = createClient(
     requireEnvironmentVariable("NEXT_PUBLIC_SUPABASE_URL"),

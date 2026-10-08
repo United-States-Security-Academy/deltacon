@@ -18,6 +18,8 @@ export type CompanyDetails = {
   shortName: string;
   tagline: string;
   motto: string;
+  /** Short line shown under the logo wordmark. */
+  slogan: string;
   description: string;
   email: string;
   /** Human-friendly phone number shown on the site. */
@@ -44,6 +46,7 @@ export const companyDetails: CompanyDetails = {
   shortName: "Deltacon",
   tagline: "Professional security services across Texas",
   motto: "Courage, Service, Integrity",
+  slogan: "Trusted to be there…when it matters.",
   description:
     "Deltacon Security Group provides licensed unarmed and armed security officers, personal protection, mobile patrol, fire watch, emergency response and on-site security training for businesses and communities across Texas.",
   email: "info@deltacon1.com",
