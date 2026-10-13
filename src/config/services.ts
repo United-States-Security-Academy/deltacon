@@ -13,6 +13,7 @@ import {
 import type { StaticImageData } from "next/image";
 
 import armedSecurityOfficersImage from "@/assets/services/armed-security-officers.jpg";
+import correctionalSecurityImage from "@/assets/services/correctional.png";
 import emergencyRapidResponseImage from "@/assets/services/emergency-rapid-response.jpg";
 import fireWatchImage from "@/assets/services/fire-watch.jpg";
 import mobilePatrolImage from "@/assets/services/mobile-patrol.jpg";
@@ -340,6 +341,9 @@ export const services = [
     slug: "detention-correctional-security",
     name: "Detention & Correctional Security Officer Services",
     icon: LockKeyhole,
+    image: correctionalSecurityImage,
+    imageAltText:
+      "Three correctional officers on duty in a cell block, one taking notes and one using a radio",
     summary:
       "Detention and correctional security supported by current and former officers experienced in federal, state and county correctional environments.",
     overview: [

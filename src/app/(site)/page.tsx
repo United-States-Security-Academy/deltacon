@@ -121,9 +121,7 @@ export default async function HomePage() {
               <span className="draw-underline text-gold-400">trust</span>
             </h1>
             <p className="max-w-xl text-base leading-relaxed text-navy-100 sm:text-lg">
-              Licensed unarmed and armed officers, personal protection, mobile
-              patrol, fire watch and 24/7 emergency response for businesses and
-              communities across {companyDetails.location.region}.
+              Licensed armed and unarmed security officers, personal protection, mobile patrol, fire watch, and 24/7 emergency response, and staffing — serving government agencies, communities, and businesses across the {companyDetails.location.country}.
             </p>
             <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
               <Button asChild variant="accent" size="xl">

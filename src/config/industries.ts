@@ -24,9 +24,11 @@ import dataCentersImage from "@/assets/industries/data-centers.jpg";
 import educationalCorporateCampusImage from "@/assets/industries/educational-corporate-campus.jpg";
 import financialInstitutionsImage from "@/assets/industries/financial-institutions.jpg";
 import gatedMultiUnitResidentialImage from "@/assets/industries/gated-multi-unit-residential.jpg";
+import healthcareImage from "@/assets/industries/healthcare.jpg";
 import hospitalityTourismImage from "@/assets/industries/hospitality-tourism.jpg";
 import portsOfEntryImage from "@/assets/industries/ports-of-entry.jpg";
 import retailImage from "@/assets/industries/retail.jpg";
+import warehousingStorageImage from "@/assets/industries/warehousing-storage.jpg";
 
 /**
  * Industries Deltacon serves, taken from the company's "Industries Served"
@@ -130,6 +132,9 @@ export const industries = [
     name: "Healthcare Facilities",
     pageTitle: "Healthcare Facilities Security Services",
     icon: Hospital,
+    image: healthcareImage,
+    imageAltText:
+      "Nurses, patients and visitors outside a medical center entrance, with an ambulance at the emergency center",
     summary:
       "Security for hospitals, nursing homes, emergency departments, clinics and research centers, protecting patients, staff and visitors with professionalism and compassion.",
     overview: [
@@ -156,6 +161,9 @@ export const industries = [
     name: "Warehousing & Storage",
     pageTitle: "Warehousing & Storage Security Services",
     icon: Warehouse,
+    image: warehousingStorageImage,
+    imageAltText:
+      "A distribution center with trucks at the loading docks beside a self-storage facility with a staffed security gate",
     summary:
       "Security for warehouses, self-storage centers and distribution and fulfillment facilities, protecting personnel, inventory, tenants' property and equipment.",
     overview: [
