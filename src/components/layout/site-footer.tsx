@@ -86,8 +86,12 @@ export function SiteFooter({ socialLinks }: SiteFooterProps) {
           <p>
             &copy; {currentYear} {companyDetails.name}. All rights reserved.
           </p>
-          <p>
-            Licensed security services in {companyDetails.location.region}, USA.
+          <p className="text-center sm:text-right">
+            Licensed security services in {companyDetails.location.region}, USA
+            <span aria-hidden="true"> · </span>
+            <span className="whitespace-nowrap">
+              Texas DPS License No. {companyDetails.securityLicenseNumber}
+            </span>
           </p>
         </div>
       </div>

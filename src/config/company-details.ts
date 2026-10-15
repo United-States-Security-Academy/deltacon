@@ -31,6 +31,8 @@ export type CompanyDetails = {
     country: string;
     countryCode: string;
   };
+  /** Texas DPS Private Security Program company licence, shown in the footer and on About. */
+  securityLicenseNumber: string;
   /** Office address, shown in the footer and used for search engines. */
   officeAddress: {
     streetAddress: string;
@@ -57,6 +59,7 @@ export const companyDetails: CompanyDetails = {
     country: "United States",
     countryCode: "US",
   },
+  securityLicenseNumber: "B05205701",
   officeAddress: {
     streetAddress: "12808 W. Airport Blvd, Ste 224",
     city: "Sugar Land",

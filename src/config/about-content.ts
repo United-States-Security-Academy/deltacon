@@ -10,6 +10,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
+import { companyDetails } from "./company-details";
 import { industries } from "./industries";
 import { services } from "./services";
 import { trainingCourses } from "./training-courses";
@@ -100,12 +101,12 @@ export type LicenceOrCertification = {
   detail: string;
 };
 
-// PLACEHOLDER: replace licence numbers and add any other certifications.
+// Add any other licences or certifications here.
 export const licencesAndCertifications: LicenceOrCertification[] = [
   {
     name: "Security Services Contractor Licence",
     issuer: "Texas Department of Public Safety – Private Security Program",
-    detail: "Licence No. to be added",
+    detail: `License No. ${companyDetails.securityLicenseNumber}`,
   },
   {
     name: "Licensed & Registered Officers",
