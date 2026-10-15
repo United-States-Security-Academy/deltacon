@@ -16,6 +16,7 @@ import { TrainingCourseCard } from "@/components/sections/training-course-card";
 import { WhyChooseUsSection } from "@/components/sections/why-choose-us-section";
 import { StructuredDataScript } from "@/components/seo/structured-data-script";
 import { Button } from "@/components/ui/button";
+import { UssaLinkedText } from "@/components/sections/ussa-linked-text";
 import { companyDetails } from "@/config/company-details";
 import { heroVideo } from "@/config/hero-video";
 import { industries } from "@/config/industries";
@@ -121,7 +122,10 @@ export default async function HomePage() {
               <span className="draw-underline text-gold-400">trust</span>
             </h1>
             <p className="max-w-xl text-base leading-relaxed text-navy-100 sm:text-lg">
-              Licensed armed and unarmed security officers, personal protection, mobile patrol, fire watch, and 24/7 emergency response, and staffing — serving government agencies, communities, and businesses across the {companyDetails.location.country}.
+              Licensed armed and unarmed security officers, personal protection,
+              mobile patrol, fire watch, and 24/7 emergency response, and
+              staffing — serving government agencies, communities, and
+              businesses across the {companyDetails.location.country}.
             </p>
             <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
               <Button asChild variant="accent" size="xl">
@@ -242,7 +246,9 @@ export default async function HomePage() {
             <SectionHeading
               id="training-heading"
               eyebrow="Training"
-              title="Get licensed with the United States Security Academy"
+              title={
+                <UssaLinkedText text="Get licensed with the United States Security Academy" />
+              }
               description="Texas Level II, III and IV licensing courses, plus renewals and specialized training through Deltacon Tactical Academy."
             />
             <SectionLink href="/training">All training courses</SectionLink>

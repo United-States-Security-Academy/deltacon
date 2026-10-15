@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 type SectionHeadingProps = {
   id?: string;
   eyebrow?: string;
-  title: string;
+  title: ReactNode;
   description?: ReactNode;
   /** Use "dark" when the section has a navy background. */
   tone?: "light" | "dark";

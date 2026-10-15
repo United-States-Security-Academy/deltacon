@@ -12,6 +12,7 @@ import { findIndustryBySlug, type Industry } from "@/config/industries";
 import { requestServiceLink } from "@/config/navigation";
 import { findServiceBySlug, services } from "@/config/services";
 import { StructuredDataScript } from "@/components/seo/structured-data-script";
+import { UssaLinkedText } from "@/components/sections/ussa-linked-text";
 import { createPageMetadata } from "@/lib/seo/page-metadata";
 import { buildServiceData } from "@/lib/seo/structured-data";
 import { cn } from "@/lib/utils";
@@ -107,7 +108,7 @@ export default async function ServiceDetailPage({
                 key={paragraph}
                 className="text-lg leading-relaxed text-muted-foreground"
               >
-                {paragraph}
+                <UssaLinkedText text={paragraph} />
               </p>
             ))}
           </div>
@@ -159,11 +160,11 @@ export default async function ServiceDetailPage({
                 </span>
                 <div className="flex flex-col gap-1">
                   <h3 className="text-lg font-bold text-navy-900">
-                    {highlight.title}
+                    <UssaLinkedText text={highlight.title} />
                   </h3>
                   {highlight.description && (
                     <p className="text-muted-foreground">
-                      {highlight.description}
+                      <UssaLinkedText text={highlight.description} />
                     </p>
                   )}
                 </div>

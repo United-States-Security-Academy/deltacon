@@ -8,6 +8,7 @@ import { CallToActionBand } from "@/components/sections/call-to-action-band";
 import { PageHeader } from "@/components/sections/page-header";
 import { ServiceCard } from "@/components/sections/service-card";
 import { Button } from "@/components/ui/button";
+import { UssaLinkedText } from "@/components/sections/ussa-linked-text";
 import { findIndustryBySlug, industries } from "@/config/industries";
 import { requestServiceLink } from "@/config/navigation";
 import { findServicesForIndustry } from "@/config/services";
@@ -88,7 +89,7 @@ export default async function IndustryDetailPage({
                 key={paragraph}
                 className="text-lg leading-relaxed text-muted-foreground"
               >
-                {paragraph}
+                <UssaLinkedText text={paragraph} />
               </p>
             ))}
           </div>
@@ -129,7 +130,7 @@ export default async function IndustryDetailPage({
                     <Check aria-hidden="true" className="size-4" />
                   </span>
                   <span className="font-medium text-navy-900">
-                    {serviceProvided}
+                    <UssaLinkedText text={serviceProvided} />
                   </span>
                 </li>
               ))}
@@ -150,7 +151,9 @@ export default async function IndustryDetailPage({
                     aria-hidden="true"
                     className="mt-0.5 size-5 shrink-0 text-gold-600"
                   />
-                  <span className="text-navy-900">{credential}</span>
+                  <span className="text-navy-900">
+                    <UssaLinkedText text={credential} />
+                  </span>
                 </li>
               ))}
             </ul>

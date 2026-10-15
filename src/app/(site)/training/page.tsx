@@ -9,6 +9,7 @@ import { SectionHeading } from "@/components/sections/section-heading";
 import { TrainingAcademySection } from "@/components/sections/training-academy-section";
 import { TrainingCourseCard } from "@/components/sections/training-course-card";
 import { Button } from "@/components/ui/button";
+import { UssaLinkedText } from "@/components/sections/ussa-linked-text";
 import {
   findCoursesForAcademy,
   findTrainingAcademy,
@@ -42,7 +43,9 @@ export default function TrainingPage() {
       <PageHeader
         eyebrow="Training"
         title="Security training & licensing"
-        introduction="Texas security licensing, renewals and specialized training through the United States Security Academy (USSA) and Deltacon Tactical Academy, taught by instructors with military, law enforcement and private security experience."
+        introduction={
+          <UssaLinkedText text="Texas security licensing, renewals and specialized training through the United States Security Academy (USSA) and Deltacon Tactical Academy, taught by instructors with military, law enforcement and private security experience." />
+        }
         breadcrumbs={[{ label: "Training" }]}
       >
         <nav aria-label="On this page">
@@ -83,7 +86,7 @@ export default function TrainingPage() {
 
         <div className="flex flex-col gap-6">
           <h3 className="text-2xl font-bold text-navy-900 uppercase">
-            USSA courses
+            <UssaLinkedText text="USSA courses" />
           </h3>
           <ul
             data-reveal-stagger
@@ -99,11 +102,10 @@ export default function TrainingPage() {
 
         <div className="flex flex-col gap-4">
           <h3 className="text-2xl font-bold text-navy-900 uppercase">
-            Specialized USSA certification courses
+            <UssaLinkedText text="Specialized USSA certification courses" />
           </h3>
           <p className="max-w-3xl text-muted-foreground">
-            Deltacon officers also complete specialized USSA courses required
-            for their assignments and industries.
+            <UssaLinkedText text="Deltacon officers also complete specialized USSA courses required for their assignments and industries." />
           </p>
           <ul data-reveal-stagger className="grid gap-4 md:grid-cols-3">
             {specializedUssaCertifications.map((certification) => (
@@ -117,7 +119,7 @@ export default function TrainingPage() {
                 />
                 <div className="flex flex-col gap-1">
                   <p className="font-heading text-sm font-semibold tracking-widest text-gold-700">
-                    {certification.code}
+                    <UssaLinkedText text={certification.code} />
                   </p>
                   <p className="font-semibold text-navy-900">
                     {certification.name}

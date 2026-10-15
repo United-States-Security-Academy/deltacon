@@ -61,6 +61,48 @@ export function MobileNavigationMenu() {
         <nav aria-label="Main" className="flex flex-1 flex-col px-4">
           <ul className="flex flex-col">
             {mainNavigationLinks.map((link) => {
+              if (link.children) {
+                const groupLabelId = `mobile-menu-${link.label.toLowerCase()}`;
+                return (
+                  <li key={link.href} className="border-b border-navy-800 py-2">
+                    <p
+                      id={groupLabelId}
+                      className="px-2 pt-1.5 pb-1 text-xs font-semibold tracking-[0.2em] text-gold-400 uppercase"
+                    >
+                      {link.label}
+                    </p>
+                    <ul
+                      aria-labelledby={groupLabelId}
+                      className="flex flex-col"
+                    >
+                      {link.children.map((child) => {
+                        const isChildActive = isLinkActive(
+                          currentPath,
+                          child.href,
+                        );
+                        return (
+                          <li key={child.href}>
+                            <SheetClose asChild>
+                              <Link
+                                href={child.href}
+                                aria-current={
+                                  isChildActive ? "page" : undefined
+                                }
+                                className={cn(
+                                  "block py-2.5 pr-2 pl-5 text-base font-medium text-navy-100 transition-colors hover:text-gold-300",
+                                  isChildActive && "text-gold-300",
+                                )}
+                              >
+                                {child.label}
+                              </Link>
+                            </SheetClose>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </li>
+                );
+              }
               const isActive = isLinkActive(currentPath, link.href);
               return (
                 <li key={link.href}>

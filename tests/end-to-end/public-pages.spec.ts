@@ -65,7 +65,6 @@ test("the main navigation reaches each section", async ({ page }) => {
   await page.goto("/");
   const mainNavigation = page.getByRole("navigation", { name: "Main" }).first();
   for (const [linkName, path] of [
-    ["Services", "/services"],
     ["Industries", "/industries"],
     ["Training", "/training"],
     ["Gallery", "/gallery"],
@@ -76,6 +75,36 @@ test("the main navigation reaches each section", async ({ page }) => {
     await expect(page).toHaveURL(new RegExp(`${path}$`));
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   }
+});
+
+test("the Services dropdown opens each line of business", async ({ page }) => {
+  await page.goto("/");
+  const mainNavigation = page.getByRole("navigation", { name: "Main" }).first();
+  const servicesButton = mainNavigation.getByRole("button", {
+    name: "Services",
+  });
+  for (const [linkName, path, heading] of [
+    ["Security Services", "/services", "Security services"],
+    ["Consulting", "/consulting", "Consulting"],
+    ["Staffing", "/staffing", "Staffing"],
+    ["Custodial Services", "/custodial-services", "Custodial Services"],
+  ] as const) {
+    await servicesButton.click();
+    await expect(servicesButton).toHaveAttribute("aria-expanded", "true");
+    await mainNavigation.getByRole("link", { name: linkName }).click();
+    await expect(page).toHaveURL(new RegExp(`${path}$`));
+    await expect(
+      page.getByRole("heading", { level: 1, name: heading }),
+    ).toBeVisible();
+  }
+
+  // Keyboard: Enter opens it, Escape closes it and returns focus.
+  await servicesButton.focus();
+  await page.keyboard.press("Enter");
+  await expect(servicesButton).toHaveAttribute("aria-expanded", "true");
+  await page.keyboard.press("Escape");
+  await expect(servicesButton).toHaveAttribute("aria-expanded", "false");
+  await expect(servicesButton).toBeFocused();
 });
 
 test("the skip link jumps straight to the page content", async ({ page }) => {
@@ -98,6 +127,28 @@ test.describe("on a phone", () => {
     await menu.getByRole("link", { name: "Training", exact: true }).click();
     await expect(page).toHaveURL(/\/training$/);
     await expect(menu).toBeHidden();
+  });
+
+  test("the menu lists every line of business under Services", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    await page.getByRole("button", { name: "Open main menu" }).click();
+    const servicesGroup = page.getByRole("dialog").getByRole("list", {
+      name: "Services",
+    });
+    for (const linkName of [
+      "Security Services",
+      "Consulting",
+      "Staffing",
+      "Custodial Services",
+    ]) {
+      await expect(
+        servicesGroup.getByRole("link", { name: linkName }),
+      ).toBeVisible();
+    }
+    await servicesGroup.getByRole("link", { name: "Staffing" }).click();
+    await expect(page).toHaveURL(/\/staffing$/);
   });
 
   test("pages fit the screen without sideways scrolling", async ({ page }) => {

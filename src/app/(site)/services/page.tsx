@@ -2,6 +2,7 @@ import { CallToActionBand } from "@/components/sections/call-to-action-band";
 import { SecurityAssessmentPromo } from "@/components/sections/security-assessment-promo";
 import { PageHeader } from "@/components/sections/page-header";
 import { ServiceCard } from "@/components/sections/service-card";
+import { UssaLinkedText } from "@/components/sections/ussa-linked-text";
 import { services } from "@/config/services";
 import { createPageMetadata } from "@/lib/seo/page-metadata";
 
@@ -18,7 +19,9 @@ export default function ServicesPage() {
       <PageHeader
         eyebrow="What we do"
         title="Security services"
-        introduction="Licensed officers trained through the United States Security Academy (USSA) and Deltacon Tactical Academy, backed by a Dispatch and Operations Command Center staffed 24 hours a day, seven days a week."
+        introduction={
+          <UssaLinkedText text="Licensed officers trained through the United States Security Academy (USSA) and Deltacon Tactical Academy, backed by a Dispatch and Operations Command Center staffed 24 hours a day, seven days a week." />
+        }
         breadcrumbs={[{ label: "Services" }]}
       />
 

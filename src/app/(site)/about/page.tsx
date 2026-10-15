@@ -8,6 +8,7 @@ import { CompanyStatisticsBand } from "@/components/sections/company-statistics-
 import { PageHeader } from "@/components/sections/page-header";
 import { SectionHeading } from "@/components/sections/section-heading";
 import { WhyChooseUsSection } from "@/components/sections/why-choose-us-section";
+import { UssaLinkedText } from "@/components/sections/ussa-linked-text";
 import {
   companyStory,
   companyValues,
@@ -180,13 +181,13 @@ export default function AboutPage() {
                 />
                 <div className="flex flex-col gap-1">
                   <h3 className="text-lg font-bold text-navy-900 uppercase">
-                    {licence.name}
+                    <UssaLinkedText text={licence.name} />
                   </h3>
                   <p className="text-sm font-medium text-navy-700">
                     {licence.issuer}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {licence.detail}
+                    <UssaLinkedText text={licence.detail} />
                   </p>
                 </div>
               </li>

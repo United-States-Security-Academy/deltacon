@@ -1,6 +1,10 @@
 import Image from "next/image";
 import type { ReactNode } from "react";
 
+import {
+  UssaLink,
+  UssaLinkedText,
+} from "@/components/sections/ussa-linked-text";
 import type { TrainingAcademy } from "@/config/training-courses";
 import { cn } from "@/lib/utils";
 
@@ -11,6 +15,21 @@ type TrainingAcademySectionProps = {
   className?: string;
   children: ReactNode;
 };
+
+/** The United States Security Academy's name links to its website. */
+function AcademyNameLink({
+  academy,
+  children,
+}: {
+  academy: TrainingAcademy;
+  children: ReactNode;
+}) {
+  return academy.id === "united-states-security-academy" ? (
+    <UssaLink>{children}</UssaLink>
+  ) : (
+    children
+  );
+}
 
 /** One academy's introduction and photo, followed by its courses. */
 export function TrainingAcademySection({
@@ -40,18 +59,23 @@ export function TrainingAcademySection({
               id={headingId}
               className="text-3xl font-bold text-navy-900 uppercase sm:text-4xl"
             >
-              {academy.name}
-              {academy.shortName !== academy.name &&
-                academy.shortName.length <= 5 && (
-                  <span className="text-gold-600"> ({academy.shortName})</span>
-                )}
+              <AcademyNameLink academy={academy}>
+                {academy.name}
+                {academy.shortName !== academy.name &&
+                  academy.shortName.length <= 5 && (
+                    <span className="text-gold-600">
+                      {" "}
+                      ({academy.shortName})
+                    </span>
+                  )}
+              </AcademyNameLink>
             </h2>
             {academy.introduction.map((paragraph) => (
               <p
                 key={paragraph}
                 className="text-lg leading-relaxed text-muted-foreground"
               >
-                {paragraph}
+                <UssaLinkedText text={paragraph} />
               </p>
             ))}
           </div>

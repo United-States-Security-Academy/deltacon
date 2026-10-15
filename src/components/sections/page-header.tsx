@@ -6,7 +6,7 @@ import {
 } from "@/components/sections/breadcrumbs";
 
 type PageHeaderProps = {
-  eyebrow?: string;
+  eyebrow?: ReactNode;
   title: string;
   introduction?: ReactNode;
   breadcrumbs: BreadcrumbItem[];

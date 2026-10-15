@@ -29,8 +29,15 @@ export function watchForPageProblems(page: Page): string[] {
     }
   });
   page.on("requestfailed", (request) => {
-    // Navigating away cancels requests still in flight; that's not a fault.
-    if (request.failure()?.errorText === "net::ERR_ABORTED") return;
+    // Navigating away cancels requests still in flight, and Windows briefly
+    // suspends the network when it saves power; neither is a site fault.
+    const errorText = request.failure()?.errorText;
+    if (
+      errorText === "net::ERR_ABORTED" ||
+      errorText === "net::ERR_NETWORK_IO_SUSPENDED"
+    ) {
+      return;
+    }
     problems.push(
       `Request failed (${request.failure()?.errorText}): ${request.url()}`,
     );

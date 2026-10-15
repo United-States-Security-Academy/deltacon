@@ -2,6 +2,7 @@ import { ArrowRight, CornerDownRight } from "lucide-react";
 import Link from "next/link";
 
 import { CourseEnquiryLink } from "@/components/sections/course-enquiry-link";
+import { UssaLinkedText } from "@/components/sections/ussa-linked-text";
 import {
   findTrainingAcademy,
   type TrainingCourse,
@@ -37,7 +38,7 @@ export function TrainingCourseCard({
             </span>
           )}
           <span className="rounded-full bg-navy-100 px-2.5 py-1 text-xs font-semibold text-navy-800">
-            {academy.shortName}
+            <UssaLinkedText text={academy.shortName} />
           </span>
         </div>
       </div>

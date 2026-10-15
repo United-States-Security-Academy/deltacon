@@ -16,6 +16,7 @@ import {
   ussaAcademyWebsiteUrl,
 } from "@/config/training-courses";
 import { StructuredDataScript } from "@/components/seo/structured-data-script";
+import { UssaLinkedText } from "@/components/sections/ussa-linked-text";
 import { createPageMetadata } from "@/lib/seo/page-metadata";
 import { buildCourseData } from "@/lib/seo/structured-data";
 
@@ -69,9 +70,13 @@ export default async function TrainingCourseDetailPage({
       />
       <PageHeader
         eyebrow={
-          course.licenceLevel
-            ? `${academy.name} · ${course.licenceLevel}`
-            : academy.name
+          <UssaLinkedText
+            text={
+              course.licenceLevel
+                ? `${academy.name} · ${course.licenceLevel}`
+                : academy.name
+            }
+          />
         }
         title={course.name}
         introduction={course.summary}
@@ -160,7 +165,7 @@ export default async function TrainingCourseDetailPage({
                     aria-hidden="true"
                     className="size-5 text-gold-400"
                   />
-                  {academy.name}
+                  <UssaLinkedText text={academy.name} />
                 </dd>
               </div>
               {course.prerequisite && (
@@ -241,7 +246,7 @@ export default async function TrainingCourseDetailPage({
                 id="other-courses-heading"
                 className="text-3xl font-bold text-navy-900 uppercase"
               >
-                More from {academy.name}
+                More from <UssaLinkedText text={academy.name} />
               </h2>
               <Link
                 href="/training"

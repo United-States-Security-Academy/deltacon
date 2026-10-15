@@ -3,10 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { NavigationDropdown } from "@/components/layout/navigation-dropdown";
 import { Button } from "@/components/ui/button";
 import {
   applyNowLink,
-  isLinkActive,
+  isNavigationItemActive,
   mainNavigationLinks,
   requestServiceLink,
 } from "@/config/navigation";
@@ -19,7 +20,17 @@ export function DesktopNavigation() {
     <nav aria-label="Main" className="hidden items-center gap-6 xl:flex">
       <ul className="flex items-center gap-1">
         {mainNavigationLinks.map((link) => {
-          const isActive = isLinkActive(currentPath, link.href);
+          const isActive = isNavigationItemActive(currentPath, link);
+          if (link.children) {
+            return (
+              <NavigationDropdown
+                key={link.href}
+                item={link}
+                currentPath={currentPath}
+                isActive={isActive}
+              />
+            );
+          }
           return (
             <li key={link.href}>
               <Link
