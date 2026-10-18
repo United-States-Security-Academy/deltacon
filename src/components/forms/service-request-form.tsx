@@ -25,7 +25,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { industries } from "@/config/industries";
-import { services } from "@/config/services";
+import { requestableServices } from "@/config/requestable-services";
 import { cn } from "@/lib/utils";
 import {
   otherIndustryValue,
@@ -36,7 +36,7 @@ import { submitServiceRequest } from "@/server/actions/public/submit-service-req
 
 type ServiceRequestFormOutput = z.output<typeof serviceRequestFormSchema>;
 
-const serviceOptions = services.map((service) => ({
+const serviceOptions = requestableServices.map((service) => ({
   value: service.slug,
   label: service.name,
 }));
@@ -73,7 +73,7 @@ export function ServiceRequestForm({
   } = useForm<ServiceRequestFormInput, unknown, ServiceRequestFormOutput>({
     resolver: zodResolver(serviceRequestFormSchema),
     defaultValues: {
-      serviceSlug: services.some(
+      serviceSlug: requestableServices.some(
         (service) => service.slug === preselectedServiceSlug,
       )
         ? (preselectedServiceSlug as ServiceRequestFormInput["serviceSlug"])

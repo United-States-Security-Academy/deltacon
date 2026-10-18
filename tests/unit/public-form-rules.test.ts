@@ -226,3 +226,48 @@ describe("toFieldErrors", () => {
     }
   });
 });
+
+describe("other lines of business on the Request Service form", () => {
+  it("accepts Custodial Services and shows its name in the inbox", async () => {
+    const { serviceName } =
+      await import("@/lib/submissions/submission-summary");
+    const result = serviceRequestFormSchema.safeParse({
+      ...validServiceRequest,
+      serviceSlug: "custodial-services",
+    });
+    expect(result.success).toBe(true);
+    expect(serviceName("custodial-services")).toBe("Custodial Services");
+  });
+
+  it("offers every line of business that has a page, and nothing made up", async () => {
+    const { serviceName } =
+      await import("@/lib/submissions/submission-summary");
+    for (const [slug, name] of [
+      ["consulting", "Consulting"],
+      ["staffing", "Staffing"],
+      ["custodial-services", "Custodial Services"],
+    ]) {
+      const result = serviceRequestFormSchema.safeParse({
+        ...validServiceRequest,
+        serviceSlug: slug,
+      });
+      expect(result.success, slug).toBe(true);
+      expect(serviceName(slug!)).toBe(name);
+    }
+    const madeUp = serviceRequestFormSchema.safeParse({
+      ...validServiceRequest,
+      serviceSlug: "window-washing",
+    });
+    expect(madeUp.success).toBe(false);
+  });
+});
+
+it("accepts Staffing on the Request Service form once its page is written", async () => {
+  const { serviceName } = await import("@/lib/submissions/submission-summary");
+  const result = serviceRequestFormSchema.safeParse({
+    ...validServiceRequest,
+    serviceSlug: "staffing",
+  });
+  expect(result.success).toBe(true);
+  expect(serviceName("staffing")).toBe("Staffing");
+});

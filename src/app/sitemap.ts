@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 
 import { industries } from "@/config/industries";
-import { serviceLinePagesWithContent } from "@/config/service-lines";
+import { serviceLinesWithContent } from "@/config/service-lines";
 import { services } from "@/config/services";
 import { trainingCourses } from "@/config/training-courses";
 import { absoluteUrl } from "@/lib/site-url";
@@ -27,7 +27,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     page("/services", 0.9),
     ...services.map((service) => page(`/services/${service.slug}`, 0.8)),
     // Consulting, Staffing and Custodial Services, once their pages have content.
-    ...serviceLinePagesWithContent().map((serviceLine) =>
+    ...serviceLinesWithContent.map((serviceLine) =>
       page(serviceLine.href, 0.8),
     ),
     page("/industries", 0.8),

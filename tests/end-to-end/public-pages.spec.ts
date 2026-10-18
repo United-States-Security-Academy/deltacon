@@ -85,7 +85,11 @@ test("the Services dropdown opens each line of business", async ({ page }) => {
   });
   for (const [linkName, path, heading] of [
     ["Security Services", "/services", "Security services"],
-    ["Consulting", "/consulting", "Consulting"],
+    [
+      "Consulting",
+      "/consulting",
+      "Professional Physical Security Consulting & Protective Solutions",
+    ],
     ["Staffing", "/staffing", "Staffing"],
     ["Custodial Services", "/custodial-services", "Custodial Services"],
   ] as const) {
@@ -177,4 +181,44 @@ test("security headers are sent with every page", async ({ request }) => {
   expect(headers["x-content-type-options"]).toBe("nosniff");
   expect(headers["x-frame-options"]).toBe("DENY");
   expect(headers["x-powered-by"]).toBeUndefined();
+});
+
+test("the home page service tabs switch between lines of business", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const tabs = page.getByRole("tablist", { name: "Our services" });
+  const securityTab = tabs.getByRole("tab", { name: /Security/ });
+  await expect(securityTab).toHaveAttribute("aria-selected", "true");
+  await expect(
+    page
+      .getByRole("tabpanel")
+      .getByRole("link", { name: "All security services" }),
+  ).toBeVisible();
+
+  // Clicking shows that tab's panel, with links to its page and quote form.
+  await tabs.getByRole("tab", { name: /Staffing/ }).click();
+  const staffingPanel = page.getByRole("tabpanel");
+  await expect(staffingPanel).toContainText("The Right People");
+  await expect(
+    staffingPanel.getByRole("link", { name: "Request a Staffing Proposal" }),
+  ).toHaveAttribute("href", "/request-service?service=staffing");
+
+  // Keyboard: arrows move between tabs, Home and End jump to the ends.
+  await page.keyboard.press("ArrowRight");
+  await expect(tabs.getByRole("tab", { name: /Custodial/ })).toBeFocused();
+  await expect(page.getByRole("tabpanel")).toContainText("Clean Spaces");
+  await page.keyboard.press("ArrowRight");
+  await expect(securityTab).toHaveAttribute("aria-selected", "true");
+  await page.keyboard.press("End");
+  await expect(tabs.getByRole("tab", { name: /Custodial/ })).toBeFocused();
+  await page.keyboard.press("Home");
+  await expect(securityTab).toBeFocused();
+
+  await tabs.getByRole("tab", { name: /Consulting/ }).click();
+  await page
+    .getByRole("tabpanel")
+    .getByRole("link", { name: /Explore Consulting/ })
+    .click();
+  await expect(page).toHaveURL(/\/consulting$/);
 });

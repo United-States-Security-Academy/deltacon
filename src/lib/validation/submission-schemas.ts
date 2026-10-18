@@ -2,7 +2,7 @@ import { z } from "zod";
 
 import { industrySlugs } from "@/config/industries";
 import { availabilityValues, jobPositionSlugs } from "@/config/job-positions";
-import { serviceSlugs } from "@/config/services";
+import { requestableServiceSlugs } from "@/config/requestable-services";
 import { trainingCourseSlugs } from "@/config/training-courses";
 
 /*
@@ -116,7 +116,10 @@ export const serviceRequestFormSchema = z.object({
     .transform((companyName) => (companyName ? companyName : undefined)),
   email: emailRule,
   phone: phoneRule,
-  serviceSlug: choiceFrom(serviceSlugs, "Please choose the service you need."),
+  serviceSlug: choiceFrom(
+    requestableServiceSlugs,
+    "Please choose the service you need.",
+  ),
   industrySlug: choiceFrom(
     [...industrySlugs, otherIndustryValue],
     "Please choose your industry.",

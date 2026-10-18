@@ -10,8 +10,8 @@ import { CallToActionBand } from "@/components/sections/call-to-action-band";
 import { SecurityAssessmentPromo } from "@/components/sections/security-assessment-promo";
 import { CompanyStatisticsBand } from "@/components/sections/company-statistics-band";
 import { HeroBackgroundVideo } from "@/components/sections/hero-background-video";
+import { HomeServicesSection } from "@/components/sections/home-services-section";
 import { SectionHeading } from "@/components/sections/section-heading";
-import { ServiceCard } from "@/components/sections/service-card";
 import { TrainingCourseCard } from "@/components/sections/training-course-card";
 import { WhyChooseUsSection } from "@/components/sections/why-choose-us-section";
 import { StructuredDataScript } from "@/components/seo/structured-data-script";
@@ -21,7 +21,6 @@ import { companyDetails } from "@/config/company-details";
 import { heroVideo } from "@/config/hero-video";
 import { industries } from "@/config/industries";
 import { applyNowLink, requestServiceLink } from "@/config/navigation";
-import { services } from "@/config/services";
 import { featuredTrainingCourses } from "@/config/training-courses";
 import { createPageMetadata } from "@/lib/seo/page-metadata";
 import {
@@ -162,32 +161,7 @@ export default async function HomePage() {
       <CompanyStatisticsBand />
 
       {/* Services */}
-      <section
-        aria-labelledby="services-heading"
-        className="bg-paper section-spacing"
-      >
-        <div className="page-container flex flex-col gap-10">
-          <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
-            <SectionHeading
-              id="services-heading"
-              eyebrow="Our services"
-              title="Complete protection, one trusted partner"
-              description="Whatever you need to protect, we provide the people, plans and technology to do it properly."
-            />
-            <SectionLink href="/services">All services</SectionLink>
-          </div>
-          <ul
-            data-reveal-stagger
-            className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
-          >
-            {services.map((service) => (
-              <li key={service.slug}>
-                <ServiceCard service={service} />
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
+      <HomeServicesSection />
 
       <SecurityAssessmentPromo />
 

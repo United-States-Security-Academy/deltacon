@@ -1,6 +1,6 @@
 import { findIndustryBySlug } from "@/config/industries";
 import { availabilityOptions, jobPositions } from "@/config/job-positions";
-import { findServiceBySlug } from "@/config/services";
+import { findRequestableService } from "@/config/requestable-services";
 import { trainingCourses } from "@/config/training-courses";
 import type { SubmissionFormType } from "@/lib/database/schema/enums";
 
@@ -58,7 +58,7 @@ export type TrainingEnquiryFields = ContactFields & {
 // the config later) fall back to the raw value so nothing is ever hidden.
 
 export function serviceName(serviceSlug: string): string {
-  return findServiceBySlug(serviceSlug)?.name ?? serviceSlug;
+  return findRequestableService(serviceSlug)?.name ?? serviceSlug;
 }
 
 export function industryName(industrySlug: string): string {
