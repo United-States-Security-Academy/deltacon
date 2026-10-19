@@ -1,9 +1,9 @@
 "use client";
 
-import { MenuIcon } from "lucide-react";
+import { ChevronDown, MenuIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useId, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +20,7 @@ import {
   isLinkActive,
   mainNavigationLinks,
   requestServiceLink,
+  type MainNavigationItem,
 } from "@/config/navigation";
 import { cn } from "@/lib/utils";
 
@@ -62,45 +63,12 @@ export function MobileNavigationMenu() {
           <ul className="flex flex-col">
             {mainNavigationLinks.map((link) => {
               if (link.children) {
-                const groupLabelId = `mobile-menu-${link.label.toLowerCase()}`;
                 return (
-                  <li key={link.href} className="border-b border-navy-800 py-2">
-                    <p
-                      id={groupLabelId}
-                      className="px-2 pt-1.5 pb-1 text-xs font-semibold tracking-[0.2em] text-gold-400 uppercase"
-                    >
-                      {link.label}
-                    </p>
-                    <ul
-                      aria-labelledby={groupLabelId}
-                      className="flex flex-col"
-                    >
-                      {link.children.map((child) => {
-                        const isChildActive = isLinkActive(
-                          currentPath,
-                          child.href,
-                        );
-                        return (
-                          <li key={child.href}>
-                            <SheetClose asChild>
-                              <Link
-                                href={child.href}
-                                aria-current={
-                                  isChildActive ? "page" : undefined
-                                }
-                                className={cn(
-                                  "block py-2.5 pr-2 pl-5 text-base font-medium text-navy-100 transition-colors hover:text-gold-300",
-                                  isChildActive && "text-gold-300",
-                                )}
-                              >
-                                {child.label}
-                              </Link>
-                            </SheetClose>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  </li>
+                  <MobileNavigationGroup
+                    key={link.href}
+                    item={link}
+                    currentPath={currentPath}
+                  />
                 );
               }
               const isActive = isLinkActive(currentPath, link.href);
@@ -140,5 +108,69 @@ export function MobileNavigationMenu() {
         </nav>
       </SheetContent>
     </Sheet>
+  );
+}
+
+/**
+ * A menu item such as "Services" whose links stay hidden until the item is
+ * tapped. Built as a disclosure: a button that shows or hides a list of links.
+ */
+function MobileNavigationGroup({
+  item,
+  currentPath,
+}: {
+  item: MainNavigationItem;
+  currentPath: string;
+}) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const panelId = useId();
+  const isGroupActive =
+    item.children?.some((child) => isLinkActive(currentPath, child.href)) ??
+    false;
+
+  return (
+    <li className="border-b border-navy-800">
+      <button
+        type="button"
+        aria-expanded={isExpanded}
+        aria-controls={panelId}
+        onClick={() => setIsExpanded((expanded) => !expanded)}
+        className={cn(
+          "flex w-full items-center justify-between px-2 py-3.5 text-left text-base font-medium text-navy-100 transition-colors hover:text-gold-300",
+          (isGroupActive || isExpanded) && "text-gold-300",
+        )}
+      >
+        {item.label}
+        <ChevronDown
+          aria-hidden="true"
+          className={cn(
+            "size-5 transition-transform motion-reduce:transition-none",
+            isExpanded && "rotate-180",
+          )}
+        />
+      </button>
+
+      <ul id={panelId} hidden={!isExpanded} className="flex flex-col pb-2">
+        {item.children?.map((child) => {
+          const isChildActive = isLinkActive(currentPath, child.href);
+          return (
+            <li key={child.href}>
+              <SheetClose asChild>
+                <Link
+                  href={child.href}
+                  aria-current={isChildActive ? "page" : undefined}
+                  className={cn(
+                    "block py-2.5 pr-2 pl-5 text-base font-medium text-navy-100 transition-colors hover:text-gold-300",
+                    isChildActive && "text-gold-300",
+                  )}
+                >
+                  {child.label}
+                </Link>
+              </SheetClose>
+            </li>
+          );
+        })}
+      </ul>
+    </li>
   );
 }

@@ -122,9 +122,9 @@ export default async function HomePage() {
             </h1>
             <p className="max-w-xl text-base leading-relaxed text-navy-100 sm:text-lg">
               Licensed armed and unarmed security officers, personal protection,
-              mobile patrol, fire watch, and 24/7 emergency response, and
+              mobile patrol, fire watch, 24/7 emergency response, and
               staffing — serving government agencies, communities, and
-              businesses across the {companyDetails.location.country}.
+              businesses across the {companyDetails.location.region}.
             </p>
             <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
               <Button asChild variant="accent" size="xl">
