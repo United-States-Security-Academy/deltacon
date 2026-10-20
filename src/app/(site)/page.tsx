@@ -17,6 +17,7 @@ import { WhyChooseUsSection } from "@/components/sections/why-choose-us-section"
 import { StructuredDataScript } from "@/components/seo/structured-data-script";
 import { Button } from "@/components/ui/button";
 import { UssaLinkedText } from "@/components/sections/ussa-linked-text";
+import { VeteransProgramBanner } from "@/components/sections/veterans-program-banner";
 import { companyDetails } from "@/config/company-details";
 import { heroVideo } from "@/config/hero-video";
 import { industries } from "@/config/industries";
@@ -234,6 +235,7 @@ export default async function HomePage() {
               </li>
             ))}
           </ul>
+          <VeteransProgramBanner />
         </div>
       </section>
 

@@ -516,3 +516,19 @@ export const specializedUssaCertifications = [
 
 /** Website of the United States Security Academy, where course enquiries go. */
 export const ussaAcademyWebsiteUrl = "https://www.ussa-academy.com/";
+
+/**
+ * Wording of the veterans banner under the featured training courses on the
+ * home page. Edit the text here; the banner's artwork is drawn in code, so it
+ * fits any wording.
+ */
+export const veteransProgramBanner = {
+  eyebrow: "Veterans program",
+  headingStart: "Veterans: train",
+  headingHighlight: "tuition-free",
+  tagline: "You served. We’re honored to serve you.",
+  eligibility: "For verified U.S. military veterans",
+  buttonLabel: "Apply now",
+  buttonNote: "Veteran verification required",
+  applyUrl: "https://www.ussa-academy.com/veterans",
+};
