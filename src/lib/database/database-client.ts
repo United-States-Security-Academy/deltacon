@@ -14,6 +14,12 @@ function createDatabaseConnection() {
     // Give up quickly if the database is unreachable, so pages fall back to
     // their defaults instead of hanging (postgres.js waits 30 seconds by default).
     connect_timeout: 10,
+    // Close connections that sit unused, and renew every connection now and
+    // then. A connection left idle can be cut silently (by a mobile network,
+    // a router, or a serverless function being paused), and a query sent on
+    // it would wait forever instead of failing.
+    idle_timeout: 20,
+    max_lifetime: 60 * 10,
     // Serverless functions should hold very few connections each.
     max: 5,
   });

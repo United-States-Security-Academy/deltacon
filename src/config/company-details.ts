@@ -33,6 +33,8 @@ export type CompanyDetails = {
   };
   /** Texas DPS Private Security Program company licence, shown in the footer and on About. */
   securityLicenseNumber: string;
+  /** The group Deltacon Security Group belongs to, shown in the footer. */
+  parentCompanyName: string;
   /** Office address, shown in the footer and used for search engines. */
   officeAddress: {
     streetAddress: string;
@@ -60,6 +62,7 @@ export const companyDetails: CompanyDetails = {
     countryCode: "US",
   },
   securityLicenseNumber: "B05205701",
+  parentCompanyName: "Deltacon Global Inc.",
   officeAddress: {
     streetAddress: "12808 W. Airport Blvd, Ste 224",
     city: "Sugar Land",

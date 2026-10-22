@@ -27,7 +27,13 @@ export function SiteFooter({ socialLinks }: SiteFooterProps) {
     <footer className="mt-auto border-t-4 border-gold-500 bg-navy-950 text-navy-200">
       <div className="page-container grid gap-12 py-14 md:grid-cols-[2fr_3fr]">
         <div className="flex flex-col gap-5">
-          <CompanyLogo size="footer" />
+          <div className="flex flex-col gap-3">
+            <CompanyLogo size="footer" />
+            <p className="flex items-center gap-3 font-heading text-xs font-semibold tracking-[0.25em] text-navy-100 uppercase">
+              <span aria-hidden="true" className="h-px w-6 bg-gold-500" />A{" "}
+              {companyDetails.parentCompanyName} Company
+            </p>
+          </div>
           <p className="max-w-sm text-sm leading-relaxed">
             {companyDetails.description}
           </p>
@@ -84,7 +90,8 @@ export function SiteFooter({ socialLinks }: SiteFooterProps) {
       <div className="border-t border-navy-800">
         <div className="page-container flex flex-col items-center justify-between gap-2 py-5 text-xs sm:flex-row">
           <p>
-            &copy; {currentYear} {companyDetails.name}. All rights reserved.
+            &copy; {currentYear} {companyDetails.name}, a{" "}
+            {companyDetails.parentCompanyName} company. All rights reserved.
           </p>
           <p className="text-center sm:text-right">
             Licensed security services in {companyDetails.location.region}, USA

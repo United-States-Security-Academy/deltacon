@@ -46,6 +46,7 @@ import {
   deletePost,
   savePost,
   suggestPostSlug,
+  type PostSaveResult,
 } from "@/server/actions/admin/post-actions";
 
 export type EditablePost = {
@@ -69,6 +70,8 @@ type PostFieldValues = Omit<EditablePost, "id" | "status" | "publishedAt">;
 type SaveState = "saved" | "unsaved" | "saving" | "failed";
 
 const autosaveDelayInMilliseconds = 2500;
+/** How long to wait for the server before telling the admin a save is stuck. */
+const saveTimeoutInMilliseconds = 30_000;
 
 const categoryOptions = postCategoryOrder.map((category) => ({
   value: category,
@@ -154,27 +157,63 @@ export function PostEditor({
       setSaveState("saving");
       setBusyIntent(intent.intent);
       setBannerErrorMessage(undefined);
-      const result = await savePost(post.id, valuesBeingSaved, intent);
-      setBusyIntent(null);
 
-      if (result.status === "error") {
-        setSaveState("failed");
-        setBannerErrorMessage(result.message);
-        setFieldErrors(result.fieldErrors ?? {});
-        return false;
+      function applyResult(result: PostSaveResult): boolean {
+        if (result.status === "error") {
+          setSaveState("failed");
+          setBannerErrorMessage(result.message);
+          setFieldErrors(result.fieldErrors ?? {});
+          return false;
+        }
+        lastSavedSnapshot.current = JSON.stringify(valuesBeingSaved);
+        setSaveState(
+          JSON.stringify(latestFieldValues.current) ===
+            lastSavedSnapshot.current
+            ? "saved"
+            : "unsaved",
+        );
+        setLastSavedAt(new Date(result.savedAt));
+        setStatus(result.postStatus);
+        setPublishedAt(result.publishedAt);
+        setFieldErrors({});
+        setBannerErrorMessage(undefined);
+        if (result.postStatus !== "draft") setIsSlugAutomatic(false);
+        return true;
       }
-      lastSavedSnapshot.current = JSON.stringify(valuesBeingSaved);
-      setSaveState(
-        JSON.stringify(latestFieldValues.current) === lastSavedSnapshot.current
-          ? "saved"
-          : "unsaved",
-      );
-      setLastSavedAt(new Date(result.savedAt));
-      setStatus(result.postStatus);
-      setPublishedAt(result.publishedAt);
-      setFieldErrors({});
-      if (result.postStatus !== "draft") setIsSlugAutomatic(false);
-      return true;
+
+      // The browser sends server actions one at a time, so a request that
+      // never comes back would block every later save. Stop waiting after a
+      // while and tell the admin, but still apply the reply if it arrives.
+      const pendingSave = savePost(post.id, valuesBeingSaved, intent);
+      let timeoutId: number | undefined;
+      const timedOut = new Promise<"timed out">((resolve) => {
+        timeoutId = window.setTimeout(
+          () => resolve("timed out"),
+          saveTimeoutInMilliseconds,
+        );
+      });
+
+      try {
+        const outcome = await Promise.race([pendingSave, timedOut]);
+        if (outcome === "timed out") {
+          setSaveState("failed");
+          setBannerErrorMessage(
+            "The server is taking too long to reply, so this may not have been saved. Check your internet connection. If it still doesn't finish, copy your text, reload the page and check whether the changes are there.",
+          );
+          pendingSave.then(applyResult).catch(() => {});
+          return false;
+        }
+        return applyResult(outcome);
+      } catch {
+        setSaveState("failed");
+        setBannerErrorMessage(
+          "The post couldn't be saved because the server couldn't be reached. Check your internet connection and try again.",
+        );
+        return false;
+      } finally {
+        window.clearTimeout(timeoutId);
+        setBusyIntent(null);
+      }
     },
     [post.id],
   );
@@ -214,8 +253,12 @@ export function PostEditor({
   async function handleTitleBlur() {
     if (!isSlugAutomatic || !fieldValues.title.trim()) return;
     // Make sure the automatic address isn't already used by another post.
-    const uniqueSlug = await suggestPostSlug(post.id, fieldValues.title);
-    if (uniqueSlug !== latestFieldValues.current.slug)
+    // If the server can't be reached, keep the address as typed; saving
+    // still checks that it's unique.
+    const uniqueSlug = await suggestPostSlug(post.id, fieldValues.title).catch(
+      () => null,
+    );
+    if (uniqueSlug && uniqueSlug !== latestFieldValues.current.slug)
       updateField("slug", uniqueSlug);
   }
 
