@@ -207,7 +207,7 @@ export function PostEditor({
       } catch {
         setSaveState("failed");
         setBannerErrorMessage(
-          "The post couldn't be saved because the server couldn't be reached. Check your internet connection and try again.",
+          "The post couldn't be saved. Please try again. If it keeps happening, check your internet connection or contact the site developer.",
         );
         return false;
       } finally {

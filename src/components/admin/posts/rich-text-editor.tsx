@@ -292,7 +292,14 @@ export function RichTextEditor({
           "prose prose-lg max-w-none min-h-[28rem] px-5 py-4 focus:outline-none prose-headings:font-heading prose-headings:uppercase prose-headings:text-navy-900 prose-a:text-gold-700 prose-img:rounded-lg",
       },
     },
-    onUpdate: ({ editor: updatedEditor }) => onChange(updatedEditor.getJSON()),
+    // getJSON() keeps ProseMirror's attribute objects, which have no
+    // prototype. React can't send those to a server action as data (the
+    // server receives an unreadable placeholder and the save crashes), so
+    // copy the document into plain objects first.
+    onUpdate: ({ editor: updatedEditor }) =>
+      onChange(
+        JSON.parse(JSON.stringify(updatedEditor.getJSON())) as JSONContent,
+      ),
   });
 
   const wordCount = useEditorState({
