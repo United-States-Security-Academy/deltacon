@@ -153,6 +153,19 @@ export async function savePost(
       };
     }
   }
+  // Allow a minute of difference between the admin's clock and the server's.
+  if (
+    intent.intent === "publish" &&
+    intent.publishedAt &&
+    new Date(intent.publishedAt).getTime() > Date.now() + 60_000
+  ) {
+    return {
+      status: "error",
+      message:
+        "A published post's date can't be in the future. To publish later, unpublish the post and schedule it instead.",
+      fieldErrors: { publishedAt: "Choose today or an earlier date." },
+    };
+  }
   if (
     intent.intent === "schedule" &&
     new Date(intent.publishAt) <= new Date()
@@ -189,13 +202,18 @@ export async function savePost(
     let publishedAt = existingPost.publishedAt;
     if (intent.intent === "publish") {
       status = "published";
-      // Keep the original date for a post that is already live (published,
-      // or scheduled with a date that has passed); otherwise it goes live now.
+      // Use the date the admin chose, if any. Otherwise keep the original
+      // date for a post that is already live (published, or scheduled with
+      // a date that has passed); a new post goes live now.
       const isAlreadyLive =
         existingPost.status !== "draft" &&
         existingPost.publishedAt !== null &&
         existingPost.publishedAt <= new Date();
-      publishedAt = isAlreadyLive ? existingPost.publishedAt : new Date();
+      if (intent.publishedAt) {
+        publishedAt = new Date(intent.publishedAt);
+      } else {
+        publishedAt = isAlreadyLive ? existingPost.publishedAt : new Date();
+      }
     } else if (intent.intent === "schedule") {
       status = "scheduled";
       publishedAt = new Date(intent.publishAt);

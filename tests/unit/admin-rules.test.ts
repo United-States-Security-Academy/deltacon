@@ -105,6 +105,24 @@ describe("blog post rules", () => {
       false,
     );
   });
+
+  it("accepts an optional, valid publish date when publishing", () => {
+    expect(postSaveIntentSchema.safeParse({ intent: "publish" }).success).toBe(
+      true,
+    );
+    expect(
+      postSaveIntentSchema.safeParse({
+        intent: "publish",
+        publishedAt: "2026-03-15T10:30:00.000Z",
+      }).success,
+    ).toBe(true);
+    expect(
+      postSaveIntentSchema.safeParse({
+        intent: "publish",
+        publishedAt: "last spring",
+      }).success,
+    ).toBe(false);
+  });
 });
 
 describe("gallery rules", () => {

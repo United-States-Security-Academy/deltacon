@@ -63,7 +63,14 @@ export type PostFields = z.infer<typeof postFieldsSchema>;
 /** What the editor buttons ask the server to do. */
 export const postSaveIntentSchema = z.discriminatedUnion("intent", [
   z.object({ intent: z.literal("save") }),
-  z.object({ intent: z.literal("publish") }),
+  z.object({
+    intent: z.literal("publish"),
+    // A past date to show as the publish date (e.g. to correct or backdate
+    // it). Left out, a new post goes live now and a live post keeps its date.
+    publishedAt: z.iso
+      .datetime({ offset: true, error: "Please choose a date and time." })
+      .optional(),
+  }),
   z.object({
     intent: z.literal("schedule"),
     publishAt: z.iso.datetime({

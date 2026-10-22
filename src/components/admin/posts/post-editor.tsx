@@ -120,6 +120,17 @@ export function PostEditor({
     null,
   );
 
+  // The publish date of a published or scheduled post can be edited; the
+  // new date is saved when "Update" is pressed.
+  const savedPublishDateValue = publishedAt
+    ? toDateTimeInputValue(new Date(publishedAt))
+    : "";
+  const [publishDateValue, setPublishDateValue] = useState(
+    savedPublishDateValue,
+  );
+  const hasPublishDateChanged =
+    status !== "draft" && publishDateValue !== savedPublishDateValue;
+
   // The web address follows the title until someone edits it by hand, and
   // never changes automatically once the post has been public.
   const [isSlugAutomatic, setIsSlugAutomatic] = useState(
@@ -175,6 +186,11 @@ export function PostEditor({
         setLastSavedAt(new Date(result.savedAt));
         setStatus(result.postStatus);
         setPublishedAt(result.publishedAt);
+        setPublishDateValue(
+          result.publishedAt
+            ? toDateTimeInputValue(new Date(result.publishedAt))
+            : "",
+        );
         setFieldErrors({});
         setBannerErrorMessage(undefined);
         if (result.postStatus !== "draft") setIsSlugAutomatic(false);
@@ -235,14 +251,19 @@ export function PostEditor({
     return () => window.clearTimeout(timer);
   }, [fieldValues, status, runSave]);
 
+  // A changed publish date counts as an unsaved change too.
+  const displayedSaveState: SaveState =
+    saveState === "saved" && hasPublishDateChanged ? "unsaved" : saveState;
+
   // Warn before leaving the page with unsaved changes.
   useEffect(() => {
-    if (saveState !== "unsaved" && saveState !== "failed") return;
+    if (displayedSaveState !== "unsaved" && displayedSaveState !== "failed")
+      return;
     const warnBeforeLeaving = (event: BeforeUnloadEvent) =>
       event.preventDefault();
     window.addEventListener("beforeunload", warnBeforeLeaving);
     return () => window.removeEventListener("beforeunload", warnBeforeLeaving);
-  }, [saveState]);
+  }, [displayedSaveState]);
 
   function handleTitleChange(title: string) {
     updateField("title", title);
@@ -291,6 +312,38 @@ export function PostEditor({
     if (scheduled) setIsSchedulePanelOpen(false);
   }
 
+  function handlePublishDateChange(value: string) {
+    setPublishDateValue(value);
+    setFieldErrors((previousErrors) => {
+      if (!previousErrors.publishedAt && !previousErrors.publishAt)
+        return previousErrors;
+      const remainingErrors = { ...previousErrors };
+      delete remainingErrors.publishedAt;
+      delete remainingErrors.publishAt;
+      return remainingErrors;
+    });
+  }
+
+  /** "Update" on a published or scheduled post, including a changed date. */
+  function updatePost() {
+    let chosenDate: string | undefined;
+    if (hasPublishDateChanged) {
+      const parsedDate = new Date(publishDateValue);
+      if (Number.isNaN(parsedDate.getTime())) {
+        setFieldErrors({ publishedAt: "Please choose a date and time." });
+        return;
+      }
+      chosenDate = parsedDate.toISOString();
+    }
+    if (isLiveOnSite) {
+      void runSave({ intent: "publish", publishedAt: chosenDate });
+    } else if (chosenDate) {
+      void runSave({ intent: "schedule", publishAt: chosenDate });
+    } else {
+      void runSave({ intent: "save" });
+    }
+  }
+
   const isLiveOnSite =
     status === "published" ||
     (status === "scheduled" &&
@@ -311,7 +364,7 @@ export function PostEditor({
         ? "Unsaved changes…"
         : "Unsaved changes. Press Update to publish them.",
     failed: "Not saved",
-  }[saveState];
+  }[displayedSaveState];
 
   const seoTitlePreview = fieldValues.seoTitle || fieldValues.title;
   const metaDescriptionPreview =
@@ -412,10 +465,34 @@ export function PostEditor({
           </div>
 
           {publishedAt && status !== "draft" && (
-            <p className="text-sm text-muted-foreground">
-              {isLiveOnSite ? "Published" : "Goes live"}{" "}
-              {formatAdminDate(new Date(publishedAt))}
-            </p>
+            <FormField
+              fieldId="post-published-at"
+              label={isLiveOnSite ? "Published on" : "Goes live on"}
+              hint={
+                hasPublishDateChanged
+                  ? `Was ${formatAdminDate(new Date(publishedAt))}. Press Update to save the new date.`
+                  : "In your computer's time zone. Change it and press Update."
+              }
+              errorMessage={fieldErrors.publishedAt ?? fieldErrors.publishAt}
+            >
+              {(controlProps) => (
+                <input
+                  {...controlProps}
+                  type="datetime-local"
+                  value={publishDateValue}
+                  min={
+                    isLiveOnSite ? undefined : toDateTimeInputValue(new Date())
+                  }
+                  max={
+                    isLiveOnSite ? toDateTimeInputValue(new Date()) : undefined
+                  }
+                  onChange={(event) =>
+                    handlePublishDateChange(event.target.value)
+                  }
+                  className={formControlClassName}
+                />
+              )}
+            </FormField>
           )}
 
           <p
@@ -463,14 +540,7 @@ export function PostEditor({
               <Button
                 variant="accent"
                 size="lg"
-                onClick={() =>
-                  runSave({
-                    intent:
-                      status === "scheduled" && !isLiveOnSite
-                        ? "save"
-                        : "publish",
-                  })
-                }
+                onClick={updatePost}
                 disabled={busyIntent !== null}
               >
                 <Send aria-hidden="true" />
