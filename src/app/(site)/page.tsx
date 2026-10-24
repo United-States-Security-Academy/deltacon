@@ -11,6 +11,7 @@ import { SecurityAssessmentPromo } from "@/components/sections/security-assessme
 import { CompanyStatisticsBand } from "@/components/sections/company-statistics-band";
 import { HeroBackgroundVideo } from "@/components/sections/hero-background-video";
 import { HomeServicesSection } from "@/components/sections/home-services-section";
+import { LicensingGuidePromo } from "@/components/sections/licensing-guide-promo";
 import { SectionHeading } from "@/components/sections/section-heading";
 import { TrainingCourseCard } from "@/components/sections/training-course-card";
 import { WhyChooseUsSection } from "@/components/sections/why-choose-us-section";
@@ -123,9 +124,9 @@ export default async function HomePage() {
             </h1>
             <p className="max-w-xl text-base leading-relaxed text-navy-100 sm:text-lg">
               Licensed armed and unarmed security officers, personal protection,
-              mobile patrol, fire watch, 24/7 emergency response, and
-              staffing — serving government agencies, communities, and
-              businesses across {companyDetails.location.region}.
+              mobile patrol, fire watch, 24/7 emergency response, and staffing —
+              serving government agencies, communities, and businesses across{" "}
+              {companyDetails.location.region}.
             </p>
             <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
               <Button asChild variant="accent" size="xl">
@@ -209,8 +210,6 @@ export default async function HomePage() {
 
       <WhyChooseUsSection />
 
-      <AffiliationsSection />
-
       {/* Featured training */}
       <section
         aria-labelledby="training-heading"
@@ -238,6 +237,8 @@ export default async function HomePage() {
           <VeteransProgramBanner />
         </div>
       </section>
+
+      <LicensingGuidePromo />
 
       {/* Latest posts (hidden until the first post is published) */}
       {latestPosts.length > 0 && (
@@ -304,6 +305,8 @@ export default async function HomePage() {
           </div>
         </section>
       )}
+
+      <AffiliationsSection />
 
       <CallToActionBand />
     </>

@@ -16,6 +16,7 @@ export const mainNavigationLinks: MainNavigationItem[] = [
   { label: "Services", href: "/services", children: serviceLines },
   { label: "Industries", href: "/industries" },
   { label: "Training", href: "/training" },
+  { label: "Guide", href: "/guide" },
   { label: "Gallery", href: "/gallery" },
   { label: "Blog & Media", href: "/blog" },
 ];

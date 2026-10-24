@@ -7,15 +7,18 @@ import esgrLogo from "@/assets/affiliations/esgr.jpg";
 import fortBendChamberLogo from "@/assets/affiliations/fort-bend-chamber-of-commerce.png";
 import galvestonRegionalChamberLogo from "@/assets/affiliations/galveston-regional-chamber-of-commerce.png";
 import hireVetsMedallionLogo from "@/assets/affiliations/hire-vets-medallion.png";
+import inc5000Logo from "@/assets/affiliations/inc-5000.png";
 import infragardLogo from "@/assets/affiliations/infragard.png";
-import nationalApartmentAssociationLogo from "@/assets/affiliations/national-apartment-association.png";
 import nationalRetailFederationLogo from "@/assets/affiliations/national-retail-federation.png";
 import presidentsVolunteerServiceAwardLogo from "@/assets/affiliations/presidents-volunteer-service-award.jpg";
 import propperLogo from "@/assets/affiliations/propper.png";
+import sbaServiceDisabledVeteranOwnedLogo from "@/assets/affiliations/sba-service-disabled-veteran-owned-certified.png";
+import sbaVeteranOwnedLogo from "@/assets/affiliations/sba-veteran-owned-certified.png";
 import texasApartmentAssociationLogo from "@/assets/affiliations/texas-apartment-association.png";
 import texasHotelLodgingAssociationLogo from "@/assets/affiliations/texas-hotel-lodging-association.png";
 import usChamberOfCommerceLogo from "@/assets/affiliations/us-chamber-of-commerce.png";
 import veteranOwnedSmallBusinessLogo from "@/assets/affiliations/veteran-owned-small-business.png";
+import vethubCertifiedVendorLogo from "@/assets/affiliations/vethub-certified-vendor.png";
 
 /**
  * Recognitions, awards and affiliations, taken from the company's
@@ -42,6 +45,15 @@ export const membershipNumbers = [
 ];
 
 export const affiliationGroups: AffiliationGroup[] = [
+  {
+    heading: "Awards",
+    affiliations: [
+      {
+        name: "Inc. 5000: America's Fastest-Growing Private Companies",
+        logo: inc5000Logo,
+      },
+    ],
+  },
   {
     heading: "Chambers of Commerce",
     affiliations: [
@@ -79,11 +91,6 @@ export const affiliationGroups: AffiliationGroup[] = [
         name: "Texas Apartment Association",
         logo: texasApartmentAssociationLogo,
       },
-      {
-        name: "National Apartment Association",
-        logo: nationalApartmentAssociationLogo,
-        detail: "Affiliate",
-      },
     ],
   },
   {
@@ -106,6 +113,18 @@ export const affiliationGroups: AffiliationGroup[] = [
         name: "Veteran-Owned Small Business",
         logo: veteranOwnedSmallBusinessLogo,
         detail: "VA verified",
+      },
+      {
+        name: "SBA Veteran-Owned Certified",
+        logo: sbaVeteranOwnedLogo,
+      },
+      {
+        name: "SBA Service-Disabled Veteran-Owned Certified",
+        logo: sbaServiceDisabledVeteranOwnedLogo,
+      },
+      {
+        name: "VetHUB (Veteran Heroes United in Business) Certified Vendor",
+        logo: vethubCertifiedVendorLogo,
       },
     ],
   },

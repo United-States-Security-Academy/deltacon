@@ -310,6 +310,11 @@
     animation: scanner-sweep 6s ease-in-out 1.5s infinite;
   }
 
+  /* --- Licensing guide: each step slides up as it's shown --- */
+  .guide-step-panel:not([hidden]) {
+    animation: reveal-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
   /* --- Light streaks: a bright pulse travels along a gold line --- */
   svg .light-streak-pulse {
     stroke-dasharray: 70 930;
