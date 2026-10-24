@@ -24,7 +24,7 @@ function QuickGuidePanel({ guide }: { guide: LicensingQuickGuide }) {
   const address = companyDetails.officeAddress;
 
   return (
-    <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
+    <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
       <article
         aria-labelledby={headingId}
         className="overflow-hidden rounded-2xl border border-border bg-white shadow-lg shadow-navy-950/5"

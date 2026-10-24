@@ -103,7 +103,7 @@ export default function LicensingGuidePage() {
             </h2>
           </div>
 
-          <div className="grid items-start gap-8 lg:grid-cols-[3fr_2fr]">
+          <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
             {/* Governing laws */}
             <div className="flex flex-col gap-5 rounded-2xl border border-border bg-white p-6 shadow-sm sm:p-8">
               <h3 className="flex items-center gap-3 text-2xl font-bold text-navy-900 uppercase">
@@ -114,7 +114,7 @@ export default function LicensingGuidePage() {
                 <GuideRichText text={governingLaws.introduction} />
               </p>
               <div className="overflow-x-auto">
-                <table className="w-full min-w-[28rem] border-collapse text-left text-base">
+                <table className="w-full border-collapse text-left text-base">
                   <caption className="sr-only">
                     Useful provisions and their subjects
                   </caption>
@@ -136,7 +136,7 @@ export default function LicensingGuidePage() {
                       >
                         <th
                           scope="row"
-                          className="py-3 pr-4 font-semibold whitespace-nowrap text-navy-900"
+                          className="w-2/5 py-3 pr-4 align-top font-semibold text-navy-900 sm:whitespace-nowrap"
                         >
                           {row.provision}
                         </th>

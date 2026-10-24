@@ -27,7 +27,7 @@ export function LicensingGuidePromo() {
       <div className="page-container">
         <div
           data-reveal="up"
-          className="relative isolate grid items-center gap-10 overflow-hidden rounded-2xl border border-gold-500/30 bg-gradient-to-br from-paper via-white to-gold-300/10 p-8 shadow-sm sm:p-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,26rem)] lg:gap-14 lg:p-14"
+          className="relative isolate grid grid-cols-1 items-center gap-10 overflow-hidden rounded-2xl border border-gold-500/30 bg-gradient-to-br from-paper via-white to-gold-300/10 p-8 shadow-sm sm:p-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,26rem)] lg:gap-14 lg:p-14"
         >
           <Compass
             aria-hidden="true"

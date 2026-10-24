@@ -32,7 +32,7 @@ function formatStepNumber(index: number) {
 /** The three licence levels side by side, each building on the last. */
 function PathwayCards() {
   return (
-    <ol className="grid gap-4 md:grid-cols-3">
+    <ol className="grid grid-cols-1 gap-4 md:grid-cols-3">
       {careerPathways.map((pathway, index) => (
         <li
           key={pathway.level}
@@ -470,7 +470,7 @@ export function LicensingGuideStepper() {
   }, [currentStepIndex, isFinished]);
 
   return (
-    <div className="grid items-start gap-6 lg:grid-cols-[17rem_minmax(0,1fr)] lg:gap-10">
+    <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[17rem_minmax(0,1fr)] lg:gap-10">
       <StepProgressList
         currentStepIndex={currentStepIndex}
         furthestStepIndex={furthestStepIndex}
