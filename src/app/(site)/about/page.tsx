@@ -13,7 +13,7 @@ import {
   companyStory,
   companyValues,
   leadershipTeam,
-  licencesAndCertifications,
+  licensesAndCertifications,
   missionStatement,
 } from "@/config/about-content";
 import { companyDetails } from "@/config/company-details";
@@ -22,7 +22,7 @@ import { createPageMetadata } from "@/lib/seo/page-metadata";
 export const metadata = createPageMetadata({
   title: "About Us",
   description:
-    "Learn about Deltacon Security Group: our story, mission, values, leadership team and licences.",
+    "Learn about Deltacon Security Group: our story, mission, values, leadership team and licenses.",
   path: "/about",
 });
 
@@ -159,20 +159,20 @@ export default function AboutPage() {
       </section>
 
       <section
-        aria-labelledby="licences-heading"
+        aria-labelledby="licenses-heading"
         className="bg-paper section-spacing"
       >
         <div className="page-container flex flex-col gap-10">
           <SectionHeading
-            id="licences-heading"
+            id="licenses-heading"
             eyebrow="Compliance"
-            title="Licences & certifications"
-            description="We operate fully within Texas private security regulations, and our officers' licences are kept current at all times."
+            title="Licenses & certifications"
+            description="We operate fully within Texas private security regulations, and our officers' licenses are kept current at all times."
           />
           <ul data-reveal-stagger className="grid gap-6 md:grid-cols-3">
-            {licencesAndCertifications.map((licence) => (
+            {licensesAndCertifications.map((license) => (
               <li
-                key={licence.name}
+                key={license.name}
                 className="flex gap-4 rounded-lg bg-white p-6 shadow-sm"
               >
                 <BadgeCheck
@@ -181,13 +181,13 @@ export default function AboutPage() {
                 />
                 <div className="flex flex-col gap-1">
                   <h3 className="text-lg font-bold text-navy-900 uppercase">
-                    <UssaLinkedText text={licence.name} />
+                    <UssaLinkedText text={license.name} />
                   </h3>
                   <p className="text-sm font-medium text-navy-700">
-                    {licence.issuer}
+                    {license.issuer}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    <UssaLinkedText text={licence.detail} />
+                    <UssaLinkedText text={license.detail} />
                   </p>
                 </div>
               </li>

@@ -38,7 +38,7 @@ export type ServiceHighlight = {
 export type Service = {
   slug: string;
   name: string;
-  /** Licence level or credential shown above the name, if any. */
+  /** License level or credential shown above the name, if any. */
   credential?: string;
   icon: LucideIcon;
   image?: StaticImageData;

@@ -78,7 +78,7 @@ export default function TrainingPage() {
             </h3>
             <p className="text-lg text-muted-foreground">
               Start with Level II and progress to armed and personal protection
-              licences. Select a step to see the full course details.
+              licenses. Select a step to see the full course details.
             </p>
           </div>
           <LicensingPathway />

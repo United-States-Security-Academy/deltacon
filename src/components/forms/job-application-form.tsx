@@ -342,7 +342,7 @@ export function JobApplicationForm() {
         fieldId="cover-note"
         label="Short cover note"
         isRequired
-        hint="Tell us about your experience, licences and why you'd like to join Deltacon."
+        hint="Tell us about your experience, licenses and why you'd like to join Deltacon."
         errorMessage={errors.coverNote?.message}
       >
         {(controlProps) => (

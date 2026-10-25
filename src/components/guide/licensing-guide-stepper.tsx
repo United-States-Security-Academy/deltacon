@@ -29,7 +29,7 @@ function formatStepNumber(index: number) {
   return String(index + 1).padStart(2, "0");
 }
 
-/** The three licence levels side by side, each building on the last. */
+/** The three license levels side by side, each building on the last. */
 function PathwayCards() {
   return (
     <ol className="grid grid-cols-1 gap-4 md:grid-cols-3">

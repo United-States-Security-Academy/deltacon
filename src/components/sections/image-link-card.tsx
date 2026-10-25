@@ -5,7 +5,7 @@ import Link from "next/link";
 type ImageLinkCardProps = {
   href: string;
   title: string;
-  /** Small label above the title, e.g. a licence level. */
+  /** Small label above the title, e.g. a license level. */
   eyebrow?: string;
   summary: string;
   icon: LucideIcon;

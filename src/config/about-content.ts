@@ -19,7 +19,7 @@ import { trainingCourses } from "./training-courses";
  * Copy for the About page and the "Why choose us" section.
  *
  * TODO before launch: replace every value marked PLACEHOLDER with real,
- * verified information (leadership names, licence numbers, statistics).
+ * verified information (leadership names, license numbers, statistics).
  */
 
 export const companyStory = {
@@ -95,16 +95,16 @@ export const leadershipTeam: LeadershipTeamMember[] = [
   },
 ];
 
-export type LicenceOrCertification = {
+export type LicenseOrCertification = {
   name: string;
   issuer: string;
   detail: string;
 };
 
-// Add any other licences or certifications here.
-export const licencesAndCertifications: LicenceOrCertification[] = [
+// Add any other licenses or certifications here.
+export const licensesAndCertifications: LicenseOrCertification[] = [
   {
-    name: "Security Services Contractor Licence",
+    name: "Security Services Contractor License",
     issuer: "Texas Department of Public Safety – Private Security Program",
     detail: `License No. ${companyDetails.securityLicenseNumber}`,
   },

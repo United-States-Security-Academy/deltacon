@@ -31,7 +31,7 @@ export type CompanyDetails = {
     country: string;
     countryCode: string;
   };
-  /** Texas DPS Private Security Program company licence, shown in the footer and on About. */
+  /** Texas DPS Private Security Program company license, shown in the footer and on About. */
   securityLicenseNumber: string;
   /** The group Deltacon Security Group belongs to, shown in the footer. */
   parentCompanyName: string;

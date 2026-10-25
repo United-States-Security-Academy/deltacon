@@ -14,7 +14,7 @@ const nextSteps = [
   {
     title: "Application review",
     description:
-      "Our recruitment team reviews your experience, licences and availability.",
+      "Our recruitment team reviews your experience, licenses and availability.",
   },
   {
     title: "Interview",
@@ -24,7 +24,7 @@ const nextSteps = [
   {
     title: "Checks & onboarding",
     description:
-      "Background checks, licence verification and site-specific training before your first shift.",
+      "Background checks, license verification and site-specific training before your first shift.",
   },
 ];
 

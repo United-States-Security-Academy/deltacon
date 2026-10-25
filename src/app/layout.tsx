@@ -7,7 +7,7 @@ import { siteUrl } from "@/lib/site-url";
 
 import "./globals.css";
 
-// Fonts are self-hosted from src/assets/fonts (open-source, SIL OFL licence),
+// Fonts are self-hosted from src/assets/fonts (open-source, SIL OFL license),
 // so builds never depend on reaching Google Fonts.
 const interFont = localFont({
   variable: "--font-inter",

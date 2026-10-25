@@ -43,7 +43,7 @@ export function LicensingPathway() {
                   <Icon aria-hidden="true" className="size-6 text-gold-600" />
                 </span>
                 <span className="font-heading text-xl font-bold text-navy-900 uppercase">
-                  {course.licenceLevel}
+                  {course.licenseLevel}
                 </span>
                 <span className="text-sm text-muted-foreground">
                   {course.name.split("—")[1]?.trim() ?? course.name}

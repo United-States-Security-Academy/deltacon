@@ -669,7 +669,7 @@ export const licensingGuideClosing = {
 };
 
 /*
- * One-page quick guides for each licence level, from the client's flyers
+ * One-page quick guides for each license level, from the client's flyers
  * (Texas_Level_II/III/IV_…_Licensing_Flyer.pdf, October 23, 2026).
  */
 

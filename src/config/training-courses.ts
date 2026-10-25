@@ -82,8 +82,8 @@ export type TrainingCourse = {
   slug: string;
   name: string;
   academyId: TrainingAcademyId;
-  /** Licence level, if the course is part of the Texas licensing pathway. */
-  licenceLevel?: string;
+  /** License level, if the course is part of the Texas licensing pathway. */
+  licenseLevel?: string;
   icon: LucideIcon;
   /** One or two sentences used on cards and in search results. */
   summary: string;
@@ -102,10 +102,10 @@ export const trainingCourses = [
     slug: "level-2-unarmed-officer",
     name: "Private Security Level II — Unarmed Officer Training",
     academyId: "united-states-security-academy",
-    licenceLevel: "Level II",
+    licenseLevel: "Level II",
     icon: GraduationCap,
     summary:
-      "The foundational course for non-commissioned security officers, and the first step on the pathway to commissioned and Personal Protection Officer licences.",
+      "The foundational course for non-commissioned security officers, and the first step on the pathway to commissioned and Personal Protection Officer licenses.",
     description: [
       "This foundational course prepares students for work as non-commissioned security officers. Instruction covers the security officer's role, observation and reporting, professional conduct, communication, conflict de-escalation, and emergency awareness.",
       "Students complete the required curriculum and examination while developing practical skills through examples and scenarios. Level II training is also part of the training pathway for commissioned security officers and Personal Protection Officers, subject to applicable exemptions.",
@@ -128,7 +128,7 @@ export const trainingCourses = [
     slug: "level-3-armed-officer",
     name: "Private Security Level III — Armed Officer Training",
     academyId: "united-states-security-academy",
-    licenceLevel: "Level III",
+    licenseLevel: "Level III",
     icon: ShieldHalf,
     summary:
       "Classroom instruction, defensive tactics, firearms safety and supervised range qualification for commissioned (armed) security duties.",
@@ -162,7 +162,7 @@ export const trainingCourses = [
     slug: "level-4-personal-protection-officer",
     name: "Private Security Level IV — Personal Protection Officer Training",
     academyId: "united-states-security-academy",
-    licenceLevel: "Level IV",
+    licenseLevel: "Level IV",
     icon: UserCheck,
     summary:
       "Prepares security professionals for personal and executive protection assignments through scenario-based instruction.",
@@ -195,7 +195,7 @@ export const trainingCourses = [
     slug: "pepper-spray",
     name: "Private Security Pepper Spray Training",
     academyId: "united-states-security-academy",
-    licenceLevel: "Level III supplement",
+    licenseLevel: "Level III supplement",
     icon: SprayCan,
     summary:
       "Safe and responsible use of OC pepper spray during security duties, with a separate pepper spray training certificate.",
@@ -229,7 +229,7 @@ export const trainingCourses = [
     slug: "level-4-ppo-renewal",
     name: "Level IV Personal Protection Officer — Renewal & Continuing Education",
     academyId: "deltacon-tactical-academy",
-    licenceLevel: "Level IV renewal",
+    licenseLevel: "Level IV renewal",
     icon: RefreshCw,
     summary:
       "Continuing education for licensed Personal Protection Officers, structured around DPS renewal requirements.",
@@ -261,7 +261,7 @@ export const trainingCourses = [
     slug: "level-3-armed-officer-renewal",
     name: "Level III Armed Security Officer — Renewal & Continuing Education",
     academyId: "deltacon-tactical-academy",
-    licenceLevel: "Level III renewal",
+    licenseLevel: "Level III renewal",
     icon: UserRoundCheck,
     summary:
       "Helps commissioned officers maintain essential knowledge and demonstrate the firearms proficiency required for renewal.",

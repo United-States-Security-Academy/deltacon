@@ -32,9 +32,9 @@ export function TrainingCourseCard({
           <Icon aria-hidden="true" className="size-6" />
         </span>
         <div className="flex flex-wrap justify-end gap-1.5">
-          {course.licenceLevel && (
+          {course.licenseLevel && (
             <span className="rounded-full bg-navy-900 px-2.5 py-1 text-xs font-semibold text-gold-300">
-              {course.licenceLevel}
+              {course.licenseLevel}
             </span>
           )}
           <span className="rounded-full bg-navy-100 px-2.5 py-1 text-xs font-semibold text-navy-800">

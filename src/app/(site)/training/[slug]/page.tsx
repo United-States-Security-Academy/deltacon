@@ -72,8 +72,8 @@ export default async function TrainingCourseDetailPage({
         eyebrow={
           <UssaLinkedText
             text={
-              course.licenceLevel
-                ? `${academy.name} · ${course.licenceLevel}`
+              course.licenseLevel
+                ? `${academy.name} · ${course.licenseLevel}`
                 : academy.name
             }
           />
