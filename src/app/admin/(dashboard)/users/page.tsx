@@ -1,8 +1,10 @@
+import { ShieldCheck } from "lucide-react";
 import type { Metadata } from "next";
 
 import { AdminPageHeading } from "@/components/admin/admin-page-heading";
 import { InviteAdminForm } from "@/components/admin/invite-admin-form";
 import { RemoveAdminButton } from "@/components/admin/remove-admin-button";
+import { isSuperAdminEmail } from "@/config/admin-roles";
 import { formatAdminDate } from "@/lib/submissions/submission-status";
 import { requireAdmin } from "@/server/auth/require-admin";
 import { listAdmins } from "@/server/queries/admin-users";
@@ -33,6 +35,7 @@ export default async function AdminUsersPage() {
         <ul className="divide-y divide-border">
           {admins.map((admin) => {
             const isCurrentAdmin = admin.userId === currentAdmin.userId;
+            const isSuperAdmin = isSuperAdminEmail(admin.email);
             return (
               <li
                 key={admin.userId}
@@ -41,6 +44,12 @@ export default async function AdminUsersPage() {
                 <div className="min-w-0">
                   <p className="font-medium text-navy-900">
                     {admin.displayName}
+                    {isSuperAdmin && (
+                      <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-gold-500 px-2 py-0.5 text-xs font-semibold text-navy-950">
+                        <ShieldCheck aria-hidden="true" className="size-3.5" />
+                        Super admin
+                      </span>
+                    )}
                     {isCurrentAdmin && (
                       <span className="ml-2 rounded-full bg-navy-100 px-2 py-0.5 text-xs font-semibold text-navy-900">
                         You
@@ -51,11 +60,18 @@ export default async function AdminUsersPage() {
                     {admin.email} · added {formatAdminDate(admin.createdAt)}
                   </p>
                 </div>
-                {!isCurrentAdmin && admins.length > 1 && (
-                  <RemoveAdminButton
-                    userId={admin.userId}
-                    displayName={admin.displayName}
-                  />
+                {isSuperAdmin ? (
+                  <p className="text-xs text-muted-foreground sm:text-right">
+                    Can&apos;t be removed
+                  </p>
+                ) : (
+                  !isCurrentAdmin &&
+                  admins.length > 1 && (
+                    <RemoveAdminButton
+                      userId={admin.userId}
+                      displayName={admin.displayName}
+                    />
+                  )
                 )}
               </li>
             );

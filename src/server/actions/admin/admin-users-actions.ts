@@ -3,6 +3,7 @@
 import { count, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
+import { isSuperAdminEmail } from "@/config/admin-roles";
 import { privilegedDatabase } from "@/lib/database/database-client";
 import { adminUsers } from "@/lib/database/schema";
 import { createSecretSupabaseClient } from "@/lib/supabase/secret-client";
@@ -89,7 +90,8 @@ export async function inviteAdmin(
 
 /**
  * Removes an admin completely (their sign-in account is deleted). Admins can't
- * remove themselves, and the last admin can't be removed.
+ * remove themselves, the last admin can't be removed, and nobody can remove
+ * the super admin.
  */
 export async function removeAdmin(userId: unknown): Promise<FormActionResult> {
   const currentAdmin = await requireAdmin();
@@ -100,6 +102,26 @@ export async function removeAdmin(userId: unknown): Promise<FormActionResult> {
     return { status: "error", message: "You can't remove your own account." };
   }
 
+  const supabase = createSecretSupabaseClient();
+
+  // Check both the admin record and the sign-in account, so the super admin
+  // stays protected even if one of them is missing or out of date.
+  const [adminRecord] = await privilegedDatabase
+    .select({ email: adminUsers.email })
+    .from(adminUsers)
+    .where(eq(adminUsers.userId, userId))
+    .limit(1);
+  const { data: accountData } = await supabase.auth.admin.getUserById(userId);
+  if (
+    isSuperAdminEmail(adminRecord?.email) ||
+    isSuperAdminEmail(accountData?.user?.email)
+  ) {
+    return {
+      status: "error",
+      message: "The super admin account can't be removed.",
+    };
+  }
+
   const [{ numberOfAdmins }] = await privilegedDatabase
     .select({ numberOfAdmins: count() })
     .from(adminUsers);
@@ -107,7 +129,6 @@ export async function removeAdmin(userId: unknown): Promise<FormActionResult> {
     return { status: "error", message: "The last admin can't be removed." };
   }
 
-  const supabase = createSecretSupabaseClient();
   const { error } = await supabase.auth.admin.deleteUser(userId);
   if (error) {
     console.error("Could not remove admin.", error);
