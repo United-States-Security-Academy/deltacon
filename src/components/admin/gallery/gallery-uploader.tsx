@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import {
   acceptedImageTypesForInput,
   findImageFileProblem,
+  maximumImageSizeInMegabytes,
   uploadPublicImage,
 } from "@/lib/storage/upload-public-image";
 import { cn } from "@/lib/utils";
@@ -59,7 +60,7 @@ export function GalleryUploader({
     const problems: string[] = [];
     const accepted: PendingPhoto[] = [];
     for (const file of chosen) {
-      const problem = findImageFileProblem(file);
+      const problem = findImageFileProblem(file, "gallery");
       if (problem) {
         problems.push(`${file.name}: ${problem}`);
         continue;
@@ -218,7 +219,7 @@ export function GalleryUploader({
         <ImagePlus aria-hidden="true" className="size-10 text-navy-700" />
         <p className="text-sm text-muted-foreground">
           Drag photos here, or choose them from your device. JPG, PNG, WebP,
-          AVIF or GIF, up to 10 MB each.
+          AVIF or GIF, up to {maximumImageSizeInMegabytes.gallery} MB each.
         </p>
         <input
           ref={fileInputRef}
