@@ -925,3 +925,37 @@ export const licensingQuickGuides: LicensingQuickGuide[] = [
     courseHref: "/training/level-4-personal-protection-officer",
   },
 ];
+
+/** Guide text without formatting, e.g. for search-engine data. */
+export function guideRichTextToPlainText(text: GuideRichText): string {
+  return text
+    .map((part) => (typeof part === "string" ? part : part.text))
+    .join("");
+}
+
+/** Everything a guide step says, as plain text (for the HowTo markup). */
+export function guideStepToPlainText(step: GuideStep): string {
+  return step.blocks
+    .map((block) => {
+      switch (block.kind) {
+        case "paragraph":
+          return guideRichTextToPlainText(block.text);
+        case "bulletList":
+        case "numberedList":
+        case "checklist":
+          return block.items.map(guideRichTextToPlainText).join(" ");
+        case "callout":
+          return `${block.title}: ${guideRichTextToPlainText(block.text)}`;
+        case "pathwayCards":
+          return careerPathways
+            .map(
+              (pathway) =>
+                `${pathway.level} (${pathway.name}): ${pathway.requiredTraining}.`,
+            )
+            .join(" ");
+      }
+    })
+    .join(" ")
+    .replace(/\s+/g, " ")
+    .trim();
+}

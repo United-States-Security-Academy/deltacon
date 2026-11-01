@@ -11,14 +11,18 @@ import { LicensingGuideStepper } from "@/components/guide/licensing-guide-steppe
 import { LicensingQuickGuidesSection } from "@/components/guide/licensing-quick-guides-section";
 import { CallToActionBand } from "@/components/sections/call-to-action-band";
 import { PageHeader } from "@/components/sections/page-header";
+import { StructuredDataScript } from "@/components/seo/structured-data-script";
 import {
   dpsContacts,
   governingLaws,
+  guideStepToPlainText,
   licensingGuide,
   licensingGuideClosing,
   licensingGuideSteps,
 } from "@/config/licensing-guide";
+import { searchMetadataByPath } from "@/config/search-metadata";
 import { createPageMetadata } from "@/lib/seo/page-metadata";
+import { buildHowToData } from "@/lib/seo/structured-data";
 
 export const metadata = createPageMetadata({
   title: "Guide: Security Guard Licensing in Texas",
@@ -33,9 +37,23 @@ const guideHighlights = [
   { icon: Users, label: "Unarmed · Armed · Personal protection" },
 ];
 
+// Built from the same steps the guide renders, so the two never differ.
+const guideHowToData = buildHowToData({
+  name: licensingGuide.title,
+  description:
+    searchMetadataByPath["/guide"]?.description ?? licensingGuide.subtitle,
+  path: "/guide",
+  steps: licensingGuideSteps.map((step) => ({
+    id: step.id,
+    name: step.title,
+    text: guideStepToPlainText(step),
+  })),
+});
+
 export default function LicensingGuidePage() {
   return (
     <>
+      <StructuredDataScript data={guideHowToData} />
       <PageHeader
         eyebrow="Licensing guide"
         title={licensingGuide.title}

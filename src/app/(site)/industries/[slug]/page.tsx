@@ -7,12 +7,14 @@ import { notFound } from "next/navigation";
 import { CallToActionBand } from "@/components/sections/call-to-action-band";
 import { PageHeader } from "@/components/sections/page-header";
 import { ServiceCard } from "@/components/sections/service-card";
+import { StructuredDataScript } from "@/components/seo/structured-data-script";
 import { Button } from "@/components/ui/button";
 import { UssaLinkedText } from "@/components/sections/ussa-linked-text";
 import { findIndustryBySlug, industries } from "@/config/industries";
 import { requestServiceLink } from "@/config/navigation";
 import { findServicesForIndustry } from "@/config/services";
 import { createPageMetadata } from "@/lib/seo/page-metadata";
+import { buildServiceData } from "@/lib/seo/structured-data";
 import { cn } from "@/lib/utils";
 
 // Only the industries in config/industries.ts exist; anything else is a 404.
@@ -48,6 +50,13 @@ export default async function IndustryDetailPage({
 
   return (
     <>
+      <StructuredDataScript
+        data={buildServiceData({
+          name: industry.pageTitle,
+          summary: industry.summary,
+          path: `/industries/${industry.slug}`,
+        })}
+      />
       <PageHeader
         eyebrow="Industries we serve"
         title={industry.pageTitle}
