@@ -3,7 +3,7 @@ import localFont from "next/font/local";
 
 import { ScrollRevealController } from "@/components/layout/scroll-reveal-controller";
 import { companyDetails } from "@/config/company-details";
-import { siteUrl } from "@/lib/site-url";
+import { canonicalSiteUrl } from "@/lib/site-url";
 
 import "./globals.css";
 
@@ -36,7 +36,7 @@ const barlowCondensedFont = localFont({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
+  metadataBase: new URL(canonicalSiteUrl),
   title: {
     default: `${companyDetails.name} | ${companyDetails.tagline}`,
     template: `%s | ${companyDetails.name}`,

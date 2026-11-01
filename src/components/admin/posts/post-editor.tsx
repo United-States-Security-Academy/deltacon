@@ -1,15 +1,7 @@
 "use client";
 
 import type { JSONContent } from "@tiptap/core";
-import {
-  CalendarClock,
-  ExternalLink,
-  Eye,
-  LoaderCircle,
-  Send,
-  Trash2,
-  X,
-} from "lucide-react";
+import { ExternalLink, Eye, LoaderCircle, Send, Trash2, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { CoverImageField } from "@/components/admin/posts/cover-image-field";
@@ -112,16 +104,12 @@ export function PostEditor({
   const [bannerErrorMessage, setBannerErrorMessage] = useState<string>();
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [newTagName, setNewTagName] = useState("");
-  const [isSchedulePanelOpen, setIsSchedulePanelOpen] = useState(false);
-  const [scheduleValue, setScheduleValue] = useState(() =>
-    toDateTimeInputValue(new Date(Date.now() + 24 * 60 * 60 * 1000)),
-  );
   const [busyIntent, setBusyIntent] = useState<PostSaveIntent["intent"] | null>(
     null,
   );
 
-  // The publish date of a published or scheduled post can be edited; the
-  // new date is saved when "Update" is pressed.
+  // The publish date of a published post can be edited (today or earlier);
+  // the new date is saved when "Update" is pressed.
   const savedPublishDateValue = publishedAt
     ? toDateTimeInputValue(new Date(publishedAt))
     : "";
@@ -235,7 +223,7 @@ export function PostEditor({
   );
 
   // Track unsaved changes, and autosave drafts a moment after typing stops.
-  // Published and scheduled posts are only saved when "Update" is pressed,
+  // Published posts are only saved when "Update" is pressed,
   // so half-finished edits never appear on the live site.
   useEffect(() => {
     const hasChanges =
@@ -299,32 +287,17 @@ export function PostEditor({
     window.open(`/admin/posts/${post.id}/preview`, "_blank", "noopener");
   }
 
-  async function schedulePost() {
-    const publishDate = new Date(scheduleValue);
-    if (Number.isNaN(publishDate.getTime())) {
-      setFieldErrors({ publishAt: "Please choose a date and time." });
-      return;
-    }
-    const scheduled = await runSave({
-      intent: "schedule",
-      publishAt: publishDate.toISOString(),
-    });
-    if (scheduled) setIsSchedulePanelOpen(false);
-  }
-
   function handlePublishDateChange(value: string) {
     setPublishDateValue(value);
     setFieldErrors((previousErrors) => {
-      if (!previousErrors.publishedAt && !previousErrors.publishAt)
-        return previousErrors;
+      if (!previousErrors.publishedAt) return previousErrors;
       const remainingErrors = { ...previousErrors };
       delete remainingErrors.publishedAt;
-      delete remainingErrors.publishAt;
       return remainingErrors;
     });
   }
 
-  /** "Update" on a published or scheduled post, including a changed date. */
+  /** "Update" on a published post, including a changed publish date. */
   function updatePost() {
     let chosenDate: string | undefined;
     if (hasPublishDateChanged) {
@@ -335,25 +308,12 @@ export function PostEditor({
       }
       chosenDate = parsedDate.toISOString();
     }
-    if (isLiveOnSite) {
-      void runSave({ intent: "publish", publishedAt: chosenDate });
-    } else if (chosenDate) {
-      void runSave({ intent: "schedule", publishAt: chosenDate });
-    } else {
-      void runSave({ intent: "save" });
-    }
+    void runSave({ intent: "publish", publishedAt: chosenDate });
   }
 
-  const isLiveOnSite =
-    status === "published" ||
-    (status === "scheduled" &&
-      publishedAt !== null &&
-      new Date(publishedAt) <= new Date());
-  const statusLabel = isLiveOnSite
-    ? "Published"
-    : status === "scheduled"
-      ? "Scheduled"
-      : "Draft";
+  // Posts are either drafts or live; there is no scheduling.
+  const isLiveOnSite = status !== "draft";
+  const statusLabel = isLiveOnSite ? "Published" : "Draft";
   const saveStateMessage = {
     saving: "Saving…",
     saved: lastSavedAt
@@ -455,9 +415,7 @@ export function PostEditor({
                 "rounded-full px-2.5 py-0.5 text-xs font-semibold",
                 isLiveOnSite
                   ? "bg-green-100 text-green-800"
-                  : status === "scheduled"
-                    ? "bg-navy-100 text-navy-900"
-                    : "bg-gray-200 text-gray-700",
+                  : "bg-gray-200 text-gray-700",
               )}
             >
               {statusLabel}
@@ -467,25 +425,20 @@ export function PostEditor({
           {publishedAt && status !== "draft" && (
             <FormField
               fieldId="post-published-at"
-              label={isLiveOnSite ? "Published on" : "Goes live on"}
+              label="Published on"
               hint={
                 hasPublishDateChanged
                   ? `Was ${formatAdminDate(new Date(publishedAt))}. Press Update to save the new date.`
                   : "In your computer's time zone. Change it and press Update."
               }
-              errorMessage={fieldErrors.publishedAt ?? fieldErrors.publishAt}
+              errorMessage={fieldErrors.publishedAt}
             >
               {(controlProps) => (
                 <input
                   {...controlProps}
                   type="datetime-local"
                   value={publishDateValue}
-                  min={
-                    isLiveOnSite ? undefined : toDateTimeInputValue(new Date())
-                  }
-                  max={
-                    isLiveOnSite ? toDateTimeInputValue(new Date()) : undefined
-                  }
+                  max={toDateTimeInputValue(new Date())}
                   onChange={(event) =>
                     handlePublishDateChange(event.target.value)
                   }
@@ -515,27 +468,15 @@ export function PostEditor({
 
           <div className="flex flex-col gap-2">
             {status === "draft" ? (
-              <>
-                <Button
-                  variant="accent"
-                  size="lg"
-                  onClick={() => runSave({ intent: "publish" })}
-                  disabled={busyIntent !== null}
-                >
-                  <Send aria-hidden="true" />
-                  {busyIntent === "publish" ? "Publishing…" : "Publish now"}
-                </Button>
-                <Button
-                  variant="outline"
-                  size="lg"
-                  onClick={() => setIsSchedulePanelOpen((isOpen) => !isOpen)}
-                  aria-expanded={isSchedulePanelOpen}
-                  disabled={busyIntent !== null}
-                >
-                  <CalendarClock aria-hidden="true" />
-                  Schedule for later
-                </Button>
-              </>
+              <Button
+                variant="accent"
+                size="lg"
+                onClick={() => runSave({ intent: "publish" })}
+                disabled={busyIntent !== null}
+              >
+                <Send aria-hidden="true" />
+                {busyIntent === "publish" ? "Publishing…" : "Publish"}
+              </Button>
             ) : (
               <Button
                 variant="accent"
@@ -545,46 +486,6 @@ export function PostEditor({
               >
                 <Send aria-hidden="true" />
                 {busyIntent ? "Saving…" : "Update"}
-              </Button>
-            )}
-
-            {isSchedulePanelOpen && status === "draft" && (
-              <div className="flex flex-col gap-3 rounded-lg bg-paper p-3">
-                <FormField
-                  fieldId="post-publish-at"
-                  label="Publish on"
-                  isRequired
-                  hint="In your computer's time zone."
-                  errorMessage={fieldErrors.publishAt}
-                >
-                  {(controlProps) => (
-                    <input
-                      {...controlProps}
-                      type="datetime-local"
-                      value={scheduleValue}
-                      min={toDateTimeInputValue(new Date())}
-                      onChange={(event) => setScheduleValue(event.target.value)}
-                      className={formControlClassName}
-                    />
-                  )}
-                </FormField>
-                <Button
-                  variant="default"
-                  onClick={schedulePost}
-                  disabled={busyIntent !== null}
-                >
-                  {busyIntent === "schedule" ? "Scheduling…" : "Schedule post"}
-                </Button>
-              </div>
-            )}
-
-            {status === "scheduled" && !isLiveOnSite && (
-              <Button
-                variant="outline"
-                onClick={() => runSave({ intent: "publish" })}
-                disabled={busyIntent !== null}
-              >
-                Publish now instead
               </Button>
             )}
 
@@ -845,7 +746,7 @@ export function PostEditor({
             className="rounded-lg bg-paper p-3"
           >
             <p className="text-xs text-green-800">
-              deltacon1.com › blog › {fieldValues.slug}
+              www.deltacon1.com › blog › {fieldValues.slug}
             </p>
             <p className="line-clamp-1 text-base font-medium text-[#1a0dab]">
               {seoTitlePreview || "Post title"}

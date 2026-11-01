@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-import { absoluteUrl } from "@/lib/site-url";
+import { canonicalUrl } from "@/lib/site-url";
 
 /**
  * /robots.txt. The live site can be indexed (apart from the admin area);
@@ -16,7 +16,9 @@ export default function robots(): MetadataRoute.Robots {
   }
 
   return {
-    rules: { userAgent: "*", allow: "/", disallow: ["/admin", "/api"] },
-    sitemap: absoluteUrl("/sitemap.xml"),
+    // Every private route (sign-in, dashboard, inbox, CV downloads and CSV
+    // exports) lives under /admin; the site has no /api routes.
+    rules: { userAgent: "*", allow: "/", disallow: ["/admin"] },
+    sitemap: canonicalUrl("/sitemap.xml"),
   };
 }

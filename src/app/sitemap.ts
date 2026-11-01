@@ -4,11 +4,12 @@ import { industries } from "@/config/industries";
 import { serviceLinesWithContent } from "@/config/service-lines";
 import { services } from "@/config/services";
 import { trainingCourses } from "@/config/training-courses";
-import { absoluteUrl } from "@/lib/site-url";
+import { canonicalUrl } from "@/lib/site-url";
 import { getAllPublishedPostSlugs } from "@/server/queries/posts";
 
-// Rebuilt hourly; publishing a post also refreshes it through the posts tag.
-export const revalidate = 3600;
+// No timer: rebuilt on deploy, and whenever an admin publishes, edits or
+// deletes a public post (post actions refresh /sitemap.xml).
+export const revalidate = false;
 
 type SitemapEntry = MetadataRoute.Sitemap[number];
 
@@ -18,7 +19,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     path: string,
     priority: number,
     changeFrequency: SitemapEntry["changeFrequency"] = "monthly",
-  ): SitemapEntry => ({ url: absoluteUrl(path), priority, changeFrequency });
+  ): SitemapEntry => ({ url: canonicalUrl(path), priority, changeFrequency });
 
   const publishedPosts = await getAllPublishedPostSlugs();
 
