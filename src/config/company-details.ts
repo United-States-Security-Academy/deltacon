@@ -69,13 +69,29 @@ export const companyDetails: CompanyDetails = {
     stateCode: "TX",
     postalCode: "77478",
   },
-  socialLinks: [
-    { platform: "facebook", url: "https://www.facebook.com/" },
-    { platform: "instagram", url: "https://www.instagram.com/" },
-    { platform: "linkedin", url: "https://www.linkedin.com/" },
-    { platform: "x", url: "https://x.com/" },
-  ],
+  // TODO(site owner): add Deltacon's real profile addresses, e.g.
+  //   { platform: "facebook", url: "https://www.facebook.com/<page-name>" },
+  //   { platform: "instagram", url: "https://www.instagram.com/<handle>" },
+  //   { platform: "linkedin", url: "https://www.linkedin.com/company/<name>" },
+  //   { platform: "x", url: "https://x.com/<handle>" },
+  // Only real profile pages are shown (in the footer and in search-engine
+  // data); a platform's bare home page is ignored, so no icon appears for it.
+  socialLinks: [],
 };
+
+/**
+ * Keeps only links to an actual profile, dropping placeholders that point at
+ * a platform's home page (e.g. "https://www.facebook.com/").
+ */
+export function keepRealSocialProfiles(links: SocialLink[]): SocialLink[] {
+  return links.filter((link) => {
+    try {
+      return new URL(link.url).pathname.replace(/\/+$/, "") !== "";
+    } catch {
+      return false;
+    }
+  });
+}
 
 /** The office address on one line, e.g. for emails. */
 export function formatOfficeAddress(): string {

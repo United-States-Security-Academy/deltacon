@@ -5,6 +5,7 @@ import { CompanyLogo } from "@/components/layout/company-logo";
 import { SocialMediaIcons } from "@/components/layout/social-media-icons";
 import {
   companyDetails,
+  keepRealSocialProfiles,
   officeMapUrl,
   type SocialLink,
 } from "@/config/company-details";
@@ -20,6 +21,13 @@ type SiteFooterProps = {
  */
 export function SiteFooter({ socialLinks }: SiteFooterProps) {
   const currentYear = new Date().getFullYear();
+  // Real profiles saved in the site settings, else those in the config;
+  // placeholder links to a platform's home page are never shown.
+  const savedProfiles = keepRealSocialProfiles(socialLinks);
+  const shownSocialLinks =
+    savedProfiles.length > 0
+      ? savedProfiles
+      : keepRealSocialProfiles(companyDetails.socialLinks);
   const { streetAddress, city, stateCode, postalCode } =
     companyDetails.officeAddress;
 
@@ -62,7 +70,7 @@ export function SiteFooter({ socialLinks }: SiteFooterProps) {
               </span>
             </a>
           </address>
-          <SocialMediaIcons socialLinks={socialLinks} />
+          <SocialMediaIcons socialLinks={shownSocialLinks} />
         </div>
 
         <nav aria-labelledby="footer-quick-links-heading">
