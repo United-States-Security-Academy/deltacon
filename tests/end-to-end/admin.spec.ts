@@ -47,7 +47,9 @@ test("an admin writes, publishes and deletes a blog post", async ({ page }) => {
   await page.keyboard.type(
     "This post checks that publishing works from start to finish.",
   );
-  await page.getByRole("button", { name: "Publish now" }).click();
+  // There is no scheduling: drafts have a single "Publish" button.
+  await expect(page.getByRole("button", { name: /Schedule/ })).toHaveCount(0);
+  await page.getByRole("button", { name: "Publish", exact: true }).click();
   await expect(page.getByRole("link", { name: /View live/ })).toBeVisible();
 
   const slug = await page
@@ -55,7 +57,8 @@ test("an admin writes, publishes and deletes a blog post", async ({ page }) => {
     .inputValue();
   expect(slug).toMatch(/^e2e-test-post-/);
 
-  // The post appears on the public blog straight away.
+  // The post appears on the public blog, its own page and (as the newest
+  // post) the home page straight away, although none of them has a timer.
   await page.goto("/blog");
   await expect(page.getByRole("link", { name: title }).first()).toBeVisible();
   await page.goto(`/blog/${slug}`);
@@ -65,10 +68,30 @@ test("an admin writes, publishes and deletes a blog post", async ({ page }) => {
   await expect(
     page.getByText("This post checks that publishing works"),
   ).toBeVisible();
+  await page.goto("/");
+  await expect(page.getByRole("link", { name: title }).first()).toBeVisible();
 
-  // Deleting takes it off the site.
+  // Editing the published post updates its page and the blog listing.
+  const editedTitle = `${title} (edited)`;
   await page.goto("/admin/posts");
   await page.getByRole("link", { name: title }).click();
+  await page
+    .getByRole("textbox", { name: "Title", exact: true })
+    .fill(editedTitle);
+  await page.getByRole("button", { name: "Update", exact: true }).click();
+  await expect(page.getByText(/^Saved /)).toBeVisible();
+  await page.goto(`/blog/${slug}`);
+  await expect(
+    page.getByRole("heading", { level: 1, name: editedTitle }),
+  ).toBeVisible();
+  await page.goto("/blog");
+  await expect(
+    page.getByRole("link", { name: editedTitle }).first(),
+  ).toBeVisible();
+
+  // Deleting takes it off the site, including the home page.
+  await page.goto("/admin/posts");
+  await page.getByRole("link", { name: editedTitle }).click();
   await page.getByRole("button", { name: "Delete post" }).click();
   await page
     .getByRole("alertdialog")
@@ -76,6 +99,8 @@ test("an admin writes, publishes and deletes a blog post", async ({ page }) => {
     .click();
   await expect(page).toHaveURL(/\/admin\/posts$/);
   expect((await page.goto(`/blog/${slug}`))?.status()).toBe(404);
+  await page.goto("/");
+  await expect(page.getByRole("link", { name: editedTitle })).toHaveCount(0);
 });
 
 test("an admin works through a submission in the inbox", async ({ page }) => {

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { getPublicMediaUrl } from "@/lib/storage/public-media";
 import {
   acceptedImageTypesForInput,
+  maximumImageSizeInMegabytes,
   uploadPublicImage,
 } from "@/lib/storage/upload-public-image";
 
@@ -68,7 +69,8 @@ export function CoverImageField({
             {isUploading ? "Uploading…" : "Upload a cover image"}
           </span>
           <span className="text-xs text-muted-foreground">
-            JPG, PNG, WebP or AVIF, up to 10 MB. Wide images (16:9) look best.
+            JPG, PNG, WebP or AVIF, up to {maximumImageSizeInMegabytes.posts}{" "}
+            MB. Wide images (16:9) look best.
           </span>
         </button>
       )}

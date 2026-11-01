@@ -1,7 +1,7 @@
 "use server";
 
 import { eq, inArray, min, sql } from "drizzle-orm";
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 
 import { createSlug } from "@/lib/blog/create-slug";
 import { cacheTags } from "@/lib/cache-tags";
@@ -40,9 +40,13 @@ const missingImage: GalleryActionResult = {
   message: "That photo no longer exists. Refresh the page.",
 };
 
-/** Refreshes every page that shows gallery photos. */
+/**
+ * Refreshes every page that shows gallery photos. updateTag (not the
+ * stale-while-revalidate revalidateTag) so the home page is rebuilt from
+ * fresh data: it has no timer to correct a stale rebuild later.
+ */
 function refreshGalleryPages() {
-  revalidateTag(cacheTags.gallery, "max");
+  updateTag(cacheTags.gallery);
   revalidatePath("/");
   revalidatePath("/gallery");
   revalidatePath("/admin/gallery");

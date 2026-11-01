@@ -3,8 +3,8 @@
 import { randomBytes } from "node:crypto";
 
 import type { JSONContent } from "@tiptap/core";
-import { and, eq, inArray, ne } from "drizzle-orm";
-import { revalidatePath, revalidateTag } from "next/cache";
+import { and, desc, eq, inArray, isNotNull, lte, ne, sql } from "drizzle-orm";
+import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { createSlug } from "@/lib/blog/create-slug";
@@ -23,6 +23,7 @@ import {
 } from "@/lib/validation/post-schemas";
 import { toFieldErrors } from "@/lib/validation/submission-schemas";
 import { requireAdmin } from "@/server/auth/require-admin";
+import { homePagePostCount } from "@/server/queries/posts";
 
 export type PostSaveResult =
   | {
@@ -38,12 +39,42 @@ export type PostSaveResult =
       fieldErrors?: Record<string, string>;
     };
 
-/** Refreshes every public page that can show this post. */
-function refreshPublicBlogPages(...slugs: string[]) {
-  revalidateTag(cacheTags.posts, "max");
-  revalidatePath("/");
-  revalidatePath("/blog");
+/**
+ * Refreshes only the public pages that show this post: its own page (old and
+ * new address), the /blog listing, the sitemap, and the home page only when
+ * the post is, or was, one of the latest posts shown there. Other posts'
+ * pages are left alone (their "related posts" catch up within a day).
+ */
+function refreshPublicBlogPages({
+  slugs,
+  isOnHomePage,
+}: {
+  slugs: string[];
+  isOnHomePage: boolean;
+}) {
+  updateTag(cacheTags.postListings);
   for (const slug of new Set(slugs)) revalidatePath(`/blog/${slug}`);
+  revalidatePath("/sitemap.xml");
+  if (isOnHomePage) revalidatePath("/");
+}
+
+/** Ids of the latest public posts, the ones the home page lists. */
+async function findHomePagePostIds(
+  transaction: DatabaseTransaction,
+): Promise<string[]> {
+  const rows = await transaction
+    .select({ id: posts.id })
+    .from(posts)
+    .where(
+      and(
+        ne(posts.status, "draft"),
+        isNotNull(posts.publishedAt),
+        lte(posts.publishedAt, sql`now()`),
+      ),
+    )
+    .orderBy(desc(posts.publishedAt))
+    .limit(homePagePostCount);
+  return rows.map((row) => row.id);
 }
 
 /** Replaces a post's tags, creating any tags that don't exist yet. */
@@ -94,9 +125,9 @@ export async function createPost(): Promise<void> {
 }
 
 /**
- * Saves the editor's fields and, depending on the button pressed, publishes,
- * schedules or unpublishes the post. The HTML shown to visitors is generated
- * and sanitised here on the server, never taken from the browser.
+ * Saves the editor's fields and, depending on the button pressed, publishes
+ * or unpublishes the post. The HTML shown to visitors is generated and
+ * sanitised here on the server, never taken from the browser.
  */
 export async function savePost(
   postId: unknown,
@@ -128,7 +159,7 @@ export async function savePost(
   const contentDocument = fields.contentJson as JSONContent;
 
   // Extra checks before a post becomes visible to the public.
-  if (intent.intent === "publish" || intent.intent === "schedule") {
+  if (intent.intent === "publish") {
     const fieldErrors: Record<string, string> = {};
     if (fields.title === "Untitled post") {
       fieldErrors.title =
@@ -161,19 +192,8 @@ export async function savePost(
   ) {
     return {
       status: "error",
-      message:
-        "A published post's date can't be in the future. To publish later, unpublish the post and schedule it instead.",
+      message: "A published post's date can't be in the future.",
       fieldErrors: { publishedAt: "Choose today or an earlier date." },
-    };
-  }
-  if (
-    intent.intent === "schedule" &&
-    new Date(intent.publishAt) <= new Date()
-  ) {
-    return {
-      status: "error",
-      message: "Choose a date and time in the future, or publish now instead.",
-      fieldErrors: { publishAt: "Choose a future date and time." },
     };
   }
 
@@ -198,25 +218,27 @@ export async function savePost(
       .limit(1);
     if (postUsingSlug) return { slugTaken: true as const };
 
+    const homePagePostIdsBefore = await findHomePagePostIds(transaction);
+
     let status: PostStatus = existingPost.status;
     let publishedAt = existingPost.publishedAt;
     if (intent.intent === "publish") {
       status = "published";
       // Use the date the admin chose, if any. Otherwise keep the original
-      // date for a post that is already live (published, or scheduled with
-      // a date that has passed); a new post goes live now.
+      // date for a post that is already live; a new post goes live now.
       const isAlreadyLive =
         existingPost.status !== "draft" &&
         existingPost.publishedAt !== null &&
         existingPost.publishedAt <= new Date();
       if (intent.publishedAt) {
-        publishedAt = new Date(intent.publishedAt);
+        // Never later than now: pages no longer refresh on a timer, so a
+        // date even seconds in the future would keep the post hidden.
+        publishedAt = new Date(
+          Math.min(new Date(intent.publishedAt).getTime(), Date.now()),
+        );
       } else {
         publishedAt = isAlreadyLive ? existingPost.publishedAt : new Date();
       }
-    } else if (intent.intent === "schedule") {
-      status = "scheduled";
-      publishedAt = new Date(intent.publishAt);
     } else if (intent.intent === "unpublish") {
       status = "draft";
       publishedAt = null;
@@ -243,11 +265,16 @@ export async function savePost(
       .where(eq(posts.id, postId));
     await replacePostTags(transaction, postId, fields.tagNames);
 
+    const homePagePostIdsAfter = await findHomePagePostIds(transaction);
+
     return {
       previousSlug: existingPost.slug,
       wasPublic: existingPost.status !== "draft",
       status,
       publishedAt,
+      isOnHomePage:
+        homePagePostIdsBefore.includes(postId) ||
+        homePagePostIdsAfter.includes(postId),
     };
   });
 
@@ -262,10 +289,15 @@ export async function savePost(
     };
   }
 
+  // Drafts that were never public don't touch any public page. The admin
+  // post list reads the sign-in cookie, so it is always rendered fresh and
+  // needs no refresh here (saves run every few seconds while typing).
   if (outcome.wasPublic || outcome.status !== "draft") {
-    refreshPublicBlogPages(outcome.previousSlug, fields.slug);
+    refreshPublicBlogPages({
+      slugs: [outcome.previousSlug, fields.slug],
+      isOnHomePage: outcome.isOnHomePage,
+    });
   }
-  revalidatePath("/admin/posts");
 
   return {
     status: "success",
@@ -285,16 +317,22 @@ export async function deletePost(postId: unknown): Promise<PostSaveResult> {
   const deletedPost = await runAsSignedInUser(
     admin.userId,
     async (transaction) => {
+      const homePagePostIds = await findHomePagePostIds(transaction);
       const [post] = await transaction
         .delete(posts)
         .where(eq(posts.id, postId))
         .returning({ slug: posts.slug, status: posts.status });
-      return post;
+      return (
+        post && { ...post, isOnHomePage: homePagePostIds.includes(postId) }
+      );
     },
   );
 
   if (deletedPost && deletedPost.status !== "draft") {
-    refreshPublicBlogPages(deletedPost.slug);
+    refreshPublicBlogPages({
+      slugs: [deletedPost.slug],
+      isOnHomePage: deletedPost.isOnHomePage,
+    });
   }
   revalidatePath("/admin/posts");
   redirect("/admin/posts");

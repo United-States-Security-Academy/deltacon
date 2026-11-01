@@ -21,7 +21,6 @@ export const metadata: Metadata = { title: "Posts" };
 const statusFilters: { label: string; status?: PostStatus }[] = [
   { label: "All" },
   { label: "Drafts", status: "draft" },
-  { label: "Scheduled", status: "scheduled" },
   { label: "Published", status: "published" },
 ];
 

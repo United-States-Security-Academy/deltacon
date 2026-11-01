@@ -1,36 +1,19 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 
-import { PublicSiteShell } from "@/components/layout/public-site-shell";
-import { StatusMessage } from "@/components/sections/status-message";
-import { Button } from "@/components/ui/button";
-import { requestServiceLink } from "@/config/navigation";
+import { PageNotFoundMessage } from "@/components/sections/page-not-found-message";
 
 export const metadata: Metadata = {
   title: "Page not found",
   robots: { index: false },
 };
 
+/**
+ * Fallback 404 for pages outside the public site (e.g. an admin link to a
+ * deleted item). Public addresses use (site)/not-found.tsx, which shows the
+ * header and footer. This one deliberately has no site shell: Next.js
+ * includes the root 404 in every page's data, so a full header and footer
+ * here would make every page on the site heavier.
+ */
 export default function NotFoundPage() {
-  return (
-    <PublicSiteShell>
-      <StatusMessage
-        code="404"
-        title="Page not found"
-        description="The page you're looking for has moved or doesn't exist. Let's get you back on patrol."
-        actions={
-          <>
-            <Button asChild variant="accent" size="xl">
-              <Link href="/">Back to home</Link>
-            </Button>
-            <Button asChild variant="outlineOnDark" size="xl">
-              <Link href={requestServiceLink.href}>
-                {requestServiceLink.label}
-              </Link>
-            </Button>
-          </>
-        }
-      />
-    </PublicSiteShell>
-  );
+  return <PageNotFoundMessage />;
 }

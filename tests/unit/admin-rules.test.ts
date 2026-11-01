@@ -88,22 +88,19 @@ describe("blog post rules", () => {
     expect(result.success).toBe(false);
   });
 
-  it("needs a date with a time zone to schedule a post", () => {
+  it("no longer accepts scheduling, or unknown actions", () => {
     expect(
       postSaveIntentSchema.safeParse({
         intent: "schedule",
         publishAt: "2026-12-01T09:00:00-06:00",
       }).success,
-    ).toBe(true);
-    expect(
-      postSaveIntentSchema.safeParse({
-        intent: "schedule",
-        publishAt: "tomorrow",
-      }).success,
     ).toBe(false);
     expect(postSaveIntentSchema.safeParse({ intent: "delete" }).success).toBe(
       false,
     );
+    for (const intent of ["save", "publish", "unpublish"]) {
+      expect(postSaveIntentSchema.safeParse({ intent }).success).toBe(true);
+    }
   });
 
   it("accepts an optional, valid publish date when publishing", () => {

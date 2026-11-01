@@ -71,13 +71,6 @@ export const postSaveIntentSchema = z.discriminatedUnion("intent", [
       .datetime({ offset: true, error: "Please choose a date and time." })
       .optional(),
   }),
-  z.object({
-    intent: z.literal("schedule"),
-    publishAt: z.iso.datetime({
-      offset: true,
-      error: "Please choose a date and time.",
-    }),
-  }),
   z.object({ intent: z.literal("unpublish") }),
 ]);
 

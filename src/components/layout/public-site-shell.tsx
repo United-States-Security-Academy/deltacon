@@ -9,8 +9,8 @@ import {
 import { getPublicContactDetails } from "@/server/queries/site-settings";
 
 /**
- * Contact bar, sticky navigation and footer around public pages. Used by the
- * public layout and by the 404 page (which sits outside that layout).
+ * Contact bar, sticky navigation and footer around public pages. Used only by
+ * the public layout; the public 404 page renders inside that layout.
  */
 export async function PublicSiteShell({ children }: { children: ReactNode }) {
   const contactDetails = await getPublicContactDetails();
