@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import deltaconBadge from "@/assets/deltacon-badge.png";
 import { postCategoryLabels } from "@/config/post-categories";
+import { describeCoverImage } from "@/lib/blog/post-search-text";
 import { getPublicMediaUrl } from "@/lib/storage/public-media";
 import type { PostSummary } from "@/server/queries/posts";
 
@@ -24,7 +25,7 @@ export function PostCard({ post }: { post: PostSummary }) {
         {post.coverImagePath ? (
           <Image
             src={getPublicMediaUrl(post.coverImagePath)}
-            alt={post.coverImageAltText ?? ""}
+            alt={describeCoverImage(post)}
             fill
             sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
             className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"

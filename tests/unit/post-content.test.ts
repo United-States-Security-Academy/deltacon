@@ -152,9 +152,48 @@ describe("createSlug", () => {
     expect(createSlug(title)).toBe(slug);
   });
 
-  it("keeps addresses to 80 characters without a trailing dash", () => {
+  it("keeps addresses to 75 characters without a trailing dash", () => {
     const slug = createSlug(`${"word ".repeat(40)}`);
-    expect(slug.length).toBeLessThanOrEqual(80);
+    expect(slug.length).toBeLessThanOrEqual(75);
     expect(slug.endsWith("-")).toBe(false);
+  });
+
+  it("shortens long titles at a whole word, never mid-word", () => {
+    const titles = [
+      "Deltacon Global Named to the 2026 Inc. 5000 List of America’s Fastest-Growing Private Companies",
+      "Deltacon Global Earns SBA Service-Disabled Veteran-Owned Small Business Certification",
+      "Deltacon Global Inc. Receives 2019 Gold HIRE Vets Medallion Award from U.S. Department of Labor",
+    ];
+    for (const title of titles) {
+      const slug = createSlug(title);
+      const titleWords = title
+        .toLowerCase()
+        .replace(/['’]/g, "")
+        .split(/[^a-z0-9]+/);
+      expect(slug.length).toBeLessThanOrEqual(75);
+      // Every part of the address is a whole word of the title.
+      for (const word of slug.split("-")) expect(titleWords).toContain(word);
+    }
+  });
+
+  it("drops filler words only when the title is too long", () => {
+    expect(createSlug("How to Choose a Security Company")).toBe(
+      "how-to-choose-a-security-company",
+    );
+    expect(
+      createSlug(
+        "Deltacon Global Named to the 2026 Inc. 5000 List of America’s Fastest-Growing Private Companies",
+      ),
+    ).toBe(
+      "deltacon-global-named-2026-inc-5000-list-americas-fastest-growing-private",
+    );
+  });
+
+  it("never ends on a stray single letter", () => {
+    expect(
+      createSlug(
+        "Deltacon Global Inc. Receives 2019 Gold HIRE Vets Medallion Award from U.S. Department of Labor",
+      ),
+    ).toBe("deltacon-global-inc-receives-2019-gold-hire-vets-medallion-award");
   });
 });

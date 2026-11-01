@@ -6,6 +6,7 @@ import { formatPublishedDate } from "@/components/blog/post-card";
 import { ShareButtons } from "@/components/blog/share-buttons";
 import { Breadcrumbs } from "@/components/sections/breadcrumbs";
 import { postCategoryLabels } from "@/config/post-categories";
+import { describeCoverImage } from "@/lib/blog/post-search-text";
 import type { PostCategory } from "@/lib/database/schema/enums";
 import { getPublicMediaUrl } from "@/lib/storage/public-media";
 
@@ -93,7 +94,7 @@ export function BlogPostArticle({
           <div className="relative -mt-2 mb-10 aspect-[16/9] overflow-hidden rounded-xl shadow-lg">
             <Image
               src={getPublicMediaUrl(post.coverImagePath)}
-              alt={post.coverImageAltText ?? ""}
+              alt={describeCoverImage(post)}
               fill
               priority
               sizes="(min-width: 896px) 896px, 100vw"

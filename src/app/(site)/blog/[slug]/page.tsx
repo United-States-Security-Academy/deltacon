@@ -6,8 +6,12 @@ import { PostCard } from "@/components/blog/post-card";
 import { CallToActionBand } from "@/components/sections/call-to-action-band";
 import { companyDetails } from "@/config/company-details";
 import { StructuredDataScript } from "@/components/seo/structured-data-script";
+import {
+  describeCoverImage,
+  describePostForSearch,
+} from "@/lib/blog/post-search-text";
 import { createPageMetadata } from "@/lib/seo/page-metadata";
-import { absoluteUrl } from "@/lib/site-url";
+import { canonicalUrl } from "@/lib/site-url";
 import { getPublicMediaUrl } from "@/lib/storage/public-media";
 import {
   getAllPublishedPostSlugs,
@@ -15,13 +19,21 @@ import {
   getRelatedPosts,
 } from "@/server/queries/posts";
 
-// Pages are built ahead of time and refreshed in the background; publishing
-// or editing a post refreshes its page straight away.
-export const revalidate = 300;
+// Pages are built ahead of time. Publishing or editing a post refreshes its
+// page straight away; the one-day safety refresh only lets the "related
+// posts" list pick up newer posts written since.
+export const revalidate = 86400;
 
 export async function generateStaticParams() {
-  const publishedPosts = await getAllPublishedPostSlugs();
-  return publishedPosts.map((post) => ({ slug: post.slug }));
+  // Pre-building posts is an optimisation: if the database can't be reached
+  // during a build, each post is simply built on its first visit instead.
+  try {
+    const publishedPosts = await getAllPublishedPostSlugs();
+    return publishedPosts.map((post) => ({ slug: post.slug }));
+  } catch (error) {
+    console.error("Could not list posts to pre-build.", error);
+    return [];
+  }
 }
 
 export async function generateMetadata({
@@ -31,9 +43,10 @@ export async function generateMetadata({
   const post = await getPublishedPostBySlug(slug);
   if (!post) return { title: "Post not found", robots: { index: false } };
 
+  const searchTitle = post.seoTitle || post.title;
   const metadata = createPageMetadata({
-    title: post.seoTitle || post.title,
-    description: post.metaDescription || post.excerpt,
+    title: searchTitle,
+    description: describePostForSearch(post),
     path: `/blog/${post.slug}`,
   });
   // Posts with a cover image share that; others keep the default picture.
@@ -41,12 +54,15 @@ export async function generateMetadata({
     ? [
         {
           url: getPublicMediaUrl(post.coverImagePath),
-          alt: post.coverImageAltText ?? "",
+          alt: describeCoverImage(post),
         },
       ]
     : undefined;
   return {
     ...metadata,
+    // Post titles are long enough already; the company name is in the
+    // share preview's site name instead of a "| Deltacon…" suffix.
+    title: { absolute: searchTitle },
     openGraph: {
       ...metadata.openGraph,
       type: "article",
@@ -71,14 +87,14 @@ export default async function BlogPostPage({
   if (!post) notFound();
 
   const relatedPosts = await getRelatedPosts(post.id, post.category);
-  const postUrl = absoluteUrl(`/blog/${post.slug}`);
+  const postUrl = canonicalUrl(`/blog/${post.slug}`);
 
   // Structured data so search engines understand this is an article.
   const blogPostingStructuredData = {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
     headline: post.title,
-    description: post.metaDescription || post.excerpt,
+    description: describePostForSearch(post),
     datePublished: post.publishedAt,
     dateModified: post.updatedAt,
     author: { "@type": "Organization", name: post.authorName },
@@ -87,7 +103,7 @@ export default async function BlogPostPage({
       name: companyDetails.name,
       logo: {
         "@type": "ImageObject",
-        url: absoluteUrl("/brand/deltacon-badge-512.png"),
+        url: canonicalUrl("/brand/deltacon-badge-512.png"),
       },
     },
     mainEntityOfPage: postUrl,
