@@ -113,7 +113,7 @@ export function CompanyLogo({
     >
       <Image
         src={deltaconBadge}
-        alt=""
+        alt={`${companyDetails.name} logo`}
         // Rendered up to 80px tall; this width gives sharp results on
         // high-density screens. The CSS height classes set the actual size.
         width={128}

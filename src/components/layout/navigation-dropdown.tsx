@@ -97,28 +97,42 @@ export function NavigationDropdown({
         }
       }}
     >
-      <button
-        ref={buttonRef}
-        type="button"
-        aria-expanded={isOpen}
-        aria-controls={panelId}
-        onClick={toggleOnClick}
-        className={cn(
-          "relative flex items-center gap-1 rounded-sm px-3 py-2 text-sm font-medium text-navy-100 transition-colors hover:text-gold-300",
-          "after:absolute after:inset-x-3 after:-bottom-0.5 after:h-0.5 after:origin-left after:scale-x-0 after:bg-gold-500 after:transition-transform",
-          (isActive || isOpen) && "text-gold-300",
-          isActive && "after:scale-x-100",
-        )}
-      >
-        {item.label}
-        <ChevronDown
-          aria-hidden="true"
+      <div className="flex items-center">
+        {/* The label is a real link (crawlable, and opens the overview);
+            the arrow button next to it opens the list. */}
+        <Link
+          href={item.href}
+          aria-current={currentPath === item.href ? "page" : undefined}
           className={cn(
-            "size-4 transition-transform motion-reduce:transition-none",
-            isOpen && "rotate-180",
+            "relative rounded-sm py-2 pr-1 pl-3 text-sm font-medium text-navy-100 transition-colors hover:text-gold-300",
+            "after:absolute after:right-1 after:-bottom-0.5 after:left-3 after:h-0.5 after:origin-left after:scale-x-0 after:bg-gold-500 after:transition-transform",
+            (isActive || isOpen) && "text-gold-300",
+            isActive && "after:scale-x-100",
           )}
-        />
-      </button>
+        >
+          {item.label}
+        </Link>
+        <button
+          ref={buttonRef}
+          type="button"
+          aria-expanded={isOpen}
+          aria-controls={panelId}
+          onClick={toggleOnClick}
+          className={cn(
+            "flex items-center rounded-sm py-2 pr-2 pl-0.5 text-navy-100 transition-colors hover:text-gold-300",
+            (isActive || isOpen) && "text-gold-300",
+          )}
+        >
+          <ChevronDown
+            aria-hidden="true"
+            className={cn(
+              "size-4 transition-transform motion-reduce:transition-none",
+              isOpen && "rotate-180",
+            )}
+          />
+          <span className="sr-only">Show {item.label} menu</span>
+        </button>
+      </div>
 
       <div
         id={panelId}

@@ -55,10 +55,22 @@ test("every page in the sitemap loads cleanly and meets WCAG 2.1 AA", async ({
 });
 
 test("unknown addresses show a helpful 404 page", async ({ page }) => {
-  const response = await page.goto("/this-page-does-not-exist");
-  expect(response?.status()).toBe(404);
-  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-  await expect(page.getByRole("link", { name: /home/i }).first()).toBeVisible();
+  for (const address of ["/this-page-does-not-exist", "/blog/x/y/z"]) {
+    const response = await page.goto(address);
+    expect(response?.status()).toBe(404);
+    await expect(page).toHaveTitle(/Page not found/);
+    await expect(
+      page.getByRole("heading", { level: 1, name: "Page not found" }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: /home/i }).first(),
+    ).toBeVisible();
+    // Still inside the public site: header navigation and footer.
+    await expect(
+      page.getByRole("navigation", { name: "Main" }).first(),
+    ).toBeVisible();
+    await expect(page.getByRole("contentinfo")).toBeVisible();
+  }
 });
 
 test("the main navigation reaches each section", async ({ page }) => {
@@ -81,8 +93,14 @@ test("the Services dropdown opens each line of business", async ({ page }) => {
   await page.goto("/");
   const mainNavigation = page.getByRole("navigation", { name: "Main" }).first();
   const servicesButton = mainNavigation.getByRole("button", {
-    name: "Services",
+    name: "Show Services menu",
   });
+
+  // "Services" itself is a real link to the overview page.
+  await mainNavigation
+    .getByRole("link", { name: "Services", exact: true })
+    .click();
+  await expect(page).toHaveURL(/\/services$/);
   for (const [linkName, path, heading] of [
     ["Security Services", "/services", "Security services"],
     [
@@ -138,20 +156,29 @@ test.describe("on a phone", () => {
   }) => {
     await page.goto("/");
     await page.getByRole("button", { name: "Open main menu" }).click();
-    const servicesGroup = page.getByRole("dialog").getByRole("list", {
-      name: "Services",
-    });
-    for (const linkName of [
+    const menu = page.getByRole("dialog");
+    const servicesButton = menu.getByRole("button", { name: "Services" });
+    const lineOfBusinessNames = [
       "Security Services",
       "Consulting",
       "Staffing",
       "Custodial Services",
-    ]) {
+    ];
+
+    // Services is a dropdown: its links stay hidden until it is tapped.
+    await expect(servicesButton).toHaveAttribute("aria-expanded", "false");
+    await expect(
+      menu.getByRole("link", { name: "Consulting", exact: true }),
+    ).toBeHidden();
+
+    await servicesButton.click();
+    await expect(servicesButton).toHaveAttribute("aria-expanded", "true");
+    for (const linkName of lineOfBusinessNames) {
       await expect(
-        servicesGroup.getByRole("link", { name: linkName }),
+        menu.getByRole("link", { name: linkName, exact: true }),
       ).toBeVisible();
     }
-    await servicesGroup.getByRole("link", { name: "Staffing" }).click();
+    await menu.getByRole("link", { name: "Staffing", exact: true }).click();
     await expect(page).toHaveURL(/\/staffing$/);
   });
 

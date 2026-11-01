@@ -2,7 +2,7 @@
 
 import { Pause, Play } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 
 import type { Affiliation } from "@/config/affiliations";
 
@@ -10,8 +10,23 @@ import type { Affiliation } from "@/config/affiliations";
  * Each row repeats its logos this many times. Half of the copies are enough
  * to fill even very wide screens, so moving the track by exactly half its
  * width loops without a visible jump or gap.
+ *
+ * Only the first copy is in the server HTML (what search engines read); the
+ * repeats are added in the browser, hidden from screen readers, and the
+ * row starts sliding once they are there.
  */
 const copiesPerRow = 4;
+
+const subscribeToNothing = () => () => {};
+
+/** False in the server HTML and during hydration, true once in the browser. */
+function useIsInBrowser(): boolean {
+  return useSyncExternalStore(
+    subscribeToNothing,
+    () => true,
+    () => false,
+  );
+}
 
 function LogoTile({
   affiliation,
@@ -34,7 +49,7 @@ function LogoTile({
         <div className="flex h-20 w-full items-center justify-center">
           <Image
             src={affiliation.logo}
-            alt=""
+            alt={isRepeatedCopy ? "" : `${affiliation.name} logo`}
             sizes="200px"
             className="max-h-20 w-auto max-w-full object-contain"
           />
@@ -61,15 +76,18 @@ function MarqueeRow({
   direction: "left" | "right";
   label: string;
 }) {
+  const isInBrowser = useIsInBrowser();
+  const numberOfCopies = isInBrowser ? copiesPerRow : 1;
   return (
     <div className="marquee-row py-2">
       <ul
         aria-label={label}
         data-direction={direction}
+        data-looping={isInBrowser}
         className="marquee-track"
         style={{ "--marquee-duration": "55s" } as React.CSSProperties}
       >
-        {Array.from({ length: copiesPerRow }, (_, copyIndex) =>
+        {Array.from({ length: numberOfCopies }, (_, copyIndex) =>
           affiliations.map((affiliation) => (
             <LogoTile
               key={`${copyIndex}-${affiliation.name}`}

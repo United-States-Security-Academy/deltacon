@@ -52,7 +52,7 @@ export function AnimatedNumber({
 
     const { targetNumber, suffix } = parts;
     const showNumber = (numberToShow: number) => {
-      countingText.textContent = `${numberToShow}${suffix}`;
+      countingText.dataset.number = `${numberToShow}${suffix}`;
     };
     let animationFrameId = 0;
 
@@ -95,15 +95,18 @@ export function AnimatedNumber({
 
   return (
     <>
+      {/* The figure itself, once, as text: what screen readers and search
+          engines read. */}
       <span className="sr-only">{value}</span>
-      {/* Fixed-width digits stop the figure from wobbling while it counts. */}
+      {/* The visible, counting copy is drawn from the data-number attribute
+          by CSS, so it isn't page text and crawlers don't read "1313".
+          Fixed-width digits stop the figure wobbling while it counts. */}
       <span
         ref={countingTextRef}
         aria-hidden="true"
-        className="inline-block tabular-nums"
-      >
-        {value}
-      </span>
+        data-number={value}
+        className="inline-block tabular-nums before:content-[attr(data-number)]"
+      />
     </>
   );
 }

@@ -447,10 +447,14 @@
 .marquee-track {
   display: flex;
   width: max-content;
+}
+
+/* Slides only once the repeated copies have been added in the browser. */
+.marquee-track[data-looping="true"] {
   animation: marquee-slide-left var(--marquee-duration, 60s) linear infinite;
 }
 
-.marquee-track[data-direction="right"] {
+.marquee-track[data-looping="true"][data-direction="right"] {
   animation-name: marquee-slide-right;
 }
 
@@ -464,7 +468,8 @@
   .marquee-row {
     mask-image: none;
   }
-  .marquee-track {
+  .marquee-track,
+  .marquee-track[data-looping="true"] {
     width: auto;
     flex-wrap: wrap;
     justify-content: center;
