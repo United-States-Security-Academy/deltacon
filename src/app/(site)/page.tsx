@@ -31,22 +31,27 @@ import {
 } from "@/lib/seo/structured-data";
 import { getPublicMediaUrl } from "@/lib/storage/public-media";
 import { getGalleryPreviewImages } from "@/server/queries/gallery";
-import { getLatestPublishedPosts } from "@/server/queries/posts";
+import {
+  getLatestPublishedPosts,
+  homePagePostCount,
+} from "@/server/queries/posts";
 
-// Rebuild the page in the background at most every 15 minutes, and straight
-// away whenever an admin publishes a post or changes the gallery.
-export const revalidate = 900;
+// A static page with no timer: it is rebuilt on deploy, and straight away
+// when an admin publishes, edits or deletes one of the latest posts or
+// changes the gallery.
+export const revalidate = false;
 
-const homeTitle = `${companyDetails.name} | ${companyDetails.tagline}`;
+// Title and description come from config/search-metadata.ts ("/").
+const homeMetadata = createPageMetadata({
+  title: `${companyDetails.name} | ${companyDetails.tagline}`,
+  description: companyDetails.description,
+  path: "/",
+});
 
 export const metadata: Metadata = {
-  ...createPageMetadata({
-    title: homeTitle,
-    description: companyDetails.description,
-    path: "/",
-  }),
-  // The home page title is used as-is, without the "| Deltacon…" suffix.
-  title: { absolute: homeTitle },
+  ...homeMetadata,
+  // The home page title already names the company, so no "| Deltacon…" suffix.
+  title: { absolute: String(homeMetadata.title) },
 };
 
 const heroTrustPoints = [
@@ -69,7 +74,7 @@ function SectionLink({ href, children }: { href: string; children: string }) {
 
 export default async function HomePage() {
   const [latestPosts, galleryPreviewImages] = await Promise.all([
-    getLatestPublishedPosts(3),
+    getLatestPublishedPosts(homePagePostCount),
     getGalleryPreviewImages(6),
   ]);
 
