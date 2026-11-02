@@ -41,18 +41,13 @@ import {
 // changes the gallery.
 export const revalidate = false;
 
-// Title and description come from config/search-metadata.ts ("/").
-const homeMetadata = createPageMetadata({
+// Title and description come from config/search-metadata.ts ("/"). The
+// title names the company, so no "| Deltacon…" suffix is added to it.
+export const metadata: Metadata = createPageMetadata({
   title: `${companyDetails.name} | ${companyDetails.tagline}`,
   description: companyDetails.description,
   path: "/",
 });
-
-export const metadata: Metadata = {
-  ...homeMetadata,
-  // The home page title already names the company, so no "| Deltacon…" suffix.
-  title: { absolute: String(homeMetadata.title) },
-};
 
 const heroTrustPoints = [
   { label: "Licensed in Texas", icon: BadgeCheck },

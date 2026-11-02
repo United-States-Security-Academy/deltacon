@@ -31,8 +31,11 @@ export const defaultShareImage = {
 export function createPageMetadata(options: PageMetadataOptions): Metadata {
   const { path } = options;
   const { title, description } = searchMetadataByPath[path] ?? options;
+  // Titles that already name the company skip the " | Deltacon…" suffix
+  // added by the root layout, so the name never appears twice.
+  const titlesTheCompany = title.includes(companyDetails.name);
   return {
-    title,
+    title: titlesTheCompany ? { absolute: title } : title,
     description,
     alternates: { canonical: path },
     openGraph: {
