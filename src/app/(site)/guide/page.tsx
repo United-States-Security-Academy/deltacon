@@ -58,7 +58,10 @@ export default function LicensingGuidePage() {
         eyebrow="Licensing guide"
         title={licensingGuide.title}
         introduction={licensingGuide.subtitle}
-        breadcrumbs={[{ label: "Guide" }]}
+        breadcrumbs={[
+          { label: "Training", href: "/training" },
+          { label: "Licensing Guide" },
+        ]}
       >
         <ul className="flex flex-wrap gap-2">
           {guideHighlights.map((highlight) => {

@@ -250,7 +250,7 @@ export const searchMetadataByPath: Record<string, SearchMetadata> = {
   "/about": {
     title: "About Deltacon Security Group",
     description:
-      "Deltacon Security Group is a licensed Texas security company (DPS License B05205701) based in Sugar Land. Learn about our mission, values and leadership.",
+      "Deltacon Security Group is a licensed Texas security company (DPS License B05205701) based in Sugar Land. Learn about our story, mission, values and licenses.",
   },
   "/blog": {
     title: "Security News, Advice & Press",

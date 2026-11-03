@@ -73,7 +73,8 @@ export type LeadershipTeamMember = {
   biography: string;
 };
 
-// PLACEHOLDER: replace with the real leadership team.
+// PLACEHOLDER: replace with the real leadership team. Not shown on the site
+// for now (the About page's leadership section was removed on 2026-11-03).
 export const leadershipTeam: LeadershipTeamMember[] = [
   {
     name: "Leader Name",

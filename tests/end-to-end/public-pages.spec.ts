@@ -79,13 +79,47 @@ test("the main navigation reaches each section", async ({ page }) => {
   for (const [linkName, path] of [
     ["Industries", "/industries"],
     ["Training", "/training"],
-    ["Gallery", "/gallery"],
+    ["Blog & Media", "/blog"],
   ] as const) {
     await mainNavigation
       .getByRole("link", { name: linkName, exact: true })
       .click();
     await expect(page).toHaveURL(new RegExp(`${path}$`));
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  }
+});
+
+test("Training and Blog & Media open their own menus", async ({ page }) => {
+  await page.goto("/");
+  const mainNavigation = page.getByRole("navigation", { name: "Main" }).first();
+  for (const [menuName, linkName, path, heading] of [
+    [
+      "Training",
+      "Licensing Guide",
+      "/guide",
+      "Pathway to security guard licensing in Texas",
+    ],
+    [
+      "Training",
+      "Training Courses",
+      "/training",
+      "Security training & licensing",
+    ],
+    ["Blog & Media", "Gallery", "/gallery", "Deltacon in action"],
+    ["Blog & Media", "Blog", "/blog", "News & insights"],
+  ] as const) {
+    const menuButton = mainNavigation.getByRole("button", {
+      name: `Show ${menuName} menu`,
+    });
+    await menuButton.click();
+    await expect(menuButton).toHaveAttribute("aria-expanded", "true");
+    await mainNavigation
+      .getByRole("link", { name: linkName, exact: true })
+      .click();
+    await expect(page).toHaveURL(new RegExp(`${path}$`));
+    await expect(
+      page.getByRole("heading", { level: 1, name: heading }),
+    ).toBeVisible();
   }
 });
 
@@ -146,8 +180,12 @@ test.describe("on a phone", () => {
     await page.getByRole("button", { name: "Open main menu" }).click();
     const menu = page.getByRole("dialog");
     await expect(menu).toBeVisible();
-    await menu.getByRole("link", { name: "Training", exact: true }).click();
-    await expect(page).toHaveURL(/\/training$/);
+    // Training is a group: tap it to show its pages, then pick one.
+    await menu.getByRole("button", { name: "Training" }).click();
+    await menu
+      .getByRole("link", { name: "Licensing Guide", exact: true })
+      .click();
+    await expect(page).toHaveURL(/\/guide$/);
     await expect(menu).toBeHidden();
   });
 

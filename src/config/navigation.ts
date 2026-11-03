@@ -15,10 +15,22 @@ export const mainNavigationLinks: MainNavigationItem[] = [
   { label: "About", href: "/about" },
   { label: "Services", href: "/services", children: serviceLines },
   { label: "Industries", href: "/industries" },
-  { label: "Training", href: "/training" },
-  { label: "Guide", href: "/guide" },
-  { label: "Gallery", href: "/gallery" },
-  { label: "Blog & Media", href: "/blog" },
+  {
+    label: "Training",
+    href: "/training",
+    children: [
+      { label: "Training Courses", href: "/training" },
+      { label: "Licensing Guide", href: "/guide" },
+    ],
+  },
+  {
+    label: "Blog & Media",
+    href: "/blog",
+    children: [
+      { label: "Blog", href: "/blog" },
+      { label: "Gallery", href: "/gallery" },
+    ],
+  },
 ];
 
 /** Call-to-action buttons shown after the main navigation links. */
@@ -32,9 +44,16 @@ export const applyNowLink: NavigationLink = {
   href: "/apply",
 };
 
+/** Footer links: the main pages, including those inside header dropdowns. */
 export const footerQuickLinks: NavigationLink[] = [
   { label: "Home", href: "/" },
-  ...mainNavigationLinks.map(({ label, href }) => ({ label, href })),
+  { label: "About", href: "/about" },
+  { label: "Services", href: "/services" },
+  { label: "Industries", href: "/industries" },
+  { label: "Training", href: "/training" },
+  { label: "Licensing Guide", href: "/guide" },
+  { label: "Blog & Media", href: "/blog" },
+  { label: "Gallery", href: "/gallery" },
   requestServiceLink,
   applyNowLink,
   { label: "Security Self-Assessment", href: "/security-assessment" },

@@ -12,7 +12,6 @@ import { UssaLinkedText } from "@/components/sections/ussa-linked-text";
 import {
   companyStory,
   companyValues,
-  leadershipTeam,
   licensesAndCertifications,
   missionStatement,
 } from "@/config/about-content";
@@ -22,18 +21,9 @@ import { createPageMetadata } from "@/lib/seo/page-metadata";
 export const metadata = createPageMetadata({
   title: "About Us",
   description:
-    "Learn about Deltacon Security Group: our story, mission, values, leadership team and licenses.",
+    "Learn about Deltacon Security Group: our story, mission, values and licenses.",
   path: "/about",
 });
-
-function getInitials(fullName: string): string {
-  return fullName
-    .split(" ")
-    .map((namePart) => namePart[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
-}
 
 export default function AboutPage() {
   return (
@@ -64,7 +54,7 @@ export default function AboutPage() {
           </div>
           <div
             data-reveal="zoom"
-            className="flex justify-center rounded-lg bg-navy-900 security-pattern p-10"
+            className="flex flex-col items-center gap-6 rounded-lg bg-navy-900 security-pattern p-10"
           >
             <Image
               src={deltaconBadge}
@@ -72,6 +62,14 @@ export default function AboutPage() {
               className="h-auto w-full max-w-64"
               sizes="256px"
             />
+            <p className="flex flex-col items-center gap-1 border-t border-gold-500/40 pt-4 text-center">
+              <span className="font-heading text-xs font-semibold tracking-[0.3em] text-gold-400 uppercase">
+                Texas DPS License No.
+              </span>
+              <span className="font-heading text-2xl font-bold tracking-wider text-white">
+                {companyDetails.securityLicenseNumber}
+              </span>
+            </p>
           </div>
         </div>
       </section>
@@ -125,43 +123,10 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section aria-labelledby="leadership-heading" className="section-spacing">
-        <div className="page-container flex flex-col gap-10">
-          <SectionHeading
-            id="leadership-heading"
-            eyebrow="Leadership"
-            title="The team behind Deltacon"
-            description="Experienced security professionals who stay personally involved in every client relationship."
-          />
-          <ul data-reveal-stagger className="grid gap-6 md:grid-cols-3">
-            {leadershipTeam.map((teamMember) => (
-              <li
-                key={teamMember.role}
-                className="flex flex-col gap-4 rounded-lg border border-border p-6"
-              >
-                <span
-                  aria-hidden="true"
-                  className="flex size-16 items-center justify-center rounded-full bg-navy-900 font-heading text-2xl font-bold text-gold-400"
-                >
-                  {getInitials(teamMember.name)}
-                </span>
-                <div>
-                  <h3 className="text-xl font-bold text-navy-900 uppercase">
-                    {teamMember.name}
-                  </h3>
-                  <p className="font-medium text-gold-700">{teamMember.role}</p>
-                </div>
-                <p className="text-muted-foreground">{teamMember.biography}</p>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
+      {/* The leadership section is hidden for now; its content stays in
+          config/about-content.ts (leadershipTeam) for when it returns. */}
 
-      <section
-        aria-labelledby="licenses-heading"
-        className="bg-paper section-spacing"
-      >
+      <section aria-labelledby="licenses-heading" className="section-spacing">
         <div className="page-container flex flex-col gap-10">
           <SectionHeading
             id="licenses-heading"

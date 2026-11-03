@@ -91,7 +91,10 @@ export default async function GalleryPage({
         eyebrow="Gallery"
         title="Deltacon in action"
         introduction="Our officers on duty, in training and out in the community."
-        breadcrumbs={[{ label: "Gallery" }]}
+        breadcrumbs={[
+          { label: "Blog & Media", href: "/blog" },
+          { label: "Gallery" },
+        ]}
       />
 
       <section
