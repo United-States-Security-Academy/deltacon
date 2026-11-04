@@ -71,6 +71,11 @@ export const searchMetadataByPath: Record<string, SearchMetadata> = {
     description:
       "The Deltacon Mobile Training Team delivers customized security training at your location anywhere in Texas, taught by experienced security instructors.",
   },
+  "/government-contracting": {
+    title: "Government Contracting Security & Staffing Services",
+    description:
+      "Veteran-owned security, staffing, emergency response, training and custodial services for government agencies. SDVOSB, SAM registered, CAGE 813H7.",
+  },
   "/consulting": {
     title: "Physical Security Consulting & Risk Assessments",
     description:

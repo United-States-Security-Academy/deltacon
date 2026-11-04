@@ -26,6 +26,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     page("/", 1, "weekly"),
     page("/services", 0.9),
+    page("/government-contracting", 0.8),
     ...services.map((service) => page(`/services/${service.slug}`, 0.8)),
     // Consulting, Staffing and Custodial Services, once their pages have content.
     ...serviceLinesWithContent.map((serviceLine) =>

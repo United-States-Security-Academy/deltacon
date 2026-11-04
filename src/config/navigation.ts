@@ -49,6 +49,7 @@ export const footerQuickLinks: NavigationLink[] = [
   { label: "Home", href: "/" },
   { label: "About", href: "/about" },
   { label: "Services", href: "/services" },
+  { label: "Government Contracting", href: "/government-contracting" },
   { label: "Industries", href: "/industries" },
   { label: "Training", href: "/training" },
   { label: "Licensing Guide", href: "/guide" },

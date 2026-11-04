@@ -1,5 +1,6 @@
 import type { StaticImageData } from "next/image";
 
+import oneHundredClubLogo from "@/assets/affiliations/100-club-business-member.png";
 import americanRedCrossLogo from "@/assets/affiliations/american-red-cross.png";
 import asisInternationalLogo from "@/assets/affiliations/asis-international.png";
 import associatedSecurityServicesLogo from "@/assets/affiliations/associated-security-services-investigators-texas.png";
@@ -11,13 +12,11 @@ import inc5000Logo from "@/assets/affiliations/inc-5000.png";
 import infragardLogo from "@/assets/affiliations/infragard.png";
 import nationalRetailFederationLogo from "@/assets/affiliations/national-retail-federation.png";
 import presidentsVolunteerServiceAwardLogo from "@/assets/affiliations/presidents-volunteer-service-award.jpg";
-import propperLogo from "@/assets/affiliations/propper.png";
 import sbaServiceDisabledVeteranOwnedLogo from "@/assets/affiliations/sba-service-disabled-veteran-owned-certified.png";
 import sbaVeteranOwnedLogo from "@/assets/affiliations/sba-veteran-owned-certified.png";
-import texasApartmentAssociationLogo from "@/assets/affiliations/texas-apartment-association.png";
 import texasHotelLodgingAssociationLogo from "@/assets/affiliations/texas-hotel-lodging-association.png";
+import unidosUsLogo from "@/assets/affiliations/unidosus.png";
 import usChamberOfCommerceLogo from "@/assets/affiliations/us-chamber-of-commerce.png";
-import veteranOwnedSmallBusinessLogo from "@/assets/affiliations/veteran-owned-small-business.png";
 import vethubCertifiedVendorLogo from "@/assets/affiliations/vethub-certified-vendor.png";
 
 /**
@@ -87,10 +86,6 @@ export const affiliationGroups: AffiliationGroup[] = [
         name: "Texas Hotel & Lodging Association",
         logo: texasHotelLodgingAssociationLogo,
       },
-      {
-        name: "Texas Apartment Association",
-        logo: texasApartmentAssociationLogo,
-      },
     ],
   },
   {
@@ -108,11 +103,6 @@ export const affiliationGroups: AffiliationGroup[] = [
         name: "President's Volunteer Service Award",
         logo: presidentsVolunteerServiceAwardLogo,
         detail: "Certifying Organization",
-      },
-      {
-        name: "Veteran-Owned Small Business",
-        logo: veteranOwnedSmallBusinessLogo,
-        detail: "VA verified",
       },
       {
         name: "SBA Veteran-Owned Certified",
@@ -136,7 +126,17 @@ export const affiliationGroups: AffiliationGroup[] = [
         logo: americanRedCrossLogo,
         detail: "Training partner",
       },
-      { name: "Propper", logo: propperLogo },
+    ],
+  },
+  {
+    heading: "Community organizations",
+    affiliations: [
+      {
+        name: "The 100 Club",
+        logo: oneHundredClubLogo,
+        detail: "Business Member",
+      },
+      { name: "UnidosUS", logo: unidosUsLogo },
     ],
   },
 ];

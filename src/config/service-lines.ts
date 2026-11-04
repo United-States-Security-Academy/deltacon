@@ -526,6 +526,10 @@ const otherServiceLines = [
 /** In the order they appear in the dropdown. */
 export const serviceLines: ServiceLine[] = [
   { label: "Security Services", href: "/services" },
+  {
+    label: "Government Contracting Solutions",
+    href: "/government-contracting",
+  },
   ...otherServiceLines,
 ];
 
