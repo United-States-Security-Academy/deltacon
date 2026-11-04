@@ -138,6 +138,11 @@ test("the Services dropdown opens each line of business", async ({ page }) => {
   for (const [linkName, path, heading] of [
     ["Security Services", "/services", "Security services"],
     [
+      "Government Contracting Solutions",
+      "/government-contracting",
+      "Government & Critical Infrastructure Protective Services",
+    ],
+    [
       "Consulting",
       "/consulting",
       "Professional Physical Security Consulting & Protective Solutions",
@@ -198,6 +203,7 @@ test.describe("on a phone", () => {
     const servicesButton = menu.getByRole("button", { name: "Services" });
     const lineOfBusinessNames = [
       "Security Services",
+      "Government Contracting Solutions",
       "Consulting",
       "Staffing",
       "Custodial Services",
@@ -227,6 +233,9 @@ test.describe("on a phone", () => {
       "/request-service",
       "/security-assessment",
       "/blog",
+      "/guide",
+      "/government-contracting",
+      "/about",
     ]) {
       await page.goto(path);
       const overflow = await page.evaluate(
