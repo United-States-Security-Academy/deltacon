@@ -18,33 +18,6 @@ export type GalleryImageSummary = {
   categoryId: string | null;
 };
 
-/**
- * The first few gallery images, in the order admins arranged them, for the
- * home page. The home page is static, so this only runs when it is rebuilt
- * (on deploy or a gallery change). It throws on database errors so Next.js
- * keeps the last good page instead of saving one without photos.
- */
-export async function getGalleryPreviewImages(
-  numberOfImages: number,
-): Promise<GalleryImageSummary[]> {
-  return runAsVisitor((transaction) =>
-    transaction
-      .select({
-        id: galleryImages.id,
-        storagePath: galleryImages.storagePath,
-        widthInPixels: galleryImages.widthInPixels,
-        heightInPixels: galleryImages.heightInPixels,
-        blurPlaceholder: galleryImages.blurPlaceholder,
-        altText: galleryImages.altText,
-        caption: galleryImages.caption,
-        categoryId: galleryImages.categoryId,
-      })
-      .from(galleryImages)
-      .orderBy(asc(galleryImages.sortOrder), desc(galleryImages.createdAt))
-      .limit(numberOfImages),
-  );
-}
-
 /** How many photos each page of the public gallery shows. */
 export const galleryImagesPerPage = 24;
 

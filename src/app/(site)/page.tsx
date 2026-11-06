@@ -1,6 +1,5 @@
 import { ArrowRight, BadgeCheck, Clock, ShieldCheck } from "lucide-react";
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 
 import heroPosterImage from "@/assets/hero-background-poster.jpg";
@@ -29,16 +28,13 @@ import {
   buildLocalBusinessData,
   buildWebSiteData,
 } from "@/lib/seo/structured-data";
-import { getPublicMediaUrl } from "@/lib/storage/public-media";
-import { getGalleryPreviewImages } from "@/server/queries/gallery";
 import {
   getLatestPublishedPosts,
   homePagePostCount,
 } from "@/server/queries/posts";
 
 // A static page with no timer: it is rebuilt on deploy, and straight away
-// when an admin publishes, edits or deletes one of the latest posts or
-// changes the gallery.
+// when an admin publishes, edits or deletes one of the latest posts.
 export const revalidate = false;
 
 // Title and description come from config/search-metadata.ts ("/"). The
@@ -68,10 +64,7 @@ function SectionLink({ href, children }: { href: string; children: string }) {
 }
 
 export default async function HomePage() {
-  const [latestPosts, galleryPreviewImages] = await Promise.all([
-    getLatestPublishedPosts(homePagePostCount),
-    getGalleryPreviewImages(6),
-  ]);
+  const latestPosts = await getLatestPublishedPosts(homePagePostCount);
 
   return (
     <>
@@ -266,47 +259,8 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* Gallery preview (hidden until images are uploaded) */}
-      {galleryPreviewImages.length > 0 && (
-        <section
-          aria-labelledby="gallery-preview-heading"
-          className="bg-paper section-spacing"
-        >
-          <div className="page-container flex flex-col gap-10">
-            <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
-              <SectionHeading
-                id="gallery-preview-heading"
-                eyebrow="Gallery"
-                title="Deltacon in action"
-              />
-              <SectionLink href="/gallery">Open the gallery</SectionLink>
-            </div>
-            <ul
-              data-reveal-stagger
-              className="grid grid-cols-2 gap-4 md:grid-cols-3"
-            >
-              {galleryPreviewImages.map((image) => (
-                <li
-                  key={image.id}
-                  className="relative aspect-[4/3] overflow-hidden rounded-lg bg-navy-900"
-                >
-                  <Image
-                    src={getPublicMediaUrl(image.storagePath)}
-                    alt={image.altText}
-                    fill
-                    sizes="(min-width: 768px) 33vw, 50vw"
-                    placeholder={image.blurPlaceholder ? "blur" : "empty"}
-                    blurDataURL={image.blurPlaceholder ?? undefined}
-                    className="object-cover"
-                  />
-                </li>
-              ))}
-            </ul>
-          </div>
-        </section>
-      )}
-
-      <AffiliationsSection />
+      {/* Paper background so it doesn't run into the white section above. */}
+      <AffiliationsSection className="bg-paper" />
 
       <CallToActionBand />
     </>

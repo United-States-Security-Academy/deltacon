@@ -41,13 +41,12 @@ const missingImage: GalleryActionResult = {
 };
 
 /**
- * Refreshes every page that shows gallery photos. updateTag (not the
- * stale-while-revalidate revalidateTag) so the home page is rebuilt from
- * fresh data: it has no timer to correct a stale rebuild later.
+ * Refreshes the pages that show gallery photos (only /gallery since the home
+ * page preview was removed on 2026-11-06). updateTag, not the
+ * stale-while-revalidate revalidateTag, so visitors see changes straight away.
  */
 function refreshGalleryPages() {
   updateTag(cacheTags.gallery);
-  revalidatePath("/");
   revalidatePath("/gallery");
   revalidatePath("/admin/gallery");
 }
