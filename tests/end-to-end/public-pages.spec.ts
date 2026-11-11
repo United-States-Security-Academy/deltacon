@@ -54,6 +54,137 @@ test("every page in the sitemap loads cleanly and meets WCAG 2.1 AA", async ({
   expect(failures, failures.join("\n")).toEqual([]);
 });
 
+test("the Dallas–Fort Worth page is complete and well structured", async ({
+  page,
+}) => {
+  await page.goto("/locations/dallas-fort-worth");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+    "Security Guard Services in Dallas–Fort Worth, TX",
+  );
+  await expect(page).toHaveTitle(
+    "Security Guard Services Dallas–Fort Worth | Deltacon",
+  );
+
+  // Pricing: a real table with a caption and the disclaimer right after it.
+  const table = page.getByRole("table");
+  await expect(table.locator("caption")).toBeVisible();
+  await expect(table.getByRole("row")).toHaveCount(6);
+  await expect(
+    page.getByText(/not guaranteed contract rates/).first(),
+  ).toBeVisible();
+  await expect(page.getByText("$30.00")).toHaveCount(0);
+
+  // The FAQ uses <details>, so its text is in the HTML. (The cost
+  // breakdown moved to /security-guard-pricing.)
+  await expect(page.locator("details")).toHaveCount(10);
+  await expect(
+    page.getByRole("link", {
+      name: /What is included in our hourly bill rate/,
+    }),
+  ).toHaveAttribute("href", "/security-guard-pricing");
+  await expect(
+    page.getByRole("link", { name: /academies and instructor credentials/ }),
+  ).toHaveAttribute("href", "/training-advantage");
+
+  // Structured data: valid JSON with the expected types.
+  const structuredDataTypes = await page
+    .locator('script[type="application/ld+json"]')
+    .evaluateAll((scripts) =>
+      scripts.flatMap((script) =>
+        [JSON.parse(script.textContent ?? "null")]
+          .flat()
+          .map((block: { "@type": string }) => block["@type"]),
+      ),
+    );
+  expect(structuredDataTypes).toEqual(
+    expect.arrayContaining(["LocalBusiness", "FAQPage", "BreadcrumbList"]),
+  );
+
+  // Public-sector client names are hidden.
+  await expect(page.getByText("Health and Human Services")).toHaveCount(0);
+
+  // The proposal button carries the location to the request form.
+  await page
+    .getByRole("link", { name: "Request a Security Proposal" })
+    .first()
+    .click();
+  await expect(page).toHaveURL(
+    /\/request-service\?location=dallas-fort-worth$/,
+  );
+  await expect(page.getByLabel("Site location")).toHaveValue(
+    "Dallas–Fort Worth, TX",
+  );
+});
+
+test("the Houston & Sugar Land headquarters page is complete", async ({
+  page,
+}) => {
+  await page.goto("/locations/houston-sugar-land");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+    "Security Guard Services in Houston & Sugar Land, TX",
+  );
+  await expect(page).toHaveTitle(
+    "Security Guard Services Houston & Sugar Land | Deltacon",
+  );
+  await expect(page.getByRole("table").getByRole("row")).toHaveCount(6);
+  await expect(page.locator("details")).toHaveCount(10);
+
+  // Links to the specialist service and industry pages.
+  for (const href of [
+    "/services/off-duty-police",
+    "/services/detention-correctional-security",
+    "/industries/chemical-petrochemical",
+    "/industries/ports-of-entry",
+    "/industries/data-centers",
+  ]) {
+    await expect(page.locator(`main a[href="${href}"]`).first()).toBeVisible();
+  }
+
+  // The region section stays hidden until its copy is written.
+  await expect(
+    page.getByRole("heading", { name: "Security for the Houston Region" }),
+  ).toHaveCount(0);
+  await expect(page.getByText("TODO")).toHaveCount(0);
+
+  // The headquarters is described as the company itself.
+  const businessIds = await page
+    .locator('script[type="application/ld+json"]')
+    .evaluateAll((scripts) =>
+      scripts.flatMap((script) =>
+        [JSON.parse(script.textContent ?? "null")]
+          .flat()
+          .filter(
+            (block: { "@type": string }) => block["@type"] === "LocalBusiness",
+          )
+          .map((block: { "@id": string }) => block["@id"]),
+      ),
+    );
+  expect(businessIds).toHaveLength(1);
+  expect(businessIds[0]).toMatch(/\/#organization$/);
+});
+
+test("the shared pricing and training pages work", async ({ page }) => {
+  await page.goto("/security-guard-pricing");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
+  await expect(page.locator("details")).toHaveCount(8);
+  await expect(
+    page.locator('main a[href="/locations/dallas-fort-worth#pricing"]'),
+  ).toBeVisible();
+  await page.goto("/training-advantage");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
+  await expect(page.getByText("F28377901")).toBeVisible();
+  await expect(page.getByText("Y07327301")).toBeVisible();
+});
+
+test("an unknown ?location= leaves the site location empty", async ({
+  page,
+}) => {
+  await page.goto("/request-service?location=not-a-real-place");
+  await expect(page.getByLabel("Site location")).toHaveValue("");
+});
+
 test("unknown addresses show a helpful 404 page", async ({ page }) => {
   for (const address of ["/this-page-does-not-exist", "/blog/x/y/z"]) {
     const response = await page.goto(address);
@@ -89,7 +220,9 @@ test("the main navigation reaches each section", async ({ page }) => {
   }
 });
 
-test("Training and Blog & Media open their own menus", async ({ page }) => {
+test("About, Training and Blog & Media open their own menus", async ({
+  page,
+}) => {
   await page.goto("/");
   const mainNavigation = page.getByRole("navigation", { name: "Main" }).first();
   for (const [menuName, linkName, path, heading] of [
@@ -107,6 +240,8 @@ test("Training and Blog & Media open their own menus", async ({ page }) => {
     ],
     ["Blog & Media", "Gallery", "/gallery", "Deltacon in action"],
     ["Blog & Media", "Blog", "/blog", "News & insights"],
+    ["About", "Locations", "/locations", "Security services across Texas"],
+    ["About", "About Us", "/about", "Who we are"],
   ] as const) {
     const menuButton = mainNavigation.getByRole("button", {
       name: `Show ${menuName} menu`,
@@ -236,6 +371,11 @@ test.describe("on a phone", () => {
       "/guide",
       "/government-contracting",
       "/about",
+      "/locations",
+      "/locations/dallas-fort-worth",
+      "/locations/houston-sugar-land",
+      "/security-guard-pricing",
+      "/training-advantage",
     ]) {
       await page.goto(path);
       const overflow = await page.evaluate(

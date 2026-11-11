@@ -9,6 +9,10 @@ import {
   officeMapUrl,
   type SocialLink,
 } from "@/config/company-details";
+import {
+  formatOfficeAddress as formatLocationOfficeAddress,
+  locations,
+} from "@/config/locations";
 import { footerQuickLinks } from "@/config/navigation";
 
 type SiteFooterProps = {
@@ -30,6 +34,14 @@ export function SiteFooter({ socialLinks }: SiteFooterProps) {
       : keepRealSocialProfiles(companyDetails.socialLinks);
   const { streetAddress, city, stateCode, postalCode } =
     companyDetails.officeAddress;
+  // The headquarters address comes from company details; other offices
+  // (and the headquarters page link) from config/locations.ts.
+  const headquartersLocation = locations.find(
+    (location) => location.isHeadquarters,
+  );
+  const branchLocations = locations.filter(
+    (location) => !location.isHeadquarters,
+  );
 
   return (
     <footer className="mt-auto border-t-4 border-gold-500 bg-navy-950 text-navy-200">
@@ -48,28 +60,83 @@ export function SiteFooter({ socialLinks }: SiteFooterProps) {
           <p className="font-heading text-sm font-semibold tracking-[0.25em] text-gold-400 uppercase">
             {companyDetails.motto}
           </p>
-          <address className="not-italic">
-            <a
-              href={officeMapUrl()}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group inline-flex gap-3 rounded-sm text-sm leading-relaxed transition-colors hover:text-gold-300"
-            >
-              <MapPin
-                aria-hidden="true"
-                className="mt-0.5 size-5 shrink-0 text-gold-500"
-              />
-              <span>
-                {streetAddress}
-                <br />
-                {city}, {stateCode} {postalCode}
-                <span className="sr-only">
-                  {" "}
-                  (opens Google Maps in a new tab)
+          <div className="flex flex-col gap-4">
+            <address className="not-italic">
+              <p className="mb-1 text-xs font-semibold tracking-wider text-gold-400 uppercase">
+                {headquartersLocation ? (
+                  <Link
+                    href={`/locations/${headquartersLocation.slug}`}
+                    className="hover:text-gold-300"
+                  >
+                    Headquarters · {headquartersLocation.name}
+                  </Link>
+                ) : (
+                  "Headquarters"
+                )}
+              </p>
+              <a
+                href={officeMapUrl()}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group inline-flex gap-3 rounded-sm text-sm leading-relaxed transition-colors hover:text-gold-300"
+              >
+                <MapPin
+                  aria-hidden="true"
+                  className="mt-0.5 size-5 shrink-0 text-gold-500"
+                />
+                <span>
+                  {streetAddress}
+                  <br />
+                  {city}, {stateCode} {postalCode}
+                  <span className="sr-only">
+                    {" "}
+                    (opens Google Maps in a new tab)
+                  </span>
                 </span>
-              </span>
-            </a>
-          </address>
+              </a>
+            </address>
+            {/* Other offices, from config/locations.ts. */}
+            {branchLocations.map(({ slug, name, office }) => (
+              <address key={slug} className="not-italic">
+                <p className="mb-1 text-xs font-semibold tracking-wider text-gold-400 uppercase">
+                  <Link
+                    href={`/locations/${slug}`}
+                    className="hover:text-gold-300"
+                  >
+                    {office.name} · {name}
+                  </Link>
+                </p>
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                    `${companyDetails.name}, ${formatLocationOfficeAddress(office)}`,
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group inline-flex gap-3 rounded-sm text-sm leading-relaxed transition-colors hover:text-gold-300"
+                >
+                  <MapPin
+                    aria-hidden="true"
+                    className="mt-0.5 size-5 shrink-0 text-gold-500"
+                  />
+                  <span>
+                    {office.streetAddress}
+                    <br />
+                    {office.city}, {office.stateCode} {office.postalCode}
+                    <span className="sr-only">
+                      {" "}
+                      (opens Google Maps in a new tab)
+                    </span>
+                  </span>
+                </a>
+                <a
+                  href={`tel:${office.phoneInternational}`}
+                  className="mt-1 ml-8 block text-sm transition-colors hover:text-gold-300"
+                >
+                  {office.phoneDisplay}
+                </a>
+              </address>
+            ))}
+          </div>
           <SocialMediaIcons socialLinks={shownSocialLinks} />
         </div>
 

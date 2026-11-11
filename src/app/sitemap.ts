@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 
 import { industries } from "@/config/industries";
+import { locations } from "@/config/locations";
 import { serviceLinesWithContent } from "@/config/service-lines";
 import { services } from "@/config/services";
 import { trainingCourses } from "@/config/training-courses";
@@ -27,6 +28,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     page("/", 1, "weekly"),
     page("/services", 0.9),
     page("/government-contracting", 0.8),
+    page("/locations", 0.7),
+    page("/security-guard-pricing", 0.7),
+    page("/training-advantage", 0.6),
+    ...locations.map((location) => page(`/locations/${location.slug}`, 0.8)),
     ...services.map((service) => page(`/services/${service.slug}`, 0.8)),
     // Consulting, Staffing and Custodial Services, once their pages have content.
     ...serviceLinesWithContent.map((serviceLine) =>

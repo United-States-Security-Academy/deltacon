@@ -2,6 +2,13 @@ import {
   companyDetails,
   keepRealSocialProfiles,
 } from "@/config/company-details";
+import {
+  allCities,
+  describePriceRange,
+  faqAnswerAsText,
+  type Location,
+  type LocationFaq,
+} from "@/config/locations";
 import { canonicalSiteUrl, canonicalUrl } from "@/lib/site-url";
 
 /*
@@ -132,6 +139,84 @@ export function buildCourseData(course: {
         ? { url: course.providerUrl, sameAs: course.providerUrl }
         : {}),
     },
+  };
+}
+
+/**
+ * A location's business data, built from the location data the page renders.
+ *
+ * - A branch office is its own LocalBusiness, linked to the company (the
+ *   "/#organization" block on the home page) as its parent.
+ * - The headquarters is the company itself, at the same address, so it uses
+ *   the company's own @id and URL: search engines see one business with
+ *   extra detail, not two businesses at one address.
+ */
+export function buildLocationBusinessData(location: Location) {
+  const pageUrl = canonicalUrl(`/locations/${location.slug}`);
+  const { office } = location;
+  const priceRange = describePriceRange(location.pricing.rates);
+  const identity = location.isHeadquarters
+    ? {
+        "@id": organizationId,
+        name: companyDetails.name,
+        url: canonicalSiteUrl,
+      }
+    : {
+        "@id": `${pageUrl}#business`,
+        name: location.businessName,
+        url: pageUrl,
+        parentOrganization: { "@id": organizationId },
+      };
+  return {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    ...identity,
+    ...(location.isHeadquarters
+      ? {}
+      : { description: location.search.description }),
+    logo: canonicalUrl("/brand/deltacon-badge-512.png"),
+    image: canonicalUrl("/opengraph-image"),
+    telephone: office.phoneInternational,
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: office.streetAddress,
+      addressLocality: office.city,
+      addressRegion: office.stateCode,
+      postalCode: office.postalCode,
+      addressCountry: companyDetails.location.countryCode,
+    },
+    // Left out until the office's real coordinates are supplied.
+    ...(office.coordinates
+      ? {
+          geo: {
+            "@type": "GeoCoordinates",
+            latitude: office.coordinates.latitude,
+            longitude: office.coordinates.longitude,
+          },
+        }
+      : {}),
+    ...(priceRange ? { priceRange } : {}),
+    areaServed: allCities(location).map((city) => ({
+      "@type": "City",
+      name: city,
+      containedInPlace: {
+        "@type": "State",
+        name: companyDetails.location.region,
+      },
+    })),
+  };
+}
+
+/** FAQPage built from the same questions and answers the page shows. */
+export function buildFaqPageData(questions: LocationFaq[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: questions.map((faq) => ({
+      "@type": "Question",
+      name: faq.question,
+      acceptedAnswer: { "@type": "Answer", text: faqAnswerAsText(faq) },
+    })),
   };
 }
 

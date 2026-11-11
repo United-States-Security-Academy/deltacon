@@ -65,6 +65,8 @@ export function buildContentSecurityPolicy({
       "https://challenges.cloudflare.com",
       "https://www.youtube-nocookie.com",
       "https://www.youtube.com",
+      // Google Maps embed of an office on the location pages.
+      "https://www.google.com",
       vercelToolbar,
     ],
     "worker-src": ["'self'", "blob:"],

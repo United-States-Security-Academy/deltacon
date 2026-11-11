@@ -1,4 +1,5 @@
 import { ServiceRequestForm } from "@/components/forms/service-request-form";
+import { findLocationBySlug } from "@/config/locations";
 import { PageHeader } from "@/components/sections/page-header";
 import { WhatHappensNext } from "@/components/sections/what-happens-next";
 import { buildSiteSurveyMessage } from "@/lib/security-assessment/score-assessment";
@@ -33,8 +34,13 @@ export default async function RequestServicePage({
   searchParams,
 }: PageProps<"/request-service">) {
   // Service and industry pages link here with ?service=<slug> or
-  // ?industry=<slug> to pre-select those fields.
-  const { service, industry, assessment, focus } = await searchParams;
+  // ?industry=<slug> to pre-select those fields; location pages add
+  // ?location=<slug>, which fills in "Site location" (known slugs only).
+  const { service, industry, assessment, focus, location } = await searchParams;
+  const prefilledSiteLocation =
+    typeof location === "string"
+      ? findLocationBySlug(location)?.requestFormSiteLocation
+      : undefined;
   // Visitors arriving from the security self-assessment get a pre-written
   // message (built only from known question ids, never raw URL text).
   const prefilledMessage = buildSiteSurveyMessage(
@@ -71,6 +77,7 @@ export default async function RequestServicePage({
                 typeof industry === "string" ? industry : undefined
               }
               prefilledMessage={prefilledMessage}
+              prefilledSiteLocation={prefilledSiteLocation}
             />
           </section>
           <WhatHappensNext steps={nextSteps} />

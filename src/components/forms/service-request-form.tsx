@@ -55,11 +55,14 @@ export function ServiceRequestForm({
   preselectedServiceSlug,
   preselectedIndustrySlug,
   prefilledMessage,
+  prefilledSiteLocation,
 }: {
   preselectedServiceSlug?: string;
   preselectedIndustrySlug?: string;
   /** e.g. the self-assessment score and focus areas. */
   prefilledMessage?: string;
+  /** e.g. "Dallas–Fort Worth, TX" when opened from a location page. */
+  prefilledSiteLocation?: string;
 }) {
   const spamProtection = useSpamProtection();
   const [bannerErrorMessage, setBannerErrorMessage] = useState<string>();
@@ -83,6 +86,7 @@ export function ServiceRequestForm({
       )
         ? (preselectedIndustrySlug as ServiceRequestFormInput["industrySlug"])
         : undefined,
+      siteLocation: prefilledSiteLocation,
       message: prefilledMessage,
     },
   });

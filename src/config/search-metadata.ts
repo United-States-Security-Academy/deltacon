@@ -71,6 +71,21 @@ export const searchMetadataByPath: Record<string, SearchMetadata> = {
     description:
       "The Deltacon Mobile Training Team delivers customized security training at your location anywhere in Texas, taught by experienced security instructors.",
   },
+  "/security-guard-pricing": {
+    title: "Security Guard Pricing: What Your Hourly Rate Covers",
+    description:
+      "See what goes into a professional security guard hourly bill rate: wages, payroll taxes, insurance, training, uniforms, licensing, supervision and overhead.",
+  },
+  "/training-advantage": {
+    title: "Our Training Advantage: Two Texas Security Academies",
+    description:
+      "Deltacon Security Group owns two Texas DPS-licensed security training academies and keeps in-house licensed instructors for classroom, firearms and PPO work.",
+  },
+  "/locations": {
+    title: "Security Guard Locations in Texas",
+    description:
+      "Find the Deltacon Security Group office that serves your area, including our Dallas office for Dallas–Fort Worth and our Sugar Land, Texas headquarters.",
+  },
   "/government-contracting": {
     title: "Government Contracting Security & Staffing Services",
     description:

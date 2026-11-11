@@ -34,6 +34,8 @@ describe("security headers", () => {
     expect(policy).toMatch(
       /frame-src [^;]*https:\/\/www\.youtube-nocookie\.com/,
     );
+    // The office map on the location pages.
+    expect(policy).toMatch(/frame-src [^;]*https:\/\/www\.google\.com/);
   });
 
   it("blocks plugins, framing and foreign form targets", () => {

@@ -12,7 +12,14 @@ export type MainNavigationItem = NavigationLink & {
 
 /** Main navigation links, in the order they appear in the header. */
 export const mainNavigationLinks: MainNavigationItem[] = [
-  { label: "About", href: "/about" },
+  {
+    label: "About",
+    href: "/about",
+    children: [
+      { label: "About Us", href: "/about" },
+      { label: "Locations", href: "/locations" },
+    ],
+  },
   { label: "Services", href: "/services", children: serviceLines },
   { label: "Industries", href: "/industries" },
   {
@@ -55,6 +62,9 @@ export const footerQuickLinks: NavigationLink[] = [
   { label: "Licensing Guide", href: "/guide" },
   { label: "Blog & Media", href: "/blog" },
   { label: "Gallery", href: "/gallery" },
+  { label: "Locations", href: "/locations" },
+  { label: "Security Guard Pricing", href: "/security-guard-pricing" },
+  { label: "Training Advantage", href: "/training-advantage" },
   requestServiceLink,
   applyNowLink,
   { label: "Security Self-Assessment", href: "/security-assessment" },
