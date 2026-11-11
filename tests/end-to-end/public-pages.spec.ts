@@ -209,6 +209,7 @@ test("the main navigation reaches each section", async ({ page }) => {
   const mainNavigation = page.getByRole("navigation", { name: "Main" }).first();
   for (const [linkName, path] of [
     ["Industries", "/industries"],
+    ["Locations", "/locations"],
     ["Training", "/training"],
     ["Blog & Media", "/blog"],
   ] as const) {
@@ -220,7 +221,7 @@ test("the main navigation reaches each section", async ({ page }) => {
   }
 });
 
-test("About, Training and Blog & Media open their own menus", async ({
+test("Training, Locations and Blog & Media open their own menus", async ({
   page,
 }) => {
   await page.goto("/");
@@ -240,8 +241,18 @@ test("About, Training and Blog & Media open their own menus", async ({
     ],
     ["Blog & Media", "Gallery", "/gallery", "Deltacon in action"],
     ["Blog & Media", "Blog", "/blog", "News & insights"],
-    ["About", "Locations", "/locations", "Security services across Texas"],
-    ["About", "About Us", "/about", "Who we are"],
+    [
+      "Locations",
+      "Houston & Sugar Land",
+      "/locations/houston-sugar-land",
+      "Security Guard Services in Houston & Sugar Land, TX",
+    ],
+    [
+      "Locations",
+      "Dallas–Fort Worth",
+      "/locations/dallas-fort-worth",
+      "Security Guard Services in Dallas–Fort Worth, TX",
+    ],
   ] as const) {
     const menuButton = mainNavigation.getByRole("button", {
       name: `Show ${menuName} menu`,

@@ -1,3 +1,4 @@
+import { locationNavigationLinks } from "./location-links";
 import { serviceLines } from "./service-lines";
 
 export type NavigationLink = {
@@ -12,14 +13,7 @@ export type MainNavigationItem = NavigationLink & {
 
 /** Main navigation links, in the order they appear in the header. */
 export const mainNavigationLinks: MainNavigationItem[] = [
-  {
-    label: "About",
-    href: "/about",
-    children: [
-      { label: "About Us", href: "/about" },
-      { label: "Locations", href: "/locations" },
-    ],
-  },
+  { label: "About", href: "/about" },
   { label: "Services", href: "/services", children: serviceLines },
   { label: "Industries", href: "/industries" },
   {
@@ -30,6 +24,8 @@ export const mainNavigationLinks: MainNavigationItem[] = [
       { label: "Licensing Guide", href: "/guide" },
     ],
   },
+  // "Locations" opens the /locations hub; its list goes to each location.
+  { label: "Locations", href: "/locations", children: locationNavigationLinks },
   {
     label: "Blog & Media",
     href: "/blog",
@@ -76,10 +72,13 @@ export function isNavigationItemActive(
   currentPath: string,
   item: MainNavigationItem,
 ): boolean {
-  if (item.children) {
-    return item.children.some((child) => isLinkActive(currentPath, child.href));
-  }
-  return isLinkActive(currentPath, item.href);
+  // A dropdown's own page counts too (e.g. the /locations hub, which isn't
+  // one of the Locations dropdown's links).
+  return (
+    isLinkActive(currentPath, item.href) ||
+    (item.children?.some((child) => isLinkActive(currentPath, child.href)) ??
+      false)
+  );
 }
 
 /** Returns true when the link should be shown as the current page. */

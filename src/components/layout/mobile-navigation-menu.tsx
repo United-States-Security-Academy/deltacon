@@ -18,6 +18,7 @@ import {
 import {
   applyNowLink,
   isLinkActive,
+  isNavigationItemActive,
   mainNavigationLinks,
   requestServiceLink,
   type MainNavigationItem,
@@ -124,9 +125,7 @@ function MobileNavigationGroup({
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const panelId = useId();
-  const isGroupActive =
-    item.children?.some((child) => isLinkActive(currentPath, child.href)) ??
-    false;
+  const isGroupActive = isNavigationItemActive(currentPath, item);
 
   return (
     <li className="border-b border-navy-800">

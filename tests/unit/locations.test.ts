@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import { industries } from "@/config/industries";
+import { locationNavigationLinks } from "@/config/location-links";
+import {
+  isNavigationItemActive,
+  mainNavigationLinks,
+} from "@/config/navigation";
 import {
   allCities,
   describePriceRange,
@@ -143,6 +148,31 @@ describe("location pages", () => {
     expect(topics.map((topic) => topic.title)).toHaveLength(3);
     // TODO paragraphs are empty, so the page shows nothing yet.
     expect(topics.every((topic) => topic.paragraphs.length === 0)).toBe(true);
+  });
+});
+
+describe("Locations menu", () => {
+  it("lists the same location pages as the location data, in order", () => {
+    expect(locationNavigationLinks).toEqual(
+      locations.map((location) => ({
+        label: location.name,
+        href: `/locations/${location.slug}`,
+      })),
+    );
+  });
+
+  it("highlights Locations on the hub and on each location page", () => {
+    const locationsItem = mainNavigationLinks.find(
+      (item) => item.label === "Locations",
+    )!;
+    for (const path of [
+      "/locations",
+      "/locations/houston-sugar-land",
+      "/locations/dallas-fort-worth",
+    ]) {
+      expect(isNavigationItemActive(path, locationsItem)).toBe(true);
+    }
+    expect(isNavigationItemActive("/about", locationsItem)).toBe(false);
   });
 });
 
