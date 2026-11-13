@@ -50,7 +50,7 @@ test("a weak result leads to a pre-filled site survey request", async ({
 
   await page.getByRole("link", { name: "Book a site survey" }).click();
   await expect(page).toHaveURL(/\/request-service\?.*assessment=/);
-  await expect(page.getByLabel("Message")).toHaveValue(
+  await expect(page.getByLabel("Your security needs")).toHaveValue(
     /self-assessment and scored \d\/100/,
   );
 });

@@ -112,7 +112,7 @@ test("the Dallas–Fort Worth page is complete and well structured", async ({
   await expect(page).toHaveURL(
     /\/request-service\?location=dallas-fort-worth$/,
   );
-  await expect(page.getByLabel("Site location")).toHaveValue(
+  await expect(page.getByLabel("Security Service Location")).toHaveValue(
     "Dallas–Fort Worth, TX",
   );
 });
@@ -182,7 +182,7 @@ test("an unknown ?location= leaves the site location empty", async ({
   page,
 }) => {
   await page.goto("/request-service?location=not-a-real-place");
-  await expect(page.getByLabel("Site location")).toHaveValue("");
+  await expect(page.getByLabel("Security Service Location")).toHaveValue("");
 });
 
 test("unknown addresses show a helpful 404 page", async ({ page }) => {

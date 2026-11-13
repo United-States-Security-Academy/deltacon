@@ -69,18 +69,38 @@ function visitorInsertPolicy(tableName: string) {
   });
 }
 
+/*
+ * Request Service details. The quote form was redesigned on 2026-11-13: new
+ * requests fill the "quote form" columns; requests from before keep their
+ * service slug and estimated scope. Every column added or changed then is
+ * nullable, so both kinds of row stay valid.
+ */
 export const serviceRequestDetails = pgTable(
   "service_request_details",
   {
     submissionId: submissionIdColumn(),
+    /** Required on the form since 2026-11-13; older requests may lack it. */
     companyName: text("company_name"),
-    serviceSlug: text("service_slug").notNull(),
-    industrySlug: text("industry_slug").notNull(),
+    /** Older requests only: the chosen service or line of business. */
+    serviceSlug: text("service_slug"),
+    /** Optional on the form since 2026-11-13. */
+    industrySlug: text("industry_slug"),
     siteLocation: text("site_location").notNull(),
-    /** Number of guards needed or a short description of the scope. */
-    estimatedScope: text("estimated_scope").notNull(),
+    /** Older requests only: number of guards or a short description. */
+    estimatedScope: text("estimated_scope"),
     preferredStartDate: date("preferred_start_date"),
+    /** "Describe your security needs". */
     message: text("message").notNull(),
+
+    // Quote form (2026-11-13). Values are the option ids in
+    // config/service-request-options.ts.
+    primaryServiceType: text("primary_service_type"),
+    officerClassification: text("officer_classification"),
+    additionalServices: text("additional_services").array(),
+    officersRequired: integer("officers_required"),
+    coverageType: text("coverage_type"),
+    coverageHours: text("coverage_hours"),
+    contractDuration: text("contract_duration"),
   },
   () => [
     visitorInsertPolicy("service request details"),

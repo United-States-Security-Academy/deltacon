@@ -36,6 +36,13 @@
       "when": 1791362130509,
       "tag": "0004_update_default_author_name",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1794598509378,
+      "tag": "0005_quote_form_fields",
+      "breakpoints": true
     }
   ]
 }

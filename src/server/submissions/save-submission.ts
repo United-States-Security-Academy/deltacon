@@ -64,11 +64,16 @@ export async function saveServiceRequest(
     await transaction.insert(submissions).values(row);
     await transaction.insert(serviceRequestDetails).values({
       submissionId: row.id,
-      companyName: submission.companyName ?? null,
-      serviceSlug: submission.serviceSlug,
-      industrySlug: submission.industrySlug,
+      companyName: submission.companyName,
+      industrySlug: submission.industrySlug ?? null,
       siteLocation: submission.siteLocation,
-      estimatedScope: submission.estimatedScope,
+      primaryServiceType: submission.primaryServiceType,
+      officerClassification: submission.officerClassification ?? null,
+      additionalServices: submission.additionalServices,
+      officersRequired: submission.officersRequired ?? null,
+      coverageType: submission.coverageType,
+      coverageHours: submission.coverageHours ?? null,
+      contractDuration: submission.contractDuration,
       preferredStartDate: submission.preferredStartDate ?? null,
       message: submission.message,
     });

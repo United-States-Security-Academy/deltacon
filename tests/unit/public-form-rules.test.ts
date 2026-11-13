@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 
 import { availabilityValues, jobPositionSlugs } from "@/config/job-positions";
+import { serviceLinesWithContent } from "@/config/service-lines";
+import {
+  findQuotePrefillForService,
+  optionIds,
+  primaryServiceTypes,
+} from "@/config/service-request-options";
 import { services } from "@/config/services";
 import { trainingCourses } from "@/config/training-courses";
 import {
@@ -16,14 +22,19 @@ import {
 
 /** A service request that passes every rule; tests change one field at a time. */
 const validServiceRequest = {
-  fullName: "Jordan Rivers",
   companyName: "Rivers Retail",
+  fullName: "Jordan Rivers",
   email: "jordan@example.com",
   phone: "(832) 555-0101",
-  serviceSlug: services[0].slug,
-  industrySlug: "other",
-  siteLocation: "Sugar Land, TX",
-  estimatedScope: "2 guards, nights",
+  siteLocation: "12808 W. Airport Blvd, Sugar Land, TX 77478",
+  industrySlug: "",
+  primaryServiceType: "on-site-guards",
+  officerClassification: "unarmed-level-2",
+  additionalServices: ["foot-patrol", "access-control"],
+  officersRequired: "2",
+  coverageType: "overnight",
+  coverageHours: "",
+  contractDuration: "3-12-months",
   preferredStartDate: "",
   message: "We need overnight cover for our store.",
 };
@@ -69,22 +80,107 @@ describe("Request Service form", () => {
     expect(result.success).toBe(true);
   });
 
-  it("turns an empty company name and start date into 'not given'", () => {
-    const result = serviceRequestFormSchema.parse({
-      ...validServiceRequest,
-      companyName: "  ",
-    });
-    expect(result.companyName).toBeUndefined();
+  it("turns the officer count into a number and blank optional fields into 'not given'", () => {
+    const result = serviceRequestFormSchema.parse(validServiceRequest);
+    expect(result.officersRequired).toBe(2);
+    expect(result.industrySlug).toBeUndefined();
+    expect(result.coverageHours).toBeUndefined();
     expect(result.preferredStartDate).toBeUndefined();
   });
 
-  it("rejects a service that doesn't exist", () => {
+  it("accepts the already-parsed values the browser sends to the server", () => {
+    const browserOutput = serviceRequestFormSchema.parse(validServiceRequest);
+    const result = serviceRequestSubmissionSchema.safeParse({
+      ...browserOutput,
+      turnstileToken: "token",
+    });
+    expect(result.success).toBe(true);
+    if (result.success) expect(result.data).toMatchObject(browserOutput);
+  });
+
+  it("requires the company name", () => {
     const result = serviceRequestFormSchema.safeParse({
       ...validServiceRequest,
-      serviceSlug: "made-up-service",
+      companyName: "  ",
     });
     expect(result.success).toBe(false);
   });
+
+  it.each([
+    ["primaryServiceType", "made-up-service"],
+    ["officerClassification", "level-9"],
+    ["coverageType", "sometimes"],
+    ["contractDuration", "forever"],
+    ["industrySlug", "made-up-industry"],
+  ])("rejects an unknown %s", (fieldName, value) => {
+    const result = serviceRequestFormSchema.safeParse({
+      ...validServiceRequest,
+      [fieldName]: value,
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects unknown additional services but allows none", () => {
+    expect(
+      serviceRequestFormSchema.safeParse({
+        ...validServiceRequest,
+        additionalServices: ["laser-grid"],
+      }).success,
+    ).toBe(false);
+    expect(
+      serviceRequestFormSchema.parse({
+        ...validServiceRequest,
+        additionalServices: [],
+      }).additionalServices,
+    ).toEqual([]);
+  });
+
+  it.each(["", "0", "2.5", "abc", "1001"])(
+    "rejects %j security officers for a guard service",
+    (officersRequired) => {
+      const result = serviceRequestFormSchema.safeParse({
+        ...validServiceRequest,
+        officersRequired,
+      });
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(toFieldErrors(result.error).officersRequired).toBeDefined();
+      }
+    },
+  );
+
+  it("requires the officer classification for a guard service", () => {
+    const result = serviceRequestFormSchema.safeParse({
+      ...validServiceRequest,
+      officerClassification: null,
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(toFieldErrors(result.error).officerClassification).toBe(
+        "Please choose the security officer classification.",
+      );
+    }
+  });
+
+  it.each(["security-consulting", "staffing", "custodial-services"])(
+    "doesn't ask %s requests for officer details, and drops leftover ones",
+    (primaryServiceType) => {
+      const withoutOfficers = serviceRequestFormSchema.safeParse({
+        ...validServiceRequest,
+        primaryServiceType,
+        officerClassification: null,
+        officersRequired: "",
+      });
+      expect(withoutOfficers.success).toBe(true);
+
+      const withLeftovers = serviceRequestFormSchema.parse({
+        ...validServiceRequest,
+        primaryServiceType,
+      });
+      expect(withLeftovers.officerClassification).toBeUndefined();
+      expect(withLeftovers.officersRequired).toBeUndefined();
+    },
+  );
 
   it("rejects a start date in the past but accepts today", () => {
     const yesterday = serviceRequestFormSchema.safeParse({
@@ -99,7 +195,7 @@ describe("Request Service form", () => {
     expect(today.success).toBe(true);
   });
 
-  it("requires a message of at least 10 characters", () => {
+  it("requires a description of at least 10 characters", () => {
     const result = serviceRequestFormSchema.safeParse({
       ...validServiceRequest,
       message: "Help",
@@ -108,6 +204,23 @@ describe("Request Service form", () => {
     if (!result.success) {
       expect(toFieldErrors(result.error).message).toMatch(/at least 10/);
     }
+  });
+
+  it("pre-selects quote options for every service a page can link from", () => {
+    for (const slug of [
+      ...services.map((service) => service.slug),
+      ...serviceLinesWithContent.map((serviceLine) => serviceLine.slug),
+    ]) {
+      const prefill = findQuotePrefillForService(slug);
+      expect(prefill, slug).toBeDefined();
+      expect(optionIds(primaryServiceTypes)).toContain(
+        prefill!.primaryServiceType,
+      );
+    }
+    expect(findQuotePrefillForService("toString")).toBeUndefined();
+    expect(findQuotePrefillForService("consulting")?.primaryServiceType).toBe(
+      "security-consulting",
+    );
   });
 
   it("requires the security check on the server", () => {
@@ -228,46 +341,21 @@ describe("toFieldErrors", () => {
 });
 
 describe("other lines of business on the Request Service form", () => {
-  it("accepts Custodial Services and shows its name in the inbox", async () => {
-    const { serviceName } =
-      await import("@/lib/submissions/submission-summary");
-    const result = serviceRequestFormSchema.safeParse({
-      ...validServiceRequest,
-      serviceSlug: "custodial-services",
-    });
-    expect(result.success).toBe(true);
-    expect(serviceName("custodial-services")).toBe("Custodial Services");
-  });
-
-  it("offers every line of business that has a page, and nothing made up", async () => {
-    const { serviceName } =
-      await import("@/lib/submissions/submission-summary");
-    for (const [slug, name] of [
-      ["consulting", "Consulting"],
-      ["staffing", "Staffing"],
-      ["custodial-services", "Custodial Services"],
-    ]) {
+  it.each([
+    ["security-consulting", "consulting", "Consulting"],
+    ["staffing", "staffing", "Staffing"],
+    ["custodial-services", "custodial-services", "Custodial Services"],
+  ])(
+    "accepts %s as a primary service and still names older %s requests",
+    async (primaryServiceType, olderServiceSlug, olderName) => {
+      const { serviceName } =
+        await import("@/lib/submissions/submission-summary");
       const result = serviceRequestFormSchema.safeParse({
         ...validServiceRequest,
-        serviceSlug: slug,
+        primaryServiceType,
       });
-      expect(result.success, slug).toBe(true);
-      expect(serviceName(slug!)).toBe(name);
-    }
-    const madeUp = serviceRequestFormSchema.safeParse({
-      ...validServiceRequest,
-      serviceSlug: "window-washing",
-    });
-    expect(madeUp.success).toBe(false);
-  });
-});
-
-it("accepts Staffing on the Request Service form once its page is written", async () => {
-  const { serviceName } = await import("@/lib/submissions/submission-summary");
-  const result = serviceRequestFormSchema.safeParse({
-    ...validServiceRequest,
-    serviceSlug: "staffing",
-  });
-  expect(result.success).toBe(true);
-  expect(serviceName("staffing")).toBe("Staffing");
+      expect(result.success).toBe(true);
+      expect(serviceName(olderServiceSlug)).toBe(olderName);
+    },
+  );
 });

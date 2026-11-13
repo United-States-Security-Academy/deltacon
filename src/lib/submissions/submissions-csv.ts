@@ -7,9 +7,14 @@ import type {
 import type { SubmissionFormType } from "@/lib/database/schema/enums";
 import { submissionStatusAppearance } from "@/lib/submissions/submission-status";
 import {
+  additionalServicesLabel,
   availabilityLabel,
+  contractDurationLabel,
+  coverageTypeLabel,
   industryName,
   jobPositionName,
+  officerClassificationLabel,
+  primaryServiceTypeLabel,
   serviceName,
   submissionFormTypeLabels,
   trainingCourseName,
@@ -41,29 +46,76 @@ const sharedColumns: CsvColumn[] = [
   { heading: "Phone", value: (row) => row.phone },
 ];
 
+/** Applies a label lookup to a stored id, leaving empty cells empty. */
+function labelled(
+  id: string | null | undefined,
+  toLabel: (id: string) => string,
+): string | undefined {
+  return id ? toLabel(id) : undefined;
+}
+
 const serviceRequestColumns: CsvColumn[] = [
-  { heading: "Company", value: (row) => row.serviceRequest?.companyName },
   {
-    heading: "Service needed",
-    value: (row) =>
-      row.serviceRequest && serviceName(row.serviceRequest.serviceSlug),
+    heading: "Company / organization",
+    value: (row) => row.serviceRequest?.companyName,
   },
   {
-    heading: "Industry",
-    value: (row) =>
-      row.serviceRequest && industryName(row.serviceRequest.industrySlug),
-  },
-  {
-    heading: "Site location",
+    heading: "Security service location",
     value: (row) => row.serviceRequest?.siteLocation,
   },
   {
-    heading: "Guards / estimated scope",
-    value: (row) => row.serviceRequest?.estimatedScope,
+    heading: "Industry",
+    value: (row) => labelled(row.serviceRequest?.industrySlug, industryName),
   },
   {
-    heading: "Preferred start date",
+    heading: "Primary service type",
+    value: (row) =>
+      labelled(row.serviceRequest?.primaryServiceType, primaryServiceTypeLabel),
+  },
+  {
+    heading: "Officer classification",
+    value: (row) =>
+      labelled(
+        row.serviceRequest?.officerClassification,
+        officerClassificationLabel,
+      ),
+  },
+  {
+    heading: "Additional services",
+    value: (row) =>
+      row.serviceRequest?.additionalServices &&
+      additionalServicesLabel(row.serviceRequest.additionalServices),
+  },
+  {
+    heading: "Officers required",
+    value: (row) => row.serviceRequest?.officersRequired,
+  },
+  {
+    heading: "Required coverage",
+    value: (row) =>
+      labelled(row.serviceRequest?.coverageType, coverageTypeLabel),
+  },
+  {
+    heading: "Coverage hours / shifts",
+    value: (row) => row.serviceRequest?.coverageHours,
+  },
+  {
+    heading: "Contract duration",
+    value: (row) =>
+      labelled(row.serviceRequest?.contractDuration, contractDurationLabel),
+  },
+  {
+    heading: "Anticipated start date",
     value: (row) => row.serviceRequest?.preferredStartDate,
+  },
+  // Requests sent before the quote form (2026-11-13) have these instead.
+  {
+    heading: "Service needed (older requests)",
+    value: (row) => labelled(row.serviceRequest?.serviceSlug, serviceName),
+  },
+  {
+    heading: "Guards / estimated scope (older requests)",
+    value: (row) => row.serviceRequest?.estimatedScope,
   },
 ];
 

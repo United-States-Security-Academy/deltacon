@@ -53,10 +53,57 @@ describe("buildSubmissionsCsv", () => {
       estimatedScope: "2 guards",
       preferredStartDate: null,
       message: "Please call",
+      // A request from before the quote form: none of its fields.
+      primaryServiceType: null,
+      officerClassification: null,
+      additionalServices: null,
+      officersRequired: null,
+      coverageType: null,
+      coverageHours: null,
+      contractDuration: null,
     },
     jobApplication: null,
     trainingEnquiry: null,
   };
+
+  const quoteRequest: SubmissionForCsv = {
+    ...serviceRequest,
+    fullName: "Jordan Rivers",
+    serviceRequest: {
+      submissionId: "1",
+      companyName: "Rivers Retail",
+      serviceSlug: null,
+      industrySlug: null,
+      siteLocation: "Houston, TX",
+      estimatedScope: null,
+      preferredStartDate: "2026-12-01",
+      message: "Warehouse overnight cover",
+      primaryServiceType: "on-site-guards",
+      officerClassification: "armed-level-3",
+      additionalServices: ["foot-patrol", "cctv-monitoring"],
+      officersRequired: 2,
+      coverageType: "overnight",
+      coverageHours: "7 PM–7 AM",
+      contractDuration: "3-12-months",
+    },
+  };
+
+  it("shows the quote form answers by their labels", () => {
+    const [, row] = buildSubmissionsCsv([quoteRequest], "service_request")
+      .slice(1)
+      .split("\r\n");
+    for (const text of [
+      "On-site security guard services",
+      "Armed Security Officer — Level III",
+      '"Foot patrol, CCTV monitoring"',
+      "Overnight Only",
+      "7 PM–7 AM",
+      "3–12 months",
+      "2026-12-01",
+    ]) {
+      expect(row).toContain(text);
+    }
+  });
 
   it("starts with a byte-order mark and uses Windows line endings for Excel", () => {
     const csv = buildSubmissionsCsv([serviceRequest], "service_request");

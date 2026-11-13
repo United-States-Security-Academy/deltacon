@@ -1,6 +1,10 @@
 import { expect, test, type Page } from "@playwright/test";
 
-import { findTestSubmission, testEmailAddress } from "./support/test-data";
+import {
+  findTestServiceRequestDetails,
+  findTestSubmission,
+  testEmailAddress,
+} from "./support/test-data";
 
 /** Waits for Cloudflare's test widget to hand the form its pass token. */
 async function waitForSecurityCheck(page: Page) {
@@ -27,40 +31,85 @@ test.describe("Request Service form", () => {
     page,
   }) => {
     await page.goto("/request-service");
-    await page.getByRole("button", { name: "Send request" }).click();
-    await expect(page.getByText("Please enter your full name.")).toBeVisible();
+    await page.getByRole("button", { name: "Send Quote Request" }).click();
     await expect(
-      page.getByText("Please enter your email address."),
+      page.getByText("Please enter your company or organization name."),
     ).toBeVisible();
-    await expect(page.getByLabel("Full name")).toHaveAttribute(
+    await expect(
+      page.getByText("Please choose the primary service type."),
+    ).toBeVisible();
+    await expect(
+      page.getByText("Please choose the contract duration."),
+    ).toBeVisible();
+    await expect(page.getByLabel("Contact Person")).toHaveAttribute(
       "aria-invalid",
       "true",
     );
   });
 
-  test("sends a complete request and saves it", async ({ page }) => {
+  test("pre-selects the quote options from a service page link", async ({
+    page,
+  }) => {
+    await page.goto("/request-service?service=armed-security-officers");
+    await expect(
+      page.getByLabel("On-site security guard services"),
+    ).toBeChecked();
+    await expect(
+      page.getByLabel("Armed Security Officer — Level III"),
+    ).toBeChecked();
+
+    await page.goto("/request-service?service=consulting");
+    await expect(page.getByLabel("Security consulting")).toBeChecked();
+    await expect(
+      page.getByRole("group", { name: /Security Officer Classification/ }),
+    ).toHaveCount(0);
+    await expect(
+      page.getByLabel("Number of Security Officers Required"),
+    ).toHaveCount(0);
+  });
+
+  test("sends a complete quote request and saves it", async ({ page }) => {
     const email = testEmailAddress("service");
     await page.goto("/request-service");
-    await page.getByLabel("Full name").fill("E2E Service Visitor");
-    await page.getByLabel("Company").fill("E2E Testing Ltd");
-    await page.getByLabel("Email").fill(email);
-    await page.getByLabel("Phone").fill("832-555-0101");
-    await chooseFirstOption(page, "Service needed");
-    await page.getByLabel("Industry").selectOption("other");
-    await page.getByLabel("Site location").fill("Sugar Land, TX");
+    await page.getByLabel("Company / Organization Name").fill("E2E Testing Ltd");
+    await page.getByLabel("Contact Person").fill("E2E Service Visitor");
+    await page.getByLabel("Email Address").fill(email);
+    await page.getByLabel("Phone Number").fill("832-555-0101");
     await page
-      .getByLabel("Number of guards / estimated scope")
-      .fill("2 guards");
+      .getByLabel("Security Service Location")
+      .fill("12808 W. Airport Blvd, Sugar Land, TX 77478");
+    await page.getByLabel("Vehicle security patrol").check();
+    await page.getByLabel("Unarmed Security Officer — Level II").check();
+    await page.getByLabel("Access control").check();
+    await page.getByLabel("CCTV monitoring").check();
+    await page.getByLabel("Number of Security Officers Required").fill("2");
+    await page.getByLabel("Overnight Only").check();
     await page
-      .getByLabel("Message")
+      .getByLabel("Coverage Hours / Shifts")
+      .fill("Mon–Fri, 7 PM–7 AM");
+    await chooseFirstOption(page, "Contract Duration");
+    await page
+      .getByLabel("Your security needs")
       .fill("Automated test request, please ignore.");
     await waitForSecurityCheck(page);
-    await page.getByRole("button", { name: "Send request" }).click();
+    await page.getByRole("button", { name: "Send Quote Request" }).click();
 
-    await expect(page.getByText("Request received")).toBeVisible();
+    await expect(page.getByText("Quote request received")).toBeVisible();
     const saved = await findTestSubmission(email);
     expect(saved?.form_type).toBe("service_request");
     expect(saved?.status).toBe("new");
+    const details = await findTestServiceRequestDetails(email);
+    expect(details).toMatchObject({
+      company_name: "E2E Testing Ltd",
+      primary_service_type: "vehicle-patrol",
+      officer_classification: "unarmed-level-2",
+      additional_services: ["access-control", "cctv-monitoring"],
+      officers_required: 2,
+      coverage_type: "overnight",
+      coverage_hours: "Mon–Fri, 7 PM–7 AM",
+      contract_duration: "one-day",
+      service_slug: null,
+    });
   });
 });
 

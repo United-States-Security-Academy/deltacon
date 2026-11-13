@@ -1,6 +1,14 @@
 import { findIndustryBySlug } from "@/config/industries";
 import { availabilityOptions, jobPositions } from "@/config/job-positions";
 import { findRequestableService } from "@/config/requestable-services";
+import {
+  additionalServices,
+  contractDurations,
+  coverageTypes,
+  officerClassifications,
+  optionLabel,
+  primaryServiceTypes,
+} from "@/config/service-request-options";
 import { trainingCourses } from "@/config/training-courses";
 import type { SubmissionFormType } from "@/lib/database/schema/enums";
 
@@ -29,14 +37,26 @@ export type ContactFields = {
   phone: string;
 };
 
+/**
+ * A service request from the quote form (2026-11-13 onwards) or from the
+ * older form, which had a service slug and an "estimated scope" instead.
+ */
 export type ServiceRequestFields = ContactFields & {
   companyName?: string | null;
-  serviceSlug: string;
-  industrySlug: string;
+  industrySlug?: string | null;
   siteLocation: string;
-  estimatedScope: string;
   preferredStartDate?: string | null;
   message: string;
+  primaryServiceType?: string | null;
+  officerClassification?: string | null;
+  additionalServices?: string[] | null;
+  officersRequired?: number | null;
+  coverageType?: string | null;
+  coverageHours?: string | null;
+  contractDuration?: string | null;
+  // Older requests only.
+  serviceSlug?: string | null;
+  estimatedScope?: string | null;
 };
 
 export type JobApplicationFields = ContactFields & {
@@ -95,21 +115,104 @@ function contactRows(fields: ContactFields): SubmissionSummaryRow[] {
   ];
 }
 
+export function primaryServiceTypeLabel(id: string): string {
+  return optionLabel(primaryServiceTypes, id);
+}
+
+export function officerClassificationLabel(id: string): string {
+  return optionLabel(officerClassifications, id);
+}
+
+export function additionalServicesLabel(ids: readonly string[]): string {
+  return ids.map((id) => optionLabel(additionalServices, id)).join(", ");
+}
+
+export function coverageTypeLabel(id: string): string {
+  return optionLabel(coverageTypes, id);
+}
+
+export function contractDurationLabel(id: string): string {
+  return optionLabel(contractDurations, id);
+}
+
+const notGiven = "Not given";
+
+/** The answers about the service itself, in the order the form asks them. */
+function requestedServiceRows(
+  fields: ServiceRequestFields,
+): SubmissionSummaryRow[] {
+  if (!fields.primaryServiceType) {
+    // A request from the older form.
+    return [
+      {
+        label: "Service needed",
+        value: fields.serviceSlug ? serviceName(fields.serviceSlug) : notGiven,
+      },
+      {
+        label: "Guards / estimated scope",
+        value: fields.estimatedScope || notGiven,
+      },
+    ];
+  }
+  const rows: SubmissionSummaryRow[] = [
+    {
+      label: "Primary service type",
+      value: primaryServiceTypeLabel(fields.primaryServiceType),
+    },
+  ];
+  if (fields.officerClassification) {
+    rows.push({
+      label: "Officer classification",
+      value: officerClassificationLabel(fields.officerClassification),
+    });
+  }
+  rows.push({
+    label: "Additional services",
+    value: fields.additionalServices?.length
+      ? additionalServicesLabel(fields.additionalServices)
+      : "None",
+  });
+  if (fields.officersRequired != null) {
+    rows.push({
+      label: "Officers required",
+      value: String(fields.officersRequired),
+    });
+  }
+  rows.push(
+    {
+      label: "Required coverage",
+      value: fields.coverageType
+        ? coverageTypeLabel(fields.coverageType)
+        : notGiven,
+    },
+    { label: "Coverage hours / shifts", value: fields.coverageHours || notGiven },
+    {
+      label: "Contract duration",
+      value: fields.contractDuration
+        ? contractDurationLabel(fields.contractDuration)
+        : notGiven,
+    },
+  );
+  return rows;
+}
+
 export function summariseServiceRequest(
   fields: ServiceRequestFields,
 ): SubmissionSummaryRow[] {
   return [
     ...contactRows(fields),
-    { label: "Company", value: fields.companyName || "Not given" },
-    { label: "Service needed", value: serviceName(fields.serviceSlug) },
-    { label: "Industry", value: industryName(fields.industrySlug) },
-    { label: "Site location", value: fields.siteLocation },
-    { label: "Guards / estimated scope", value: fields.estimatedScope },
+    { label: "Company / organization", value: fields.companyName || notGiven },
+    { label: "Security service location", value: fields.siteLocation },
     {
-      label: "Preferred start date",
-      value: fields.preferredStartDate || "Not given",
+      label: "Industry",
+      value: fields.industrySlug ? industryName(fields.industrySlug) : notGiven,
     },
-    { label: "Message", value: fields.message },
+    ...requestedServiceRows(fields),
+    {
+      label: "Anticipated start date",
+      value: fields.preferredStartDate || notGiven,
+    },
+    { label: "Security needs", value: fields.message },
   ];
 }
 

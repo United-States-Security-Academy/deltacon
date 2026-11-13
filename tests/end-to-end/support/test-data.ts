@@ -148,6 +148,21 @@ export async function findTestSubmission(email: string) {
   }
 }
 
+/** The saved Request Service answers for a test visitor's email. */
+export async function findTestServiceRequestDetails(email: string) {
+  const sql = createDatabaseConnection();
+  try {
+    const [details] = await sql`
+      select details.*
+      from service_request_details details
+      join submissions on submissions.id = details.submission_id
+      where submissions.email = ${email}`;
+    return details;
+  } finally {
+    await sql.end();
+  }
+}
+
 /** Saves a training enquiry straight into the database, for admin tests. */
 export async function insertTestTrainingEnquiry(
   fullName: string,

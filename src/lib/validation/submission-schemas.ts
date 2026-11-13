@@ -2,7 +2,15 @@ import { z } from "zod";
 
 import { industrySlugs } from "@/config/industries";
 import { availabilityValues, jobPositionSlugs } from "@/config/job-positions";
-import { requestableServiceSlugs } from "@/config/requestable-services";
+import {
+  additionalServices,
+  contractDurations,
+  coverageTypes,
+  needsSecurityOfficers,
+  officerClassifications,
+  optionIds,
+  primaryServiceTypes,
+} from "@/config/service-request-options";
 import { trainingCourseSlugs } from "@/config/training-courses";
 
 /*
@@ -106,34 +114,143 @@ export const honeypotRule = z.string().max(500).optional();
 
 export const otherIndustryValue = "other";
 
-export const serviceRequestFormSchema = z.object({
-  fullName: fullNameRule,
-  companyName: z
-    .string()
-    .trim()
-    .max(150, "Company name must be 150 characters or fewer.")
-    .optional()
-    .transform((companyName) => (companyName ? companyName : undefined)),
+export const maximumOfficersRequired = 1000;
+
+/**
+ * Number of officers. The browser sends text and the server receives the
+ * number the browser already parsed, so both are accepted. Empty means "not
+ * given"; whether it is required depends on the service (checked below).
+ */
+const officersRequiredRule = z
+  .union([z.number(), z.string()])
+  .nullable()
+  .optional()
+  .transform((value, context) => {
+    const text = value === null || value === undefined ? "" : String(value);
+    if (text.trim() === "") return undefined;
+    const count = Number(text.trim());
+    if (!Number.isInteger(count) || count < 1 || count > maximumOfficersRequired) {
+      context.addIssue({
+        code: "custom",
+        message: `Please enter a whole number of officers from 1 to ${maximumOfficersRequired}.`,
+      });
+      return z.NEVER;
+    }
+    return count;
+  });
+
+/** Fields of the Request Service form, before the cross-field rules. */
+const serviceRequestFields = z.object({
+  // 1. Contact & organization
+  companyName: requiredText("company or organization name", 2, 150),
+  fullName: requiredText("contact person's name", 2, 100),
   email: emailRule,
   phone: phoneRule,
-  serviceSlug: choiceFrom(
-    requestableServiceSlugs,
-    "Please choose the service you need.",
+  siteLocation: requiredText("security service location", 2, 200),
+  industrySlug: z
+    .union([
+      z.literal(""),
+      choiceFrom(
+        [...industrySlugs, otherIndustryValue],
+        "Please choose an industry from the list.",
+      ),
+    ])
+    .nullable()
+    .optional()
+    .transform((industrySlug) => industrySlug || undefined),
+
+  // 2. Services requested
+  primaryServiceType: choiceFrom(
+    optionIds(primaryServiceTypes),
+    "Please choose the primary service type.",
   ),
-  industrySlug: choiceFrom(
-    [...industrySlugs, otherIndustryValue],
-    "Please choose your industry.",
+  officerClassification: choiceFrom(
+    optionIds(officerClassifications),
+    "Please choose the security officer classification.",
+  )
+    .nullable()
+    .optional()
+    .transform((classification) => classification ?? undefined),
+  additionalServices: z
+    .array(
+      choiceFrom(
+        optionIds(additionalServices),
+        "Please choose additional services from the list.",
+      ),
+    )
+    .nullable()
+    .optional()
+    // A lone checkbox can report `false`; treat anything else as "none".
+    .or(z.literal(false))
+    .transform((chosen) => [...new Set(chosen || [])]),
+  officersRequired: officersRequiredRule,
+
+  // 3. Coverage & contract
+  coverageType: choiceFrom(
+    optionIds(coverageTypes),
+    "Please choose the coverage you need.",
   ),
-  siteLocation: requiredText("site location", 2, 200),
-  estimatedScope: requiredText("number of guards or estimated scope", 1, 200),
+  coverageHours: z
+    .string()
+    .trim()
+    .max(300, "Coverage hours must be 300 characters or fewer.")
+    .nullable()
+    .optional()
+    .transform((hours) => hours || undefined),
+  contractDuration: choiceFrom(
+    optionIds(contractDurations),
+    "Please choose the contract duration.",
+  ),
   preferredStartDate: optionalFutureDate,
-  message: requiredText("message", 10, 3000),
+
+  // 4. Security needs
+  message: requiredText("description of your security needs", 10, 3000),
 });
 
-export const serviceRequestSubmissionSchema = serviceRequestFormSchema.extend({
-  turnstileToken: turnstileTokenRule,
-  website: honeypotRule,
-});
+type ServiceRequestFieldValues = z.output<typeof serviceRequestFields>;
+
+/** Officer type and count are required for security services only. */
+function checkOfficerDetails(
+  values: ServiceRequestFieldValues,
+  context: z.RefinementCtx,
+) {
+  if (!needsSecurityOfficers(values.primaryServiceType)) return;
+  if (!values.officerClassification) {
+    context.addIssue({
+      code: "custom",
+      path: ["officerClassification"],
+      message: "Please choose the security officer classification.",
+    });
+  }
+  if (values.officersRequired === undefined) {
+    context.addIssue({
+      code: "custom",
+      path: ["officersRequired"],
+      message: "Please enter the number of security officers required.",
+    });
+  }
+}
+
+/** Consulting, staffing and custodial requests don't keep officer answers left over from an earlier choice. */
+function dropUnusedOfficerDetails<Values extends ServiceRequestFieldValues>(
+  values: Values,
+): Values {
+  return needsSecurityOfficers(values.primaryServiceType)
+    ? values
+    : { ...values, officerClassification: undefined, officersRequired: undefined };
+}
+
+/** Names of the fields shown on the form, for matching server errors to fields. */
+export const serviceRequestFieldNames = Object.keys(serviceRequestFields.shape);
+
+export const serviceRequestFormSchema = serviceRequestFields
+  .superRefine(checkOfficerDetails)
+  .transform(dropUnusedOfficerDetails);
+
+export const serviceRequestSubmissionSchema = serviceRequestFields
+  .extend({ turnstileToken: turnstileTokenRule, website: honeypotRule })
+  .superRefine(checkOfficerDetails)
+  .transform(dropUnusedOfficerDetails);
 
 export type ServiceRequestFormInput = z.input<typeof serviceRequestFormSchema>;
 export type ServiceRequestSubmission = z.output<

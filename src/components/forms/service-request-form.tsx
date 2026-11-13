@@ -2,8 +2,12 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useState, type ReactNode } from "react";
+import {
+  useForm,
+  useWatch,
+  type UseFormRegisterReturn,
+} from "react-hook-form";
 import type { z } from "zod";
 
 import {
@@ -25,21 +29,26 @@ import {
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { industries } from "@/config/industries";
-import { requestableServices } from "@/config/requestable-services";
+import {
+  additionalServices,
+  contractDurations,
+  coverageTypes,
+  findQuotePrefillForService,
+  needsSecurityOfficers,
+  officerClassifications,
+  primaryServiceTypes,
+} from "@/config/service-request-options";
 import { cn } from "@/lib/utils";
 import {
+  maximumOfficersRequired,
   otherIndustryValue,
+  serviceRequestFieldNames,
   serviceRequestFormSchema,
   type ServiceRequestFormInput,
 } from "@/lib/validation/submission-schemas";
 import { submitServiceRequest } from "@/server/actions/public/submit-service-request";
 
 type ServiceRequestFormOutput = z.output<typeof serviceRequestFormSchema>;
-
-const serviceOptions = requestableServices.map((service) => ({
-  value: service.slug,
-  label: service.name,
-}));
 
 const industryOptions = [
   ...industries.map((industry) => ({
@@ -49,7 +58,13 @@ const industryOptions = [
   { value: otherIndustryValue, label: "Other" },
 ];
 
-const formFieldNames = Object.keys(serviceRequestFormSchema.shape);
+const contractDurationOptions = contractDurations.map((duration) => ({
+  value: duration.id,
+  label: duration.label,
+}));
+
+const securityNeedsExample =
+  "Example: We manage a distribution warehouse in Houston and need two unarmed security officers overnight to control entry, verify truck drivers, conduct hourly foot patrols, and document suspicious activity. We need coverage beginning December 1 for a 12-month contract.";
 
 export function ServiceRequestForm({
   preselectedServiceSlug,
@@ -57,6 +72,7 @@ export function ServiceRequestForm({
   prefilledMessage,
   prefilledSiteLocation,
 }: {
+  /** A service page's slug; picks the matching quote options. */
   preselectedServiceSlug?: string;
   preselectedIndustrySlug?: string;
   /** e.g. the self-assessment score and focus areas. */
@@ -67,29 +83,34 @@ export function ServiceRequestForm({
   const spamProtection = useSpamProtection();
   const [bannerErrorMessage, setBannerErrorMessage] = useState<string>();
   const [hasSubmitted, setHasSubmitted] = useState(false);
+  const prefill = findQuotePrefillForService(preselectedServiceSlug);
 
   const {
     register,
     handleSubmit,
     setError,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<ServiceRequestFormInput, unknown, ServiceRequestFormOutput>({
     resolver: zodResolver(serviceRequestFormSchema),
     defaultValues: {
-      serviceSlug: requestableServices.some(
-        (service) => service.slug === preselectedServiceSlug,
-      )
-        ? (preselectedServiceSlug as ServiceRequestFormInput["serviceSlug"])
-        : undefined,
+      primaryServiceType: prefill?.primaryServiceType,
+      officerClassification: prefill?.officerClassification,
+      additionalServices: prefill?.additionalServices ?? [],
       industrySlug: industries.some(
         (industry) => industry.slug === preselectedIndustrySlug,
       )
         ? (preselectedIndustrySlug as ServiceRequestFormInput["industrySlug"])
-        : undefined,
+        : "",
       siteLocation: prefilledSiteLocation,
       message: prefilledMessage,
     },
   });
+
+  // Consulting, staffing and custodial requests don't need officer details.
+  const showOfficerQuestions = needsSecurityOfficers(
+    useWatch({ control, name: "primaryServiceType" }),
+  );
 
   const sendForm = handleSubmit(async (formValues) => {
     setBannerErrorMessage(undefined);
@@ -111,16 +132,17 @@ export function ServiceRequestForm({
     spamProtection.requestNewTurnstileToken();
     setBannerErrorMessage(result.message);
     spamProtection.setTurnstileErrorMessage(
-      showServerFieldErrors(result.fieldErrors, setError, formFieldNames),
+      showServerFieldErrors(result.fieldErrors, setError, serviceRequestFieldNames),
     );
   });
 
   if (hasSubmitted) {
     return (
-      <FormSuccessMessage title="Request received">
+      <FormSuccessMessage title="Quote request received">
         <p>
-          Thank you. Your request has been sent to our team and we&apos;ve
-          emailed you a copy. We usually respond within one business day.
+          Thank you. Your request has been sent to our security team and
+          we&apos;ve emailed you a copy. We usually respond within one business
+          day.
         </p>
         <p>
           <Link
@@ -139,21 +161,39 @@ export function ServiceRequestForm({
       onSubmit={sendForm}
       noValidate
       aria-describedby="service-request-required-note"
-      className="relative flex flex-col gap-6"
+      className="relative flex flex-col gap-10"
     >
       <p
         id="service-request-required-note"
-        className="text-sm text-muted-foreground"
+        className="-mb-4 text-sm text-muted-foreground"
       >
         Fields marked <span className="text-flag-red">*</span> are required.
       </p>
 
       {bannerErrorMessage && <FormErrorBanner message={bannerErrorMessage} />}
 
-      <div className="grid gap-6 md:grid-cols-2">
+      <FormSection number={1} title="Contact & Organization Information">
+        <FormField
+          fieldId="company-name"
+          label="Company / Organization Name"
+          isRequired
+          errorMessage={errors.companyName?.message}
+        >
+          {(controlProps) => (
+            <input
+              {...controlProps}
+              {...register("companyName")}
+              type="text"
+              autoComplete="organization"
+              placeholder="Business or government agency name"
+              className={formControlClassName}
+            />
+          )}
+        </FormField>
+
         <FormField
           fieldId="full-name"
-          label="Full name"
+          label="Contact Person"
           isRequired
           errorMessage={errors.fullName?.message}
         >
@@ -163,73 +203,64 @@ export function ServiceRequestForm({
               {...register("fullName")}
               type="text"
               autoComplete="name"
+              placeholder="Full name"
               className={formControlClassName}
             />
           )}
         </FormField>
 
+        <div className="grid gap-6 md:grid-cols-2">
+          <FormField
+            fieldId="email"
+            label="Email Address"
+            isRequired
+            errorMessage={errors.email?.message}
+          >
+            {(controlProps) => (
+              <input
+                {...controlProps}
+                {...register("email")}
+                type="email"
+                autoComplete="email"
+                placeholder="name@company.com"
+                className={formControlClassName}
+              />
+            )}
+          </FormField>
+
+          <FormField
+            fieldId="phone"
+            label="Phone Number"
+            isRequired
+            errorMessage={errors.phone?.message}
+          >
+            {(controlProps) => (
+              <input
+                {...controlProps}
+                {...register("phone")}
+                type="tel"
+                autoComplete="tel"
+                placeholder="(###) ###-####"
+                className={formControlClassName}
+              />
+            )}
+          </FormField>
+        </div>
+
         <FormField
-          fieldId="company-name"
-          label="Company"
-          errorMessage={errors.companyName?.message}
+          fieldId="site-location"
+          label="Security Service Location"
+          isRequired
+          errorMessage={errors.siteLocation?.message}
         >
           {(controlProps) => (
             <input
               {...controlProps}
-              {...register("companyName")}
+              {...register("siteLocation")}
               type="text"
-              autoComplete="organization"
+              autoComplete="street-address"
+              placeholder="Facility address, city, state, ZIP"
               className={formControlClassName}
-            />
-          )}
-        </FormField>
-
-        <FormField
-          fieldId="email"
-          label="Email"
-          isRequired
-          errorMessage={errors.email?.message}
-        >
-          {(controlProps) => (
-            <input
-              {...controlProps}
-              {...register("email")}
-              type="email"
-              autoComplete="email"
-              className={formControlClassName}
-            />
-          )}
-        </FormField>
-
-        <FormField
-          fieldId="phone"
-          label="Phone"
-          isRequired
-          errorMessage={errors.phone?.message}
-        >
-          {(controlProps) => (
-            <input
-              {...controlProps}
-              {...register("phone")}
-              type="tel"
-              autoComplete="tel"
-              className={formControlClassName}
-            />
-          )}
-        </FormField>
-
-        <FormField
-          fieldId="service"
-          label="Service needed"
-          isRequired
-          errorMessage={errors.serviceSlug?.message}
-        >
-          {(controlProps) => (
-            <NativeSelect
-              {...controlProps}
-              {...register("serviceSlug")}
-              options={serviceOptions}
-              placeholder="Choose a service"
             />
           )}
         </FormField>
@@ -237,7 +268,6 @@ export function ServiceRequestForm({
         <FormField
           fieldId="industry"
           label="Industry"
-          isRequired
           errorMessage={errors.industrySlug?.message}
         >
           {(controlProps) => (
@@ -249,100 +279,323 @@ export function ServiceRequestForm({
             />
           )}
         </FormField>
+      </FormSection>
 
-        <FormField
-          fieldId="site-location"
-          label="Site location"
+      <FormSection number={2} title="Security Services Requested">
+        <ChoiceGroup
+          groupId="primary-service-type"
+          legend="Primary Service Type"
           isRequired
-          hint="City or full address of the site to be protected."
-          errorMessage={errors.siteLocation?.message}
+          errorMessage={errors.primaryServiceType?.message}
         >
-          {(controlProps) => (
-            <input
-              {...controlProps}
-              {...register("siteLocation")}
-              type="text"
-              autoComplete="street-address"
-              className={formControlClassName}
+          {primaryServiceTypes.map((option) => (
+            <ChoiceOption
+              key={option.id}
+              type="radio"
+              value={option.id}
+              label={option.label}
+              registration={register("primaryServiceType")}
+              isInvalid={Boolean(errors.primaryServiceType)}
             />
-          )}
-        </FormField>
+          ))}
+        </ChoiceGroup>
 
-        <FormField
-          fieldId="estimated-scope"
-          label="Number of guards / estimated scope"
-          isRequired
-          hint="For example: 2 officers, 24/7, or a one-day event for 500 guests."
-          errorMessage={errors.estimatedScope?.message}
-        >
-          {(controlProps) => (
-            <input
-              {...controlProps}
-              {...register("estimatedScope")}
-              type="text"
-              className={formControlClassName}
-            />
-          )}
-        </FormField>
-
-        <FormField
-          fieldId="preferred-start-date"
-          label="Preferred start date"
-          errorMessage={errors.preferredStartDate?.message}
-        >
-          {(controlProps) => (
-            <input
-              {...controlProps}
-              {...register("preferredStartDate")}
-              type="date"
-              className={formControlClassName}
-            />
-          )}
-        </FormField>
-      </div>
-
-      <FormField
-        fieldId="message"
-        label="Message"
-        isRequired
-        hint="Tell us about the site, any concerns and anything else we should know."
-        errorMessage={errors.message?.message}
-      >
-        {(controlProps) => (
-          <Textarea
-            {...controlProps}
-            {...register("message")}
-            rows={6}
-            className={cn(formControlClassName, "h-auto min-h-36 py-2.5")}
-          />
+        {showOfficerQuestions && (
+          <ChoiceGroup
+            groupId="officer-classification"
+            legend="Security Officer Classification"
+            isRequired
+            errorMessage={errors.officerClassification?.message}
+          >
+            {officerClassifications.map((option) => (
+              <ChoiceOption
+                key={option.id}
+                type="radio"
+                value={option.id}
+                label={option.label}
+                registration={register("officerClassification")}
+                isInvalid={Boolean(errors.officerClassification)}
+              />
+            ))}
+          </ChoiceGroup>
         )}
-      </FormField>
 
-      <HoneypotField inputRef={spamProtection.honeypotInputRef} />
-
-      <TurnstileWidget
-        onTokenChange={spamProtection.handleTurnstileTokenChange}
-        resetCounter={spamProtection.turnstileResetCounter}
-        errorMessage={spamProtection.turnstileErrorMessage}
-      />
-
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-        <Button
-          type="submit"
-          variant="accent"
-          size="xl"
-          disabled={isSubmitting}
+        <ChoiceGroup
+          groupId="additional-services"
+          legend="Additional Services Needed"
+          hint="Select all that apply."
+          errorMessage={errors.additionalServices?.message}
         >
-          {isSubmitting ? "Sending…" : "Send request"}
-        </Button>
-        <p className="text-sm text-muted-foreground">
-          By sending this form you agree to our{" "}
-          <Link href="/privacy" className="underline">
-            privacy policy
-          </Link>
-          .
-        </p>
+          {additionalServices.map((option) => (
+            <ChoiceOption
+              key={option.id}
+              type="checkbox"
+              value={option.id}
+              label={option.label}
+              registration={register("additionalServices")}
+              isInvalid={Boolean(errors.additionalServices)}
+            />
+          ))}
+        </ChoiceGroup>
+
+        {showOfficerQuestions && (
+          <FormField
+            fieldId="officers-required"
+            label="Number of Security Officers Required"
+            isRequired
+            errorMessage={errors.officersRequired?.message}
+            className="md:max-w-xs"
+          >
+            {(controlProps) => (
+              <input
+                {...controlProps}
+                {...register("officersRequired")}
+                type="number"
+                inputMode="numeric"
+                min={1}
+                max={maximumOfficersRequired}
+                step={1}
+                className={formControlClassName}
+              />
+            )}
+          </FormField>
+        )}
+      </FormSection>
+
+      <FormSection number={3} title="Coverage Schedule & Contract Duration">
+        <ChoiceGroup
+          groupId="coverage-type"
+          legend="Required Coverage"
+          isRequired
+          errorMessage={errors.coverageType?.message}
+        >
+          {coverageTypes.map((option) => (
+            <ChoiceOption
+              key={option.id}
+              type="radio"
+              value={option.id}
+              label={option.label}
+              registration={register("coverageType")}
+              isInvalid={Boolean(errors.coverageType)}
+            />
+          ))}
+        </ChoiceGroup>
+
+        <FormField
+          fieldId="coverage-hours"
+          label="Coverage Hours / Shifts"
+          errorMessage={errors.coverageHours?.message}
+        >
+          {(controlProps) => (
+            <input
+              {...controlProps}
+              {...register("coverageHours")}
+              type="text"
+              placeholder="e.g., Mon–Fri, 7 AM–7 PM; two officers per shift"
+              className={formControlClassName}
+            />
+          )}
+        </FormField>
+
+        <div className="grid gap-6 md:grid-cols-2">
+          <FormField
+            fieldId="contract-duration"
+            label="Contract Duration"
+            isRequired
+            errorMessage={errors.contractDuration?.message}
+          >
+            {(controlProps) => (
+              <NativeSelect
+                {...controlProps}
+                {...register("contractDuration")}
+                options={contractDurationOptions}
+                placeholder="Choose a contract duration"
+              />
+            )}
+          </FormField>
+
+          <FormField
+            fieldId="preferred-start-date"
+            label="Anticipated Service Start Date"
+            errorMessage={errors.preferredStartDate?.message}
+          >
+            {(controlProps) => (
+              <input
+                {...controlProps}
+                {...register("preferredStartDate")}
+                type="date"
+                className={formControlClassName}
+              />
+            )}
+          </FormField>
+        </div>
+      </FormSection>
+
+      <FormSection number={4} title="Describe Your Security Needs">
+        <FormField
+          fieldId="message"
+          label="Your security needs"
+          isRequired
+          hint="Please explain exactly why security services are needed. Describe your facility, any current security concerns, recent incidents, special risks, required officer duties, and what you expect Deltacon Security to accomplish."
+          errorMessage={errors.message?.message}
+        >
+          {(controlProps) => (
+            <Textarea
+              {...controlProps}
+              {...register("message")}
+              rows={6}
+              placeholder={securityNeedsExample}
+              className={cn(formControlClassName, "h-auto min-h-40 py-2.5")}
+            />
+          )}
+        </FormField>
+      </FormSection>
+
+      <div className="flex flex-col gap-6">
+        <HoneypotField inputRef={spamProtection.honeypotInputRef} />
+
+        <TurnstileWidget
+          onTokenChange={spamProtection.handleTurnstileTokenChange}
+          resetCounter={spamProtection.turnstileResetCounter}
+          errorMessage={spamProtection.turnstileErrorMessage}
+        />
+
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <Button
+            type="submit"
+            variant="accent"
+            size="xl"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Sending…" : "Send Quote Request"}
+          </Button>
+          <p className="text-sm text-muted-foreground">
+            By sending this form you agree to our{" "}
+            <Link href="/privacy" className="underline">
+              privacy policy
+            </Link>
+            .
+          </p>
+        </div>
       </div>
     </form>
+  );
+}
+
+/** A numbered part of the form, e.g. "2. Security Services Requested". */
+function FormSection({
+  number,
+  title,
+  children,
+}: {
+  number: number;
+  title: string;
+  children: ReactNode;
+}) {
+  // A plain div, not <section>: four named landmarks would clutter screen
+  // reader navigation, and the heading already marks where each part starts.
+  return (
+    <div
+      className={cn(
+        "flex flex-col gap-6",
+        number > 1 && "border-t border-border pt-8",
+      )}
+    >
+      <h3 className="text-xl font-bold text-navy-900">
+        {number}. {title}
+      </h3>
+      {children}
+    </div>
+  );
+}
+
+/**
+ * A set of radio buttons or checkboxes under one question. The fieldset and
+ * legend make screen readers announce the question with each choice.
+ */
+function ChoiceGroup({
+  groupId,
+  legend,
+  isRequired = false,
+  hint,
+  errorMessage,
+  children,
+}: {
+  groupId: string;
+  legend: string;
+  isRequired?: boolean;
+  hint?: string;
+  errorMessage?: string;
+  children: ReactNode;
+}) {
+  const hintId = hint ? `${groupId}-hint` : undefined;
+  const errorId = errorMessage ? `${groupId}-error` : undefined;
+  const describedBy = [hintId, errorId].filter(Boolean).join(" ") || undefined;
+
+  return (
+    <fieldset
+      id={groupId}
+      aria-describedby={describedBy}
+      className="flex min-w-0 flex-col gap-2"
+    >
+      <legend className="mb-2 text-sm font-semibold text-navy-900">
+        {legend}
+        {isRequired ? (
+          <>
+            <span aria-hidden="true" className="ml-2 text-flag-red">
+              *
+            </span>
+            <span className="sr-only"> (required)</span>
+          </>
+        ) : (
+          <span className="ml-2 font-normal text-muted-foreground">
+            (optional)
+          </span>
+        )}
+      </legend>
+      {hint && (
+        <p id={hintId} className="-mt-1 text-sm text-muted-foreground">
+          {hint}
+        </p>
+      )}
+      <div className="grid gap-2 sm:grid-cols-2">{children}</div>
+      {errorMessage && (
+        <p id={errorId} className="text-sm font-medium text-flag-red">
+          {errorMessage}
+        </p>
+      )}
+    </fieldset>
+  );
+}
+
+function ChoiceOption({
+  type,
+  value,
+  label,
+  registration,
+  isInvalid,
+}: {
+  type: "radio" | "checkbox";
+  value: string;
+  label: string;
+  registration: UseFormRegisterReturn;
+  isInvalid: boolean;
+}) {
+  return (
+    <label
+      className={cn(
+        "flex cursor-pointer items-start gap-3 rounded-md border border-input bg-white px-3 py-2.5 text-base text-charcoal transition-colors hover:border-navy-600 has-checked:border-gold-600 has-checked:bg-gold-300/15 has-focus-visible:ring-3 has-focus-visible:ring-gold-500/30",
+        isInvalid && "border-flag-red",
+      )}
+    >
+      <input
+        {...registration}
+        type={type}
+        value={value}
+        aria-invalid={isInvalid}
+        className="mt-0.5 size-5 shrink-0 accent-navy-900 focus-visible:outline-none"
+      />
+      <span>{label}</span>
+    </label>
   );
 }
