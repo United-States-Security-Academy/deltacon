@@ -2,9 +2,10 @@
 
 import { Pause, Play } from "lucide-react";
 import Image from "next/image";
-import { useState, useSyncExternalStore } from "react";
+import { useState } from "react";
 
 import type { Affiliation } from "@/config/affiliations";
+import { useIsInBrowser } from "@/lib/use-is-in-browser";
 
 /**
  * Each row repeats its logos this many times. Half of the copies are enough
@@ -16,17 +17,6 @@ import type { Affiliation } from "@/config/affiliations";
  * row starts sliding once they are there.
  */
 const copiesPerRow = 4;
-
-const subscribeToNothing = () => () => {};
-
-/** False in the server HTML and during hydration, true once in the browser. */
-function useIsInBrowser(): boolean {
-  return useSyncExternalStore(
-    subscribeToNothing,
-    () => true,
-    () => false,
-  );
-}
 
 function LogoTile({
   affiliation,

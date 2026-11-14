@@ -19,6 +19,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { PlacesServed } from "@/components/locations/places-served";
 import { PageHeader } from "@/components/sections/page-header";
 import { SectionHeading } from "@/components/sections/section-heading";
 import { StructuredDataScript } from "@/components/seo/structured-data-script";
@@ -243,6 +244,18 @@ export default async function LocationPage({
               </a>
             </Button>
           </div>
+          {hero.placesServed && (
+            <PlacesServed
+              areaName={`the ${location.name}`}
+              counties={hero.placesServed.counties}
+              citiesAndTowns={hero.placesServed.citiesAndTowns}
+              headquartersCity={
+                location.isHeadquarters ? office.city : undefined
+              }
+              phoneDisplay={office.phoneDisplay}
+              phoneInternational={office.phoneInternational}
+            />
+          )}
         </div>
       </PageHeader>
 
@@ -294,11 +307,148 @@ export default async function LocationPage({
         </div>
       </section>
 
-      {/* 3. Services */}
+      {/* 3. Pricing: local rate table; the full breakdown is on /security-guard-pricing */}
       <section
-        aria-labelledby="services-heading"
-        className="bg-paper section-spacing"
+        id="pricing"
+        aria-labelledby="pricing-heading"
+        className="scroll-mt-24 bg-paper section-spacing"
       >
+        <div className="page-container flex flex-col gap-10">
+          <SectionHeading
+            id="pricing-heading"
+            eyebrow="Pricing"
+            title={pricing.title}
+          />
+          <div className="grid grid-cols-1 items-start gap-10 lg:grid-cols-2">
+            <div className="flex flex-col gap-5">
+              <h3 className="text-2xl font-bold text-navy-900 uppercase">
+                {pricing.ratesTitle}
+              </h3>
+              {pricing.summary.map((paragraph) => (
+                <p
+                  key={paragraph}
+                  className="text-lg leading-relaxed text-muted-foreground"
+                >
+                  {paragraph}
+                </p>
+              ))}
+              <Link
+                href={pricing.link.href}
+                className="inline-flex items-center gap-2 self-start rounded-lg border border-gold-500/50 bg-white px-4 py-3 font-semibold text-navy-900 shadow-sm transition-colors hover:border-gold-500 hover:text-gold-700"
+              >
+                <Receipt aria-hidden="true" className="size-5 text-gold-600" />
+                {pricing.link.label}
+                <ArrowRight aria-hidden="true" className="size-4" />
+              </Link>
+            </div>
+            <div className="flex flex-col gap-3">
+              <div className="overflow-hidden rounded-xl border border-border bg-white shadow-sm">
+                <table className="w-full text-left">
+                  <caption className="bg-navy-900 px-5 py-4 text-left font-heading text-base font-bold tracking-wide text-white">
+                    {pricing.ratesTableCaption}
+                  </caption>
+                  <thead>
+                    <tr className="border-b-2 border-gold-500 text-sm text-navy-900">
+                      <th scope="col" className="px-5 py-3 font-semibold">
+                        Security Service
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-5 py-3 text-right font-semibold"
+                      >
+                        Estimated Hourly Billing Rate
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {pricing.rates.map((rate) => (
+                      <tr key={rate.service}>
+                        <th
+                          scope="row"
+                          className="px-5 py-3.5 font-medium text-navy-900"
+                        >
+                          {rate.service}
+                          {rate.detail && (
+                            <span className="block text-sm font-normal text-muted-foreground">
+                              {rate.detail}
+                            </span>
+                          )}
+                        </th>
+                        {rate.minimumPerHour === null ? (
+                          <td className="px-5 py-3.5 text-right">
+                            <Link
+                              href={requestProposalHref(location)}
+                              className="font-heading text-lg font-bold text-navy-900 underline decoration-gold-500 underline-offset-4 hover:text-gold-700"
+                            >
+                              Request a Custom Quote
+                            </Link>
+                          </td>
+                        ) : (
+                          <td className="px-5 py-3.5 text-right font-heading text-xl font-bold whitespace-nowrap text-gold-700">
+                            {formatRate(rate)}
+                          </td>
+                        )}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <p
+                role="note"
+                className="rounded-lg border-l-4 border-navy-700 bg-white px-4 py-3 text-sm font-medium text-navy-900"
+              >
+                {pricing.disclaimer}
+              </p>
+            </div>
+          </div>
+          {pricing.proposal && (
+            <div className="flex flex-col gap-4 rounded-2xl bg-white p-6 shadow-sm sm:p-8 lg:flex-row lg:items-center lg:justify-between lg:gap-10">
+              <div className="flex max-w-3xl flex-col gap-3">
+                <h3 className="text-2xl font-bold text-navy-900 uppercase">
+                  {pricing.proposal.title}
+                </h3>
+                {pricing.proposal.paragraphs.map((paragraph) => (
+                  <p
+                    key={paragraph}
+                    className="leading-relaxed text-muted-foreground"
+                  >
+                    {paragraph}
+                  </p>
+                ))}
+                <p className="font-semibold text-navy-900">
+                  {pricing.proposal.callPrompt}{" "}
+                  <PhoneLink location={location} />
+                  {office.email && (
+                    <>
+                      {" · "}
+                      <a
+                        href={`mailto:${office.email}`}
+                        className="underline decoration-gold-500 decoration-2 underline-offset-4 hover:text-gold-700"
+                      >
+                        {office.email}
+                      </a>
+                    </>
+                  )}
+                </p>
+              </div>
+              <Button
+                asChild
+                variant="accent"
+                size="xl"
+                className={`${wrappingButtonClassName} shrink-0 self-start lg:self-center`}
+              >
+                <Link href={requestProposalHref(location)}>
+                  {hero.primaryCallToAction}
+                  <ArrowRight aria-hidden="true" />
+                </Link>
+              </Button>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* 4. Services (white, so it alternates with Pricing above) */}
+      <section aria-labelledby="services-heading" className="section-spacing">
         <div className="page-container flex flex-col gap-10">
           <SectionHeading
             id="services-heading"
@@ -310,7 +460,7 @@ export default async function LocationPage({
             {services.sections.map((service) => (
               <article
                 key={service.title}
-                className="flex flex-col gap-4 rounded-xl bg-white p-6 shadow-sm sm:p-8"
+                className="flex flex-col gap-4 rounded-xl border border-border bg-paper p-6 sm:p-8"
               >
                 <h3 className="text-xl font-bold text-navy-900 uppercase sm:text-2xl">
                   {service.title}
@@ -350,7 +500,7 @@ export default async function LocationPage({
         </div>
       </section>
 
-      {/* 4. Training advantage (summary; details on /training-advantage) */}
+      {/* 5. Training advantage (summary; details on /training-advantage) */}
       <section
         aria-labelledby="training-heading"
         className="bg-navy-900 security-pattern py-14 text-white lg:py-20"
@@ -392,7 +542,7 @@ export default async function LocationPage({
         </div>
       </section>
 
-      {/* 5. Industries */}
+      {/* 6. Industries */}
       <section aria-labelledby="industries-heading" className="section-spacing">
         <div className="page-container flex flex-col gap-10">
           <SectionHeading
@@ -470,130 +620,6 @@ export default async function LocationPage({
           </div>
         </section>
       )}
-
-      {/* 6. Pricing: local rate table; the full breakdown is on /security-guard-pricing */}
-      <section
-        id="pricing"
-        aria-labelledby="pricing-heading"
-        className="scroll-mt-24 bg-paper section-spacing"
-      >
-        <div className="page-container flex flex-col gap-10">
-          <SectionHeading
-            id="pricing-heading"
-            eyebrow="Pricing"
-            title={pricing.title}
-          />
-          <div className="grid grid-cols-1 items-start gap-10 lg:grid-cols-2">
-            <div className="flex flex-col gap-5">
-              <h3 className="text-2xl font-bold text-navy-900 uppercase">
-                {pricing.ratesTitle}
-              </h3>
-              {pricing.summary.map((paragraph) => (
-                <p
-                  key={paragraph}
-                  className="text-lg leading-relaxed text-muted-foreground"
-                >
-                  {paragraph}
-                </p>
-              ))}
-              <Link
-                href={pricing.link.href}
-                className="inline-flex items-center gap-2 self-start rounded-lg border border-gold-500/50 bg-white px-4 py-3 font-semibold text-navy-900 shadow-sm transition-colors hover:border-gold-500 hover:text-gold-700"
-              >
-                <Receipt aria-hidden="true" className="size-5 text-gold-600" />
-                {pricing.link.label}
-                <ArrowRight aria-hidden="true" className="size-4" />
-              </Link>
-            </div>
-            <div className="flex flex-col gap-3">
-              <div className="overflow-hidden rounded-xl border border-border bg-white shadow-sm">
-                <table className="w-full text-left">
-                  <caption className="bg-navy-900 px-5 py-4 text-left font-heading text-base font-bold tracking-wide text-white">
-                    {pricing.ratesTableCaption}
-                  </caption>
-                  <thead>
-                    <tr className="border-b-2 border-gold-500 text-sm text-navy-900">
-                      <th scope="col" className="px-5 py-3 font-semibold">
-                        Security Service
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-5 py-3 text-right font-semibold"
-                      >
-                        Estimated Hourly Billing Rate
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border">
-                    {pricing.rates.map((rate) => (
-                      <tr key={rate.service}>
-                        <th
-                          scope="row"
-                          className="px-5 py-3.5 font-medium text-navy-900"
-                        >
-                          {rate.service}
-                        </th>
-                        <td className="px-5 py-3.5 text-right font-heading text-xl font-bold whitespace-nowrap text-gold-700">
-                          {formatRate(rate)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              <p
-                role="note"
-                className="rounded-lg border-l-4 border-navy-700 bg-white px-4 py-3 text-sm font-medium text-navy-900"
-              >
-                {pricing.disclaimer}
-              </p>
-            </div>
-          </div>
-          {pricing.proposal && (
-            <div className="flex flex-col gap-4 rounded-2xl bg-white p-6 shadow-sm sm:p-8 lg:flex-row lg:items-center lg:justify-between lg:gap-10">
-              <div className="flex max-w-3xl flex-col gap-3">
-                <h3 className="text-2xl font-bold text-navy-900 uppercase">
-                  {pricing.proposal.title}
-                </h3>
-                {pricing.proposal.paragraphs.map((paragraph) => (
-                  <p
-                    key={paragraph}
-                    className="leading-relaxed text-muted-foreground"
-                  >
-                    {paragraph}
-                  </p>
-                ))}
-                <p className="font-semibold text-navy-900">
-                  {pricing.proposal.callPrompt}{" "}
-                  <PhoneLink location={location} />
-                  {office.email && (
-                    <>
-                      {" · "}
-                      <a
-                        href={`mailto:${office.email}`}
-                        className="underline decoration-gold-500 decoration-2 underline-offset-4 hover:text-gold-700"
-                      >
-                        {office.email}
-                      </a>
-                    </>
-                  )}
-                </p>
-              </div>
-              <Button
-                asChild
-                variant="accent"
-                size="xl"
-                className={`${wrappingButtonClassName} shrink-0 self-start lg:self-center`}
-              >
-                <Link href={requestProposalHref(location)}>
-                  {hero.primaryCallToAction}
-                  <ArrowRight aria-hidden="true" />
-                </Link>
-              </Button>
-            </div>
-          )}
-        </div>
-      </section>
 
       {/* 7. Government */}
       <section

@@ -4,6 +4,7 @@ import {
 } from "@/config/company-details";
 import {
   allCities,
+  allCounties,
   describePriceRange,
   faqAnswerAsText,
   type Location,
@@ -155,6 +156,7 @@ export function buildLocationBusinessData(location: Location) {
   const pageUrl = canonicalUrl(`/locations/${location.slug}`);
   const { office } = location;
   const priceRange = describePriceRange(location.pricing.rates);
+  const texas = { "@type": "State", name: companyDetails.location.region };
   const identity = location.isHeadquarters
     ? {
         "@id": organizationId,
@@ -196,14 +198,19 @@ export function buildLocationBusinessData(location: Location) {
         }
       : {}),
     ...(priceRange ? { priceRange } : {}),
-    areaServed: allCities(location).map((city) => ({
-      "@type": "City",
-      name: city,
-      containedInPlace: {
-        "@type": "State",
-        name: companyDetails.location.region,
-      },
-    })),
+    areaServed: [
+      ...allCities(location).map((city) => ({
+        "@type": "City" as const,
+        name: city,
+        containedInPlace: texas,
+      })),
+      // "Austin County", not "Austin", so it can't be mistaken for the city.
+      ...allCounties(location).map((county) => ({
+        "@type": "AdministrativeArea" as const,
+        name: `${county} County`,
+        containedInPlace: texas,
+      })),
+    ],
   };
 }
 

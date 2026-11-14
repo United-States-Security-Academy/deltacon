@@ -481,6 +481,10 @@
   .marquee-pause-button {
     display: none;
   }
+  /* The location "places we serve" ticker only repeats the list below it. */
+  .places-ticker {
+    display: none;
+  }
 }
 
 /* Self-assessment: each new question slides in; results bars grow in. */

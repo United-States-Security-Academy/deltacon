@@ -6,6 +6,7 @@ import firewatchImage from "@/assets/services/fire-watch.jpg";
 import mobilePatrolImage from "@/assets/services/mobile-patrol.jpg";
 import { companyDetails } from "@/config/company-details";
 import { governmentContactEmail } from "@/config/government-contracting";
+import { previousLocationSlugs } from "@/config/location-links";
 
 /*
  * Location pages (/locations/<slug>). All page content lives here, so a new
@@ -74,6 +75,8 @@ export type LocationIndustrySection = {
 
 export type LocationRate = {
   service: string;
+  /** Small second line under the service, e.g. who the service is for. */
+  detail?: string;
   /** Whole dollars per hour; both null means "Custom Quote". */
   minimumPerHour: number | null;
   maximumPerHour: number | null;
@@ -89,7 +92,7 @@ export type LocationFaq = {
 
 export type Location = {
   slug: string;
-  /** e.g. "Dallas–Fort Worth": used in breadcrumbs, links and cards. */
+  /** e.g. "Dallas–Fort Worth Metro": used in the menu, breadcrumbs, links and cards. */
   name: string;
   /**
    * The company headquarters. Its structured data describes the company
@@ -112,6 +115,11 @@ export type Location = {
     introduction: string;
     primaryCallToAction: string;
     secondaryCallToAction: string;
+    /**
+     * Every county and city the location serves, shown as an expandable
+     * "places we serve" panel in the hero. County names without "County".
+     */
+    placesServed?: { counties: string[]; citiesAndTowns: string[] };
   };
   partner: {
     title: string;
@@ -223,15 +231,26 @@ export function describePriceRange(rates: LocationRate[]): string | null {
   return `$${Math.min(...minimums)}–$${Math.max(...maximums)} per hour`;
 }
 
+/** "Fire Watch Security Officer, $30–$40; and Off-Duty Law Enforcement, $85–$125". */
+function listRatesInWords(rates: LocationRate[]): string {
+  const parts = rates
+    .filter((rate) => rate.minimumPerHour !== null)
+    .map((rate) => `${rate.service}, ${formatRate(rate)}`);
+  return parts.length > 1
+    ? `${parts.slice(0, -1).join("; ")}; and ${parts.at(-1)}`
+    : (parts[0] ?? "");
+}
+
+/** Lowest to highest rate in words, e.g. "$28 to $45". */
+function rangeInWords(rates: LocationRate[]): string {
+  const range = describePriceRange(rates) ?? "";
+  return range.replace(" per hour", "").replace("–", " to ");
+}
+
 /** The rates as one sentence, so a pricing FAQ always matches the table. */
 function describeRatesInWords(rates: LocationRate[]): string {
-  const quoted = rates.filter((rate) => rate.minimumPerHour !== null);
   const customQuote = rates.filter((rate) => rate.minimumPerHour === null);
-  const parts = quoted.map((rate) => `${rate.service}, ${formatRate(rate)}`);
-  const list =
-    parts.length > 1
-      ? `${parts.slice(0, -1).join("; ")}; and ${parts.at(-1)}`
-      : (parts[0] ?? "");
+  const list = listRatesInWords(rates);
   const customSentence = customQuote.length
     ? ` ${customQuote.map((rate) => rate.service).join(" and ")} are quoted individually.`
     : "";
@@ -251,8 +270,19 @@ export function faqAnswerAsText(faq: LocationFaq): string {
 }
 
 /** Every city on the page, across all groups. */
+/** Every city the location serves: the coverage-area groups, then any others from the hero list. */
 export function allCities(location: Location): string[] {
-  return location.areas.cityGroups.flatMap((group) => group.cities);
+  return [
+    ...new Set([
+      ...location.areas.cityGroups.flatMap((group) => group.cities),
+      ...(location.hero.placesServed?.citiesAndTowns ?? []),
+    ]),
+  ];
+}
+
+/** Counties the location serves, e.g. "Fort Bend" (without "County"). */
+export function allCounties(location: Location): string[] {
+  return location.hero.placesServed?.counties ?? [];
 }
 
 const pricingGuideLink: LocationLink = {
@@ -265,7 +295,8 @@ const trainingAdvantageLink: LocationLink = {
   href: "/training-advantage",
 };
 
-// Both markets currently publish the same estimated ranges.
+// Both markets currently publish the same estimated ranges (client rate
+// sheet "Estimated Security Service Billing Rates", 2026-11-14).
 const unarmedLevelTwo: LocationRate = {
   service: "Unarmed Security Officer – Level II",
   minimumPerHour: 28,
@@ -276,15 +307,31 @@ const armedLevelThree: LocationRate = {
   minimumPerHour: 35,
   maximumPerHour: 45,
 };
+const personalProtectionLevelFour: LocationRate = {
+  service: "Personal Protection Officer – Level IV",
+  minimumPerHour: 69,
+  maximumPerHour: 89,
+};
 const fireWatchOfficer: LocationRate = {
   service: "Fire Watch Security Officer",
   minimumPerHour: 30,
   maximumPerHour: 40,
 };
-const mobileSecurityPatrol: LocationRate = {
-  service: "Mobile Security Patrol",
-  minimumPerHour: 30,
+const vehicleSecurityPatrol: LocationRate = {
+  service: "Vehicle Security Patrol",
+  minimumPerHour: 33,
   maximumPerHour: 45,
+};
+const emergencyResponse: LocationRate = {
+  service: "Emergency Response",
+  detail: "Commercial, City, County, Statewide or FEMA",
+  minimumPerHour: 55,
+  maximumPerHour: 125,
+};
+const offDutyLawEnforcement: LocationRate = {
+  service: "Off-Duty Law Enforcement",
+  minimumPerHour: 85,
+  maximumPerHour: 125,
 };
 const specializedAssignments: LocationRate = {
   service: "Specialized Security Assignments",
@@ -292,19 +339,37 @@ const specializedAssignments: LocationRate = {
   maximumPerHour: null,
 };
 
-// --- Houston & Sugar Land (headquarters) ------------------------------------
-
-const houstonSugarLandRates: LocationRate[] = [
+const estimatedBillingRates: LocationRate[] = [
   unarmedLevelTwo,
   armedLevelThree,
+  personalProtectionLevelFour,
   fireWatchOfficer,
-  mobileSecurityPatrol,
+  vehicleSecurityPatrol,
+  emergencyResponse,
+  offDutyLawEnforcement,
   specializedAssignments,
 ];
 
+/** Everyday guard and patrol work, quoted together in the Houston pricing FAQ. */
+const commonAssignmentRates = [
+  unarmedLevelTwo,
+  armedLevelThree,
+  fireWatchOfficer,
+  vehicleSecurityPatrol,
+];
+const advancedServiceRates = [
+  personalProtectionLevelFour,
+  emergencyResponse,
+  offDutyLawEnforcement,
+];
+
+// --- Houston & Sugar Land (headquarters) ------------------------------------
+
+const houstonSugarLandRates = estimatedBillingRates;
+
 const houstonSugarLand: Location = {
-  slug: "houston-sugar-land",
-  name: "Houston & Sugar Land",
+  slug: "houston-metro-area",
+  name: "Houston Metro Area",
   isHeadquarters: true,
   businessName: companyDetails.name,
   requestFormSiteLocation: "Houston & Sugar Land, TX",
@@ -332,13 +397,77 @@ const houstonSugarLand: Location = {
   },
   showClientNames: false,
   hero: {
-    heading: "Security Guard Services in Houston & Sugar Land, TX",
+    heading: "Security Guard Services in Houston Metro Area, TX",
     tagline:
       "Headquartered in Sugar Land | Veteran-Owned | Texas DPS Licensed | 24/7 Operations Support",
     introduction:
       "Deltacon Security Group provides professional armed and unarmed security guard services throughout Houston, Sugar Land, Fort Bend County, and the Greater Houston metropolitan area.",
     primaryCallToAction: "Request a Security Proposal",
     secondaryCallToAction: `Call ${companyDetails.phoneDisplay}`,
+    placesServed: {
+      counties: [
+        "Austin",
+        "Brazoria",
+        "Chambers",
+        "Fort Bend",
+        "Galveston",
+        "Harris",
+        "Jefferson",
+        "Liberty",
+        "Montgomery",
+        "San Jacinto",
+        "Waller",
+        "Walker",
+        "Matagorda",
+        "Colorado",
+        "Wharton",
+      ],
+      citiesAndTowns: [
+        "Alvin",
+        "Angleton",
+        "Atascocita",
+        "Baytown",
+        "Beaumont",
+        "Bellaire",
+        "Channelview",
+        "Clute",
+        "Conroe",
+        "Cypress",
+        "Deer Park",
+        "Dickinson",
+        "Freeport",
+        "Friendswood",
+        "Fulshear",
+        "Galena Park",
+        "Galveston",
+        "Greater Katy",
+        "Humble",
+        "Jacinto City",
+        "Katy",
+        "La Marque",
+        "La Porte",
+        "Lake Jackson",
+        "League City",
+        "Mission Bend",
+        "Missouri City",
+        "Pasadena",
+        "Pearland",
+        "Porter",
+        "Richmond",
+        "Rosenberg",
+        "Santa Fe",
+        "Seabrook",
+        "South Houston",
+        "Spring",
+        "Stafford",
+        "Sugar Land",
+        "Texas City",
+        "The Woodlands",
+        "Tomball",
+        "Webster",
+        "West University Place",
+      ],
+    },
   },
   partner: {
     title: "Your Local Security Company, Headquartered in Sugar Land",
@@ -917,7 +1046,7 @@ const houstonSugarLand: Location = {
       {
         question: "How much do security guards cost in Houston?",
         paragraphs: [
-          "Our preliminary hourly budgeting estimates range from $28 to $45 for common unarmed, armed, fire watch, and mobile patrol assignments. Actual pricing depends on the scope and requirements of each contract. Specialized services require customized quotations.",
+          `Our preliminary hourly budgeting estimates range from ${rangeInWords(commonAssignmentRates)} for common unarmed, armed, fire watch, and mobile patrol assignments. Estimates for higher-level services are ${listRatesInWords(advancedServiceRates)}. Actual pricing depends on the scope and requirements of each contract. Specialized services require customized quotations.`,
         ],
       },
       {
@@ -963,17 +1092,11 @@ const houstonSugarLand: Location = {
 
 // --- Dallas–Fort Worth ------------------------------------------------------
 
-const dallasFortWorthRates: LocationRate[] = [
-  unarmedLevelTwo,
-  armedLevelThree,
-  fireWatchOfficer,
-  mobileSecurityPatrol,
-  specializedAssignments,
-];
+const dallasFortWorthRates = estimatedBillingRates;
 
 const dallasFortWorth: Location = {
-  slug: "dallas-fort-worth",
-  name: "Dallas–Fort Worth",
+  slug: "dallas-fort-worth-metro",
+  name: "Dallas–Fort Worth Metro",
   isHeadquarters: false,
   businessName: "Deltacon Security Group – Dallas",
   requestFormSiteLocation: "Dallas–Fort Worth, TX",
@@ -1000,12 +1123,71 @@ const dallasFortWorth: Location = {
   },
   showClientNames: false,
   hero: {
-    heading: "Security Guard Services in Dallas–Fort Worth, TX",
+    heading: "Security Guard Services in Dallas–Fort Worth Metro, TX",
     tagline: "Professional. Prepared. Accountable. Protecting North Texas.",
     introduction:
       "Deltacon Security Group provides professional security guard services throughout Dallas, Fort Worth, and the greater Dallas–Fort Worth Metroplex. We deliver customized armed and unarmed security solutions, mobile patrol, fire watch, personal protection, and specialized security staffing for commercial properties, industrial facilities, government agencies, healthcare organizations, educational institutions, construction projects, and residential communities.",
     primaryCallToAction: "Request a Security Proposal",
     secondaryCallToAction: "Call Our Dallas Office",
+    placesServed: {
+      counties: [
+        "Collin",
+        "Dallas",
+        "Denton",
+        "Ellis",
+        "Hood",
+        "Hunt",
+        "Johnson",
+        "Kaufman",
+        "Parker",
+        "Rockwall",
+        "Somervell",
+        "Tarrant",
+        "Wise",
+      ],
+      citiesAndTowns: [
+        "Dallas",
+        "Fort Worth",
+        "Arlington",
+        "Plano",
+        "Irving",
+        "McKinney",
+        "Frisco",
+        "Denton",
+        "Richardson",
+        "Allen",
+        "Carrollton",
+        "Lewisville",
+        "Flower Mound",
+        "Little Elm",
+        "Prosper",
+        "Celina",
+        "The Colony",
+        "Argyle",
+        "DeSoto",
+        "Duncanville",
+        "Cedar Hill",
+        "Lancaster",
+        "Waxahachie",
+        "Ennis",
+        "Hutchins",
+        "Grand Prairie",
+        "Grapevine",
+        "Euless",
+        "Bedford",
+        "Hurst",
+        "Colleyville",
+        "Southlake",
+        "Keller",
+        "North Richland Hills",
+        "Haltom City",
+        "Mansfield",
+        "Burleson",
+        "Weatherford",
+        "Azle",
+        "Decatur",
+      ],
+    },
   },
   partner: {
     title: "Your Dallas–Fort Worth Security Partner",
@@ -1529,8 +1711,12 @@ const dallasFortWorth: Location = {
 /** Every location page, headquarters first (the order the hub lists them). */
 export const locations: Location[] = [houstonSugarLand, dallasFortWorth];
 
+/** Finds a location by its slug, or by a slug it had before (see previousLocationSlugs). */
 export function findLocationBySlug(slug: string): Location | undefined {
-  return locations.find((location) => location.slug === slug);
+  const currentSlug = Object.hasOwn(previousLocationSlugs, slug)
+    ? previousLocationSlugs[slug]
+    : slug;
+  return locations.find((location) => location.slug === currentSlug);
 }
 
 /** One-line office address, e.g. for map searches. */

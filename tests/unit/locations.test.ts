@@ -1,13 +1,17 @@
 import { describe, expect, it } from "vitest";
 
 import { industries } from "@/config/industries";
-import { locationNavigationLinks } from "@/config/location-links";
+import {
+  locationNavigationLinks,
+  previousLocationSlugs,
+} from "@/config/location-links";
 import {
   isNavigationItemActive,
   mainNavigationLinks,
 } from "@/config/navigation";
 import {
   allCities,
+  allCounties,
   describePriceRange,
   findLocationBySlug,
   formatRate,
@@ -21,8 +25,8 @@ import {
   buildLocationBusinessData,
 } from "@/lib/seo/structured-data";
 
-const dallasFortWorth = findLocationBySlug("dallas-fort-worth")!;
-const houstonSugarLand = findLocationBySlug("houston-sugar-land")!;
+const dallasFortWorth = findLocationBySlug("dallas-fort-worth-metro")!;
+const houstonSugarLand = findLocationBySlug("houston-metro-area")!;
 
 const existingPaths = new Set([
   ...services.map((service) => `/services/${service.slug}`),
@@ -35,8 +39,8 @@ const existingPaths = new Set([
 describe("location pages", () => {
   it("has both locations, headquarters first", () => {
     expect(locations.map((location) => location.slug)).toEqual([
-      "houston-sugar-land",
-      "dallas-fort-worth",
+      "houston-metro-area",
+      "dallas-fort-worth-metro",
     ]);
     expect(houstonSugarLand.isHeadquarters).toBe(true);
     expect(dallasFortWorth.isHeadquarters).toBe(false);
@@ -61,15 +65,20 @@ describe("location pages", () => {
 
   it("shows the published rate ranges", () => {
     for (const location of locations) {
-      expect(location.pricing.rates.map(formatRate)).toEqual([
-        "$28–$35",
-        "$35–$45",
-        "$30–$40",
-        "$30–$45",
-        "Custom Quote",
+      expect(
+        location.pricing.rates.map((rate) => [rate.service, formatRate(rate)]),
+      ).toEqual([
+        ["Unarmed Security Officer – Level II", "$28–$35"],
+        ["Armed Security Officer – Level III", "$35–$45"],
+        ["Personal Protection Officer – Level IV", "$69–$89"],
+        ["Fire Watch Security Officer", "$30–$40"],
+        ["Vehicle Security Patrol", "$33–$45"],
+        ["Emergency Response", "$55–$125"],
+        ["Off-Duty Law Enforcement", "$85–$125"],
+        ["Specialized Security Assignments", "Custom Quote"],
       ]);
       expect(describePriceRange(location.pricing.rates)).toBe(
-        "$28–$45 per hour",
+        "$28–$125 per hour",
       );
     }
   });
@@ -90,6 +99,13 @@ describe("location pages", () => {
       .find((item) => item.question.startsWith("How much do security guards"))!
       .paragraphs.join(" ");
     expect(houstonAnswer).toContain("$28 to $45");
+    for (const text of [
+      "Personal Protection Officer – Level IV, $69–$89",
+      "Emergency Response, $55–$125",
+      "Off-Duty Law Enforcement, $85–$125",
+    ]) {
+      expect(houstonAnswer).toContain(text);
+    }
   });
 
   it("keeps public-sector client names hidden", () => {
@@ -151,6 +167,24 @@ describe("location pages", () => {
   });
 });
 
+describe("renamed location slugs", () => {
+  it("still finds each location by its old slug, for old ?location= links", () => {
+    expect(findLocationBySlug("houston-sugar-land")).toBe(houstonSugarLand);
+    expect(findLocationBySlug("dallas-fort-worth")).toBe(dallasFortWorth);
+    expect(findLocationBySlug("toString")).toBeUndefined();
+  });
+
+  it("only redirects old slugs to pages that exist, never to themselves", () => {
+    const currentSlugs = locations.map((location) => location.slug);
+    for (const [previousSlug, currentSlug] of Object.entries(
+      previousLocationSlugs,
+    )) {
+      expect(currentSlugs).toContain(currentSlug);
+      expect(currentSlugs).not.toContain(previousSlug);
+    }
+  });
+});
+
 describe("Locations menu", () => {
   it("lists the same location pages as the location data, in order", () => {
     expect(locationNavigationLinks).toEqual(
@@ -167,8 +201,8 @@ describe("Locations menu", () => {
     )!;
     for (const path of [
       "/locations",
-      "/locations/houston-sugar-land",
-      "/locations/dallas-fort-worth",
+      "/locations/houston-metro-area",
+      "/locations/dallas-fort-worth-metro",
     ]) {
       expect(isNavigationItemActive(path, locationsItem)).toBe(true);
     }
@@ -180,13 +214,17 @@ describe("location structured data", () => {
   it("describes the Dallas office as a branch of the company", () => {
     const business = buildLocationBusinessData(dallasFortWorth);
     expect(business["@type"]).toBe("LocalBusiness");
-    expect(business["@id"]).toMatch(/\/locations\/dallas-fort-worth#business$/);
+    expect(business["@id"]).toMatch(
+      /\/locations\/dallas-fort-worth-metro#business$/,
+    );
     expect(business.name).toBe("Deltacon Security Group – Dallas");
     expect(
       "parentOrganization" in business && business.parentOrganization,
     ).toMatchObject({ "@id": expect.stringMatching(/\/#organization$/) });
     expect(business.address.postalCode).toBe("75247");
-    expect(business.areaServed).toHaveLength(allCities(dallasFortWorth).length);
+    expect(business.areaServed).toHaveLength(
+      allCities(dallasFortWorth).length + allCounties(dallasFortWorth).length,
+    );
     expect(business.areaServed[0]).toMatchObject({
       "@type": "City",
       name: "Dallas",
@@ -201,10 +239,36 @@ describe("location structured data", () => {
     expect("parentOrganization" in business).toBe(false);
     expect(business.address.addressLocality).toBe("Sugar Land");
     expect(business.areaServed).toHaveLength(
-      allCities(houstonSugarLand).length,
+      allCities(houstonSugarLand).length + allCounties(houstonSugarLand).length,
+    );
+    // Counties are named in full so "Austin" can't be read as the city.
+    expect(business.areaServed).toContainEqual(
+      expect.objectContaining({
+        "@type": "AdministrativeArea",
+        name: "Austin County",
+      }),
     );
     expect("geo" in business).toBe(false);
   });
+
+  it.each([
+    ["Houston", houstonSugarLand, 15, 43],
+    ["Dallas–Fort Worth", dallasFortWorth, 13, 40],
+  ])(
+    "lists the %s places served once each, with no county suffixes",
+    (_name, location, countyCount, cityCount) => {
+      const places = location.hero.placesServed!;
+      expect(places.counties).toHaveLength(countyCount);
+      expect(places.citiesAndTowns).toHaveLength(cityCount);
+      expect(new Set(places.counties).size).toBe(countyCount);
+      expect(new Set(places.citiesAndTowns).size).toBe(cityCount);
+      expect(places.counties.some((name) => /county/i.test(name))).toBe(false);
+      // Every hero city is also in the structured data, without repeats.
+      const cities = allCities(location);
+      expect(new Set(cities).size).toBe(cities.length);
+      for (const city of places.citiesAndTowns) expect(cities).toContain(city);
+    },
+  );
 
   it("builds each FAQPage from the questions the page shows", () => {
     for (const location of locations) {

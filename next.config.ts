@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 
+import { previousLocationSlugs } from "./src/config/location-links";
 import { buildSecurityHeaders } from "./src/lib/security/security-headers";
 
 // Images uploaded to the public "site-media" Supabase bucket are optimised by
@@ -14,6 +15,17 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: publicMediaPattern,
     formats: ["image/avif", "image/webp"],
+  },
+  async redirects() {
+    // Renamed location pages: permanent, so search engines move the old
+    // page's ranking to the new address.
+    return Object.entries(previousLocationSlugs).map(
+      ([previousSlug, currentSlug]) => ({
+        source: `/locations/${previousSlug}`,
+        destination: `/locations/${currentSlug}`,
+        permanent: true,
+      }),
+    );
   },
   async headers() {
     return [

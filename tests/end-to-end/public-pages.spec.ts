@@ -57,10 +57,10 @@ test("every page in the sitemap loads cleanly and meets WCAG 2.1 AA", async ({
 test("the Dallas–Fort Worth page is complete and well structured", async ({
   page,
 }) => {
-  await page.goto("/locations/dallas-fort-worth");
+  await page.goto("/locations/dallas-fort-worth-metro");
   await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(
-    "Security Guard Services in Dallas–Fort Worth, TX",
+    "Security Guard Services in Dallas–Fort Worth Metro, TX",
   );
   await expect(page).toHaveTitle(
     "Security Guard Services Dallas–Fort Worth | Deltacon",
@@ -69,7 +69,16 @@ test("the Dallas–Fort Worth page is complete and well structured", async ({
   // Pricing: a real table with a caption and the disclaimer right after it.
   const table = page.getByRole("table");
   await expect(table.locator("caption")).toBeVisible();
-  await expect(table.getByRole("row")).toHaveCount(6);
+  await expect(table.getByRole("row")).toHaveCount(9);
+  await expect(table).toContainText(
+    "Commercial, City, County, Statewide or FEMA",
+  );
+  await expect(
+    table.getByRole("link", { name: "Request a Custom Quote" }),
+  ).toHaveAttribute(
+    "href",
+    "/request-service?location=dallas-fort-worth-metro",
+  );
   await expect(
     page.getByText(/not guaranteed contract rates/).first(),
   ).toBeVisible();
@@ -110,7 +119,7 @@ test("the Dallas–Fort Worth page is complete and well structured", async ({
     .first()
     .click();
   await expect(page).toHaveURL(
-    /\/request-service\?location=dallas-fort-worth$/,
+    /\/request-service\?location=dallas-fort-worth-metro$/,
   );
   await expect(page.getByLabel("Security Service Location")).toHaveValue(
     "Dallas–Fort Worth, TX",
@@ -120,16 +129,43 @@ test("the Dallas–Fort Worth page is complete and well structured", async ({
 test("the Houston & Sugar Land headquarters page is complete", async ({
   page,
 }) => {
-  await page.goto("/locations/houston-sugar-land");
+  await page.goto("/locations/houston-metro-area");
   await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(
-    "Security Guard Services in Houston & Sugar Land, TX",
+    "Security Guard Services in Houston Metro Area, TX",
   );
   await expect(page).toHaveTitle(
     "Security Guard Services Houston & Sugar Land | Deltacon",
   );
-  await expect(page.getByRole("table").getByRole("row")).toHaveCount(6);
+  await expect(page.getByRole("table").getByRole("row")).toHaveCount(9);
   await expect(page.locator("details")).toHaveCount(10);
+
+  // Places served: the folded list opens, and its search narrows it down.
+  const placesButton = page.getByRole("button", {
+    name: "See all places we serve",
+  });
+  const searchBox = page.getByRole("searchbox", {
+    name: "Find your city or county",
+  });
+  // While folded, the list is in the HTML (for search engines) but inert,
+  // so keyboards and screen readers skip it.
+  const placesPanel = page.locator(
+    `[id="${await placesButton.getAttribute("aria-controls")}"]`,
+  );
+  await expect(placesPanel).toHaveAttribute("inert");
+  await expect(placesPanel).toContainText("Montgomery County");
+  await placesButton.click();
+  await expect(placesPanel).not.toHaveAttribute("inert");
+  await expect(
+    page.getByRole("button", { name: "Hide places we serve" }),
+  ).toHaveAttribute("aria-expanded", "true");
+  await expect(page.getByText("Montgomery County")).toBeVisible();
+  await searchBox.fill("katy");
+  await expect(
+    page.getByRole("heading", { name: /Cities & towns/ }),
+  ).toHaveText(/2 of 43/);
+  await searchBox.fill("Nowhere Town");
+  await expect(page.getByRole("status")).toContainText("No match");
 
   // Links to the specialist service and industry pages.
   for (const href of [
@@ -170,12 +206,25 @@ test("the shared pricing and training pages work", async ({ page }) => {
   await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
   await expect(page.locator("details")).toHaveCount(8);
   await expect(
-    page.locator('main a[href="/locations/dallas-fort-worth#pricing"]'),
+    page.locator('main a[href="/locations/dallas-fort-worth-metro#pricing"]'),
   ).toBeVisible();
   await page.goto("/training-advantage");
   await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
   await expect(page.getByText("F28377901")).toBeVisible();
   await expect(page.getByText("Y07327301")).toBeVisible();
+});
+
+test("the old location page addresses redirect permanently to the new ones", async ({
+  request,
+}) => {
+  for (const [previousPath, currentPath] of [
+    ["/locations/houston-sugar-land", "/locations/houston-metro-area"],
+    ["/locations/dallas-fort-worth", "/locations/dallas-fort-worth-metro"],
+  ]) {
+    const response = await request.get(previousPath, { maxRedirects: 0 });
+    expect(response.status()).toBe(308);
+    expect(response.headers().location).toBe(currentPath);
+  }
 });
 
 test("an unknown ?location= leaves the site location empty", async ({
@@ -243,15 +292,15 @@ test("Training, Locations and Blog & Media open their own menus", async ({
     ["Blog & Media", "Blog", "/blog", "News & insights"],
     [
       "Locations",
-      "Houston & Sugar Land",
-      "/locations/houston-sugar-land",
-      "Security Guard Services in Houston & Sugar Land, TX",
+      "Houston Metro Area",
+      "/locations/houston-metro-area",
+      "Security Guard Services in Houston Metro Area, TX",
     ],
     [
       "Locations",
-      "Dallas–Fort Worth",
-      "/locations/dallas-fort-worth",
-      "Security Guard Services in Dallas–Fort Worth, TX",
+      "Dallas–Fort Worth Metro",
+      "/locations/dallas-fort-worth-metro",
+      "Security Guard Services in Dallas–Fort Worth Metro, TX",
     ],
   ] as const) {
     const menuButton = mainNavigation.getByRole("button", {
@@ -383,8 +432,8 @@ test.describe("on a phone", () => {
       "/government-contracting",
       "/about",
       "/locations",
-      "/locations/dallas-fort-worth",
-      "/locations/houston-sugar-land",
+      "/locations/dallas-fort-worth-metro",
+      "/locations/houston-metro-area",
       "/security-guard-pricing",
       "/training-advantage",
     ]) {

@@ -9,6 +9,20 @@ import type { NavigationLink } from "@/config/navigation";
  * add new locations to both.
  */
 export const locationNavigationLinks: NavigationLink[] = [
-  { label: "Houston & Sugar Land", href: "/locations/houston-sugar-land" },
-  { label: "Dallas–Fort Worth", href: "/locations/dallas-fort-worth" },
+  { label: "Houston Metro Area", href: "/locations/houston-metro-area" },
+  {
+    label: "Dallas–Fort Worth Metro",
+    href: "/locations/dallas-fort-worth-metro",
+  },
 ];
+
+/**
+ * Slugs the location pages had before they were renamed (2026-11-14), mapped
+ * to the current slug. next.config.ts permanently redirects the old addresses,
+ * so search results and shared links keep working, and the Request Service
+ * form still accepts an old ?location= value. Never remove an entry.
+ */
+export const previousLocationSlugs: Record<string, string> = {
+  "houston-sugar-land": "houston-metro-area",
+  "dallas-fort-worth": "dallas-fort-worth-metro",
+};
